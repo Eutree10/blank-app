@@ -1,0 +1,151 @@
+SKU,Product_Name,Brand,Country,Channel,Business_Segment,Category,Subcategory,Collection,Units_Sold,Revenue,SellThrough,Rotation,Margin,Current_Store_Presence
+SKU-0001,Stella Scarves Silk 1,Elegance,UK,Travel Retail,Fashion Accessories,Scarves,Silk,FW25,76,1836.79,0.629,1.86,15.76,1
+SKU-0002,Stella Necklaces Chokers 2,Vogue,Germany,Retail,Fashion Accessories,Necklaces,Chokers,Core,27,754.09,0.959,0.66,636.03,0
+SKU-0003,Vogue Rings Stackable 3,Elegance,Spain,Outlet,Fashion Accessories,Rings,Stackable,SS26,146,64.63,0.938,8.73,197.2,1
+SKU-0004,Vogue Belts Fabric 4,Lumina,UK,Retail,Fashion Accessories,Belts,Fabric,FW25,157,13509.11,0.927,0.45,379.16,0
+SKU-0005,Vogue Earrings Studs 5,Stella,Spain,Retail,Fashion Accessories,Earrings,Studs,Core,96,2851.19,0.542,1.49,107.83,1
+SKU-0006,Vogue Bags Crossbody 6,Stella,Spain,Retail,Fashion Accessories,Bags,Crossbody,Core,21,693.99,0.282,1.85,230.36,1
+SKU-0007,Stella Necklaces Chains 7,Lumina,Germany,Retail,Fashion Accessories,Necklaces,Chains,Limited Edition,41,689.29,0.844,0.86,284.83,1
+SKU-0008,Stella Rings Statement 8,Aurelia,Germany,Retail,Fashion Accessories,Rings,Statement,SS26,219,1443.58,0.694,1.91,39.46,1
+SKU-0009,Aurelia Earrings Drop 9,Vogue,Spain,Outlet,Fashion Accessories,Earrings,Drop,SS26,24,323.85,0.65,0.4,136.5,0
+SKU-0010,Lumina Belts Leather 10,Stella,Italy,Retail,Fashion Accessories,Belts,Leather,Limited Edition,82,7689.05,0.295,4.06,60.59,1
+SKU-0011,Stella Necklaces Pendants 11,Lumina,France,Travel Retail,Fashion Accessories,Necklaces,Pendants,Resort26,33,1460.09,0.849,0.25,123.16,1
+SKU-0012,Stella Belts Leather 12,Vogue,France,Retail,Fashion Accessories,Belts,Leather,FW25,114,1366.87,0.214,0.24,4027.54,1
+SKU-0013,Lumina Bags Crossbody 13,Lumina,Spain,Travel Retail,Fashion Accessories,Bags,Crossbody,Core,38,1994.08,0.453,9.09,41.22,1
+SKU-0014,Lumina Bracelets Bangles 14,Vogue,France,Retail,Fashion Accessories,Bracelets,Bangles,Resort26,14,201.58,0.635,1.78,624.16,1
+SKU-0015,Elegance Hair Accessories Headbands 15,Stella,Spain,Travel Retail,Fashion Accessories,Hair Accessories,Headbands,FW25,259,53.77,0.659,2.12,146.2,0
+SKU-0016,Vogue Hair Accessories Scrunchies 16,Lumina,UK,Retail,Fashion Accessories,Hair Accessories,Scrunchies,SS26,68,9684.96,0.813,0.78,80.01,1
+SKU-0017,Aurelia Necklaces Chains 17,Aurelia,Spain,Outlet,Fashion Accessories,Necklaces,Chains,FW25,58,72.64,0.569,1.11,481.38,1
+SKU-0018,Vogue Earrings Studs 18,Aurelia,France,Retail,Fashion Accessories,Earrings,Studs,Limited Edition,26,2970.01,0.782,0.25,398.08,1
+SKU-0019,Lumina Hair Accessories Scrunchies 19,Aurelia,UK,Outlet,Fashion Accessories,Hair Accessories,Scrunchies,FW25,33,985.81,0.196,8.4,715.88,0
+SKU-0020,Stella Hair Accessories Scrunchies 20,Vogue,UK,Outlet,Fashion Accessories,Hair Accessories,Scrunchies,Limited Edition,45,56.72,0.386,1.4,69.98,1
+SKU-0021,Aurelia Earrings Hoops 21,Lumina,Italy,Outlet,Fashion Accessories,Earrings,Hoops,SS26,12,1598.46,0.699,1.1,109.0,0
+SKU-0022,Vogue Belts Leather 22,Lumina,UK,Travel Retail,Fashion Accessories,Belts,Leather,FW25,516,4083.06,0.559,4.85,22.95,1
+SKU-0023,Aurelia Rings Stackable 23,Lumina,Germany,Travel Retail,Fashion Accessories,Rings,Stackable,Limited Edition,5,2754.0,0.437,0.54,128.89,0
+SKU-0024,Aurelia Scarves Wool 24,Elegance,Spain,Outlet,Fashion Accessories,Scarves,Wool,Core,238,58.16,0.898,1.71,38.25,1
+SKU-0025,Elegance Belts Leather 25,Elegance,France,Outlet,Fashion Accessories,Belts,Leather,Resort26,268,1237.61,0.936,1.04,30.36,1
+SKU-0026,Elegance Bags Clutch 26,Lumina,Spain,Retail,Fashion Accessories,Bags,Clutch,SS26,36,53155.54,0.517,7.96,86.95,1
+SKU-0027,Aurelia Scarves Cotton 27,Elegance,UK,Travel Retail,Fashion Accessories,Scarves,Cotton,Limited Edition,177,2458.69,0.306,1.71,335.91,0
+SKU-0028,Elegance Scarves Wool 28,Stella,UK,Travel Retail,Fashion Accessories,Scarves,Wool,Core,114,3092.77,0.51,0.21,22.59,1
+SKU-0029,Lumina Scarves Cotton 29,Elegance,Germany,Outlet,Fashion Accessories,Scarves,Cotton,Limited Edition,10,19.0,0.789,1.58,40.31,0
+SKU-0030,Lumina Rings Bands 30,Lumina,Spain,Retail,Fashion Accessories,Rings,Bands,Limited Edition,47,736.99,0.767,0.03,162.48,1
+SKU-0031,Stella Bags Crossbody 31,Vogue,France,Outlet,Fashion Accessories,Bags,Crossbody,SS26,177,140.79,0.646,6.17,1078.77,1
+SKU-0032,Vogue Belts Fabric 32,Vogue,UK,Outlet,Fashion Accessories,Belts,Fabric,Limited Edition,12,4375.24,0.676,1.51,1402.58,0
+SKU-0033,Stella Bags Tote 33,Elegance,Italy,Travel Retail,Fashion Accessories,Bags,Tote,Resort26,9,55.68,0.815,10.91,102.83,0
+SKU-0034,Lumina Bags Tote 34,Stella,Spain,Retail,Fashion Accessories,Bags,Tote,Resort26,70,195.09,0.762,3.24,64.23,0
+SKU-0035,Lumina Earrings Hoops 35,Stella,UK,Retail,Fashion Accessories,Earrings,Hoops,Limited Edition,277,1173.12,0.601,1.84,99.98,1
+SKU-0036,Vogue Bracelets Chains 36,Lumina,Germany,Retail,Fashion Accessories,Bracelets,Chains,Core,16,269.44,0.658,0.04,587.54,1
+SKU-0037,Aurelia Bracelets Cuffs 37,Vogue,France,Outlet,Fashion Accessories,Bracelets,Cuffs,SS26,6,194.4,0.949,9.78,138.07,1
+SKU-0038,Stella Bags Tote 38,Stella,Spain,Travel Retail,Fashion Accessories,Bags,Tote,SS26,907,77.26,0.884,1.33,157.09,1
+SKU-0039,Stella Bags Tote 39,Stella,UK,Retail,Fashion Accessories,Bags,Tote,FW25,198,118.72,0.548,1.13,38.64,1
+SKU-0040,Lumina Bags Crossbody 40,Aurelia,France,Travel Retail,Fashion Accessories,Bags,Crossbody,SS26,63,7786.85,0.766,0.22,187.09,1
+SKU-0041,Aurelia Belts Fabric 41,Vogue,Italy,Retail,Fashion Accessories,Belts,Fabric,FW25,56,957.99,0.821,1.9,164.57,0
+SKU-0042,Elegance Earrings Drop 42,Vogue,Italy,Travel Retail,Fashion Accessories,Earrings,Drop,SS26,8,550.06,0.932,1.63,1131.91,1
+SKU-0043,Vogue Belts Leather 43,Stella,Italy,Retail,Fashion Accessories,Belts,Leather,Resort26,106,3273.44,0.707,0.41,308.54,0
+SKU-0044,Stella Rings Statement 44,Lumina,Spain,Travel Retail,Fashion Accessories,Rings,Statement,Resort26,87,355.18,0.6,2.76,168.87,1
+SKU-0045,Vogue Bracelets Bangles 45,Elegance,Italy,Outlet,Fashion Accessories,Bracelets,Bangles,Limited Edition,134,613.78,0.101,2.18,45.8,0
+SKU-0046,Stella Rings Bands 46,Stella,France,Outlet,Fashion Accessories,Rings,Bands,FW25,652,21.81,0.329,0.37,3317.09,1
+SKU-0047,Elegance Scarves Silk 47,Vogue,Germany,Outlet,Fashion Accessories,Scarves,Silk,Resort26,26,520.4,0.613,4.61,121.22,0
+SKU-0048,Vogue Earrings Studs 48,Stella,UK,Retail,Fashion Accessories,Earrings,Studs,Resort26,119,58.17,0.465,1.5,304.38,1
+SKU-0049,Lumina Earrings Drop 49,Lumina,France,Retail,Fashion Accessories,Earrings,Drop,FW25,77,1538.58,0.878,3.95,656.47,1
+SKU-0050,Stella Rings Statement 50,Vogue,UK,Outlet,Fashion Accessories,Rings,Statement,SS26,14,118.45,0.727,4.3,104.5,1
+SKU-0051,Vogue Bags Clutch 51,Vogue,UK,Outlet,Fashion Accessories,Bags,Clutch,Core,16,3225.54,0.846,5.98,29.43,1
+SKU-0052,Aurelia Belts Chain 52,Stella,Germany,Outlet,Fashion Accessories,Belts,Chain,Resort26,154,99.01,0.432,0.06,710.85,1
+SKU-0053,Stella Earrings Hoops 53,Elegance,France,Outlet,Fashion Accessories,Earrings,Hoops,Core,122,91.43,0.246,0.14,293.28,1
+SKU-0054,Elegance Rings Bands 54,Aurelia,France,Travel Retail,Fashion Accessories,Rings,Bands,Limited Edition,146,450.33,0.684,0.64,34.36,0
+SKU-0055,Elegance Scarves Wool 55,Lumina,France,Retail,Fashion Accessories,Scarves,Wool,Core,45,87.73,0.728,14.42,35.22,1
+SKU-0056,Stella Earrings Studs 56,Stella,Spain,Outlet,Fashion Accessories,Earrings,Studs,Resort26,9,3633.98,0.465,1.88,20.18,1
+SKU-0057,Vogue Bracelets Cuffs 57,Lumina,UK,Travel Retail,Fashion Accessories,Bracelets,Cuffs,Core,1564,48.85,0.561,3.15,135.58,1
+SKU-0058,Stella Earrings Studs 58,Stella,UK,Outlet,Fashion Accessories,Earrings,Studs,SS26,29,840.55,0.289,3.2,201.35,1
+SKU-0059,Elegance Bags Tote 59,Aurelia,Italy,Travel Retail,Fashion Accessories,Bags,Tote,SS26,73,658.0,0.678,2.23,51.36,0
+SKU-0060,Lumina Bags Clutch 60,Aurelia,UK,Travel Retail,Fashion Accessories,Bags,Clutch,Limited Edition,66,93.32,0.552,1.8,459.74,1
+SKU-0061,Stella Earrings Hoops 61,Vogue,Italy,Outlet,Fashion Accessories,Earrings,Hoops,Resort26,194,179.53,0.83,2.63,304.12,1
+SKU-0062,Aurelia Scarves Silk 62,Elegance,Spain,Retail,Fashion Accessories,Scarves,Silk,Core,381,4254.54,0.357,1.21,65.87,0
+SKU-0063,Stella Bracelets Bangles 63,Elegance,Germany,Travel Retail,Fashion Accessories,Bracelets,Bangles,FW25,56,1389.39,0.5,7.7,176.41,0
+SKU-0064,Aurelia Belts Leather 64,Vogue,Germany,Travel Retail,Fashion Accessories,Belts,Leather,Core,72,571.93,0.225,1.33,402.78,1
+SKU-0065,Aurelia Bracelets Cuffs 65,Elegance,Germany,Travel Retail,Fashion Accessories,Bracelets,Cuffs,FW25,372,254.25,0.468,7.94,1862.42,1
+SKU-0066,Lumina Scarves Silk 66,Elegance,France,Outlet,Fashion Accessories,Scarves,Silk,SS26,277,1887.42,0.705,18.36,29.19,1
+SKU-0067,Lumina Scarves Silk 67,Stella,Italy,Travel Retail,Fashion Accessories,Scarves,Silk,Resort26,1245,2194.27,0.443,2.27,75.88,0
+SKU-0068,Aurelia Rings Bands 68,Stella,UK,Travel Retail,Fashion Accessories,Rings,Bands,FW25,39,493.97,0.942,2.46,210.01,0
+SKU-0069,Aurelia Scarves Cotton 69,Aurelia,Spain,Travel Retail,Fashion Accessories,Scarves,Cotton,Resort26,158,1176.26,0.717,2.47,927.18,1
+SKU-0070,Aurelia Scarves Silk 70,Lumina,Germany,Retail,Fashion Accessories,Scarves,Silk,SS26,32,264.36,0.579,0.11,12.02,1
+SKU-0071,Aurelia Rings Stackable 71,Elegance,UK,Retail,Fashion Accessories,Rings,Stackable,Core,12,608.51,0.479,3.4,194.4,0
+SKU-0072,Elegance Belts Leather 72,Stella,UK,Outlet,Fashion Accessories,Belts,Leather,FW25,46,190.24,0.592,1.83,337.27,0
+SKU-0073,Aurelia Bracelets Chains 73,Lumina,Spain,Travel Retail,Fashion Accessories,Bracelets,Chains,Resort26,1037,546.96,0.523,0.77,183.85,0
+SKU-0074,Lumina Earrings Drop 74,Aurelia,Germany,Outlet,Fashion Accessories,Earrings,Drop,SS26,100,298.55,0.306,2.97,157.48,1
+SKU-0075,Vogue Belts Leather 75,Elegance,UK,Retail,Fashion Accessories,Belts,Leather,FW25,25,2.18,0.572,2.09,576.75,0
+SKU-0076,Vogue Hair Accessories Scrunchies 76,Lumina,Spain,Travel Retail,Fashion Accessories,Hair Accessories,Scrunchies,SS26,13,132.45,0.357,1.57,73.37,1
+SKU-0077,Elegance Necklaces Pendants 77,Elegance,Germany,Travel Retail,Fashion Accessories,Necklaces,Pendants,FW25,117,1375.58,0.262,3.78,209.88,1
+SKU-0078,Vogue Belts Fabric 78,Vogue,UK,Retail,Fashion Accessories,Belts,Fabric,Limited Edition,33,878.27,0.426,1.6,67.7,0
+SKU-0079,Aurelia Belts Chain 79,Aurelia,UK,Travel Retail,Fashion Accessories,Belts,Chain,Core,7,3211.06,0.813,0.43,358.45,0
+SKU-0080,Elegance Earrings Drop 80,Elegance,Spain,Outlet,Fashion Accessories,Earrings,Drop,Limited Edition,51,59.12,0.758,1.36,33.41,1
+SKU-0081,Lumina Hair Accessories Scrunchies 81,Elegance,Spain,Travel Retail,Fashion Accessories,Hair Accessories,Scrunchies,SS26,220,100.08,0.375,2.07,3905.77,0
+SKU-0082,Elegance Earrings Studs 82,Elegance,Spain,Outlet,Fashion Accessories,Earrings,Studs,FW25,7,1057.95,0.587,0.31,281.13,0
+SKU-0083,Lumina Rings Bands 83,Vogue,UK,Retail,Fashion Accessories,Rings,Bands,FW25,25,1796.56,0.578,1.63,18.93,1
+SKU-0084,Lumina Earrings Hoops 84,Stella,Spain,Retail,Fashion Accessories,Earrings,Hoops,SS26,135,514.99,0.784,3.74,132.08,1
+SKU-0085,Lumina Earrings Hoops 85,Lumina,France,Retail,Fashion Accessories,Earrings,Hoops,SS26,31,2023.71,0.847,2.77,195.14,1
+SKU-0086,Aurelia Scarves Silk 86,Vogue,Italy,Outlet,Fashion Accessories,Scarves,Silk,Limited Edition,157,1947.55,0.509,1.51,510.4,1
+SKU-0087,Stella Earrings Hoops 87,Aurelia,Germany,Travel Retail,Fashion Accessories,Earrings,Hoops,Limited Edition,15,182.37,0.515,3.18,155.93,0
+SKU-0088,Elegance Bracelets Bangles 88,Lumina,Germany,Retail,Fashion Accessories,Bracelets,Bangles,Resort26,63,1634.87,0.916,5.04,19.49,1
+SKU-0089,Aurelia Belts Fabric 89,Vogue,Italy,Travel Retail,Fashion Accessories,Belts,Fabric,Core,603,106.45,0.207,3.74,125.86,1
+SKU-0090,Aurelia Hair Accessories Scrunchies 90,Vogue,Italy,Travel Retail,Fashion Accessories,Hair Accessories,Scrunchies,Resort26,52,2342.78,0.748,1.11,33.04,1
+SKU-0091,Stella Earrings Hoops 91,Elegance,UK,Travel Retail,Fashion Accessories,Earrings,Hoops,SS26,80,200.03,0.902,0.47,104.16,1
+SKU-0092,Lumina Necklaces Pendants 92,Lumina,UK,Travel Retail,Fashion Accessories,Necklaces,Pendants,Limited Edition,19,880.95,0.531,4.1,566.44,0
+SKU-0093,Aurelia Bags Tote 93,Lumina,UK,Outlet,Fashion Accessories,Bags,Tote,Resort26,72,63.05,0.433,1.63,404.82,1
+SKU-0094,Lumina Hair Accessories Headbands 94,Aurelia,UK,Retail,Fashion Accessories,Hair Accessories,Headbands,Core,669,327.21,0.883,8.76,212.63,1
+SKU-0095,Aurelia Bags Crossbody 95,Lumina,Italy,Travel Retail,Fashion Accessories,Bags,Crossbody,FW25,25,531.48,0.604,2.29,105.9,1
+SKU-0096,Elegance Hair Accessories Clips 96,Lumina,Italy,Outlet,Fashion Accessories,Hair Accessories,Clips,Limited Edition,82,76.14,0.777,0.24,67.65,1
+SKU-0097,Vogue Hair Accessories Headbands 97,Stella,Italy,Outlet,Fashion Accessories,Hair Accessories,Headbands,Resort26,36,258.18,0.754,0.98,38.97,1
+SKU-0098,Elegance Scarves Cotton 98,Stella,Germany,Retail,Fashion Accessories,Scarves,Cotton,SS26,195,11721.66,0.576,2.57,148.95,1
+SKU-0099,Vogue Belts Fabric 99,Elegance,UK,Outlet,Fashion Accessories,Belts,Fabric,SS26,381,50.18,0.102,4.19,380.96,1
+SKU-0100,Elegance Bracelets Cuffs 100,Elegance,Spain,Travel Retail,Fashion Accessories,Bracelets,Cuffs,Resort26,40,726.42,0.488,0.74,41.05,1
+SKU-0101,Vogue Bracelets Chains 101,Aurelia,Italy,Retail,Fashion Accessories,Bracelets,Chains,Resort26,14,92.41,0.767,3.09,303.79,0
+SKU-0102,Aurelia Necklaces Chains 102,Vogue,Germany,Outlet,Fashion Accessories,Necklaces,Chains,SS26,96,13.26,0.319,2.6,81.3,1
+SKU-0103,Aurelia Belts Leather 103,Stella,UK,Outlet,Fashion Accessories,Belts,Leather,Core,14,775.36,0.81,0.42,260.3,0
+SKU-0104,Lumina Rings Statement 104,Elegance,France,Outlet,Fashion Accessories,Rings,Statement,Resort26,237,4605.91,0.297,1.72,52.21,1
+SKU-0105,Lumina Scarves Silk 105,Stella,Germany,Outlet,Fashion Accessories,Scarves,Silk,Core,390,34.0,0.845,2.26,458.76,1
+SKU-0106,Lumina Earrings Drop 106,Vogue,UK,Retail,Fashion Accessories,Earrings,Drop,Limited Edition,72,39.1,0.52,1.01,366.32,1
+SKU-0107,Vogue Hair Accessories Headbands 107,Aurelia,Germany,Retail,Fashion Accessories,Hair Accessories,Headbands,Resort26,564,2883.66,0.918,0.0,13.89,1
+SKU-0108,Elegance Belts Chain 108,Vogue,Spain,Outlet,Fashion Accessories,Belts,Chain,Resort26,154,1269.2,0.878,3.88,218.65,1
+SKU-0109,Elegance Rings Statement 109,Vogue,France,Travel Retail,Fashion Accessories,Rings,Statement,FW25,181,71.16,0.33,0.82,18.28,1
+SKU-0110,Stella Necklaces Chokers 110,Stella,Germany,Retail,Fashion Accessories,Necklaces,Chokers,Limited Edition,60,347.81,0.772,3.9,76.76,1
+SKU-0111,Aurelia Necklaces Chokers 111,Stella,Italy,Outlet,Fashion Accessories,Necklaces,Chokers,Limited Edition,41,1174.28,0.935,0.37,111.75,1
+SKU-0112,Vogue Hair Accessories Clips 112,Stella,Spain,Retail,Fashion Accessories,Hair Accessories,Clips,SS26,20,683.57,0.792,6.89,219.69,1
+SKU-0113,Elegance Bags Crossbody 113,Stella,Italy,Travel Retail,Fashion Accessories,Bags,Crossbody,Core,215,19.62,0.648,2.42,68.17,0
+SKU-0114,Vogue Bags Clutch 114,Stella,Germany,Retail,Fashion Accessories,Bags,Clutch,Limited Edition,6,59.65,0.791,4.71,76.74,1
+SKU-0115,Elegance Bags Crossbody 115,Stella,Spain,Outlet,Fashion Accessories,Bags,Crossbody,Resort26,90,346.29,0.603,2.18,40.79,1
+SKU-0116,Aurelia Bags Clutch 116,Aurelia,UK,Retail,Fashion Accessories,Bags,Clutch,Resort26,109,90.82,0.412,1.67,120.77,0
+SKU-0117,Stella Rings Statement 117,Lumina,UK,Retail,Fashion Accessories,Rings,Statement,FW25,76,550.4,0.893,4.6,2451.61,1
+SKU-0118,Lumina Bracelets Chains 118,Lumina,Germany,Travel Retail,Fashion Accessories,Bracelets,Chains,Resort26,26,804.29,0.551,3.15,166.84,0
+SKU-0119,Lumina Belts Chain 119,Elegance,Germany,Retail,Fashion Accessories,Belts,Chain,FW25,72,392.53,0.324,4.44,126.0,0
+SKU-0120,Lumina Belts Leather 120,Lumina,Italy,Travel Retail,Fashion Accessories,Belts,Leather,FW25,23,293.83,0.433,0.33,138.56,1
+SKU-0121,Elegance Necklaces Pendants 121,Elegance,Germany,Outlet,Fashion Accessories,Necklaces,Pendants,Core,20,545.96,0.966,0.8,195.14,1
+SKU-0122,Stella Earrings Studs 122,Aurelia,France,Retail,Fashion Accessories,Earrings,Studs,FW25,100,62.68,0.633,0.14,1186.61,1
+SKU-0123,Lumina Hair Accessories Scrunchies 123,Vogue,UK,Retail,Fashion Accessories,Hair Accessories,Scrunchies,FW25,80,144.97,0.416,3.55,350.03,0
+SKU-0124,Vogue Scarves Silk 124,Lumina,UK,Travel Retail,Fashion Accessories,Scarves,Silk,FW25,305,2951.93,0.712,5.3,328.1,1
+SKU-0125,Elegance Earrings Hoops 125,Stella,Spain,Outlet,Fashion Accessories,Earrings,Hoops,SS26,124,14.59,0.743,0.03,434.89,1
+SKU-0126,Stella Belts Chain 126,Elegance,Italy,Travel Retail,Fashion Accessories,Belts,Chain,Resort26,142,2480.24,0.631,0.49,47.58,0
+SKU-0127,Elegance Hair Accessories Clips 127,Vogue,France,Travel Retail,Fashion Accessories,Hair Accessories,Clips,Limited Edition,468,455.62,0.643,1.67,1197.46,0
+SKU-0128,Stella Bracelets Bangles 128,Elegance,Germany,Outlet,Fashion Accessories,Bracelets,Bangles,FW25,356,1671.94,0.871,1.42,115.38,0
+SKU-0129,Stella Rings Bands 129,Vogue,Spain,Travel Retail,Fashion Accessories,Rings,Bands,Core,18,1968.41,0.848,2.9,220.28,1
+SKU-0130,Stella Bracelets Bangles 130,Lumina,UK,Outlet,Fashion Accessories,Bracelets,Bangles,SS26,10,168.15,0.559,2.49,169.0,0
+SKU-0131,Vogue Earrings Hoops 131,Vogue,Germany,Retail,Fashion Accessories,Earrings,Hoops,Limited Edition,65,685.55,0.651,0.71,113.89,1
+SKU-0132,Aurelia Belts Fabric 132,Lumina,UK,Outlet,Fashion Accessories,Belts,Fabric,Limited Edition,67,312.98,0.722,0.95,119.17,0
+SKU-0133,Vogue Belts Chain 133,Elegance,Italy,Outlet,Fashion Accessories,Belts,Chain,Limited Edition,62,910.23,0.868,0.92,328.34,1
+SKU-0134,Elegance Rings Bands 134,Lumina,France,Outlet,Fashion Accessories,Rings,Bands,Resort26,22,119.66,0.453,4.92,101.07,1
+SKU-0135,Aurelia Earrings Hoops 135,Lumina,Italy,Retail,Fashion Accessories,Earrings,Hoops,Resort26,65,205.91,0.742,1.8,2153.27,1
+SKU-0136,Stella Necklaces Chokers 136,Lumina,UK,Outlet,Fashion Accessories,Necklaces,Chokers,Limited Edition,63,4614.77,0.703,0.68,224.24,1
+SKU-0137,Lumina Scarves Wool 137,Stella,Germany,Retail,Fashion Accessories,Scarves,Wool,FW25,52,93.67,0.694,8.34,660.49,0
+SKU-0138,Vogue Necklaces Chains 138,Elegance,UK,Travel Retail,Fashion Accessories,Necklaces,Chains,SS26,136,302.56,0.383,0.95,96.04,0
+SKU-0139,Elegance Bags Crossbody 139,Vogue,Spain,Retail,Fashion Accessories,Bags,Crossbody,Limited Edition,33,111.16,0.887,0.98,140.71,1
+SKU-0140,Stella Necklaces Chokers 140,Stella,UK,Retail,Fashion Accessories,Necklaces,Chokers,Core,469,564.5,0.378,1.95,40.1,1
+SKU-0141,Elegance Scarves Silk 141,Aurelia,Spain,Outlet,Fashion Accessories,Scarves,Silk,FW25,214,203.25,0.686,3.36,1253.08,0
+SKU-0142,Lumina Bracelets Bangles 142,Elegance,Germany,Travel Retail,Fashion Accessories,Bracelets,Bangles,Core,18,656.25,0.239,0.48,88.0,1
+SKU-0143,Stella Scarves Cotton 143,Vogue,Italy,Retail,Fashion Accessories,Scarves,Cotton,Resort26,102,872.06,0.516,0.75,353.43,1
+SKU-0144,Stella Bracelets Cuffs 144,Stella,Italy,Outlet,Fashion Accessories,Bracelets,Cuffs,Limited Edition,17,255.85,0.816,1.37,245.85,1
+SKU-0145,Stella Bracelets Chains 145,Lumina,Germany,Retail,Fashion Accessories,Bracelets,Chains,SS26,23,1529.96,0.464,0.69,1619.12,0
+SKU-0146,Stella Belts Leather 146,Elegance,Spain,Retail,Fashion Accessories,Belts,Leather,Core,119,3990.16,0.421,2.46,742.65,0
+SKU-0147,Stella Rings Stackable 147,Aurelia,UK,Travel Retail,Fashion Accessories,Rings,Stackable,Resort26,62,100.38,0.602,5.28,341.9,1
+SKU-0148,Vogue Bags Crossbody 148,Vogue,France,Travel Retail,Fashion Accessories,Bags,Crossbody,FW25,35,236.84,0.492,2.82,92.61,1
+SKU-0149,Vogue Bracelets Chains 149,Aurelia,Italy,Travel Retail,Fashion Accessories,Bracelets,Chains,SS26,29,12535.58,0.764,0.12,26.68,0
+SKU-0150,Lumina Rings Statement 150,Lumina,UK,Retail,Fashion Accessories,Rings,Statement,SS26,27,12300.23,0.951,4.81,79.01,1
