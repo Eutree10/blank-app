@@ -6,8 +6,9 @@
 
 > **Confirmed data (round 2):** Weekly volume **45–55 km**. Resting HR **53 bpm**. 5k max HR **197**
 > (= age-predicted max of 197.5 → a genuine max, so HR zones below are real, not guessed). Group **hard
-> sessions on Tuesday, Thursday, and sometimes Saturday** → **3–4 hard days/week.** That last fact is
-> the most important thing in this whole plan — see [§10 red flags](#10-the-1-finding-your-intensity-is-upside-down).
+> sessions on Tuesday and Thursday only** → **2 quality days/week, which is the correct number.** The
+> levers are therefore (a) keeping easy days genuinely easy, (b) the *type* and *spacing* of those two
+> sessions, and (c) the long run — see [§10](#10-what-to-actually-fix).
 
 ---
 
@@ -38,14 +39,19 @@ ability to **hold fast pace under fatigue** — *not* from more raw speed. This 
 development is the most trainable, most reliable adaptation in distance running, and you're 15, which
 is the best possible age for it.
 
-**And your round-2 data tells me *why* the endurance lags:** you're running **3–4 hard sessions a
-week** (Tue/Thu/sometimes Sat) on **45–55 km**. That means roughly **half your running is hard** —
-the near-opposite of the 80/20 a 5k runner needs. You've been *over*-developing the speed you already
-have (hence the strong 2.1-mile PB) and *under*-developing the easy aerobic base that lets you hold
-pace to the line (hence the 68-second 10k fade). **Your resting HR of 53** is solid but not
-deep-aerobic-trained low for a sub-18 teen — consistent with a base that has more to give. The fix
-isn't training *harder*; it's training **easier on the easy days** and protecting just two quality
-sessions. That single change is most of your 61 seconds.
+**Your round-2 data refines this.** You run **2 hard days (Tue + Thu) on 45–55 km** — that's a healthy
+~80/20 mix, so the problem is *not* too much intensity. Given that, the 68-second 10k fade points to
+**three** likely causes, all fixable:
+1. **The *type* of hard work is probably speed-skewed.** A group that hammers short, fast reps builds
+   exactly the strength your 2.1-mile PB shows — and neglects the **threshold/tempo** work that wins
+   the back half of a 5k/10k. We make sure one of your two quality days is *threshold*, not more speed.
+2. **Easy days may not be easy enough.** With a group, easy runs creep to 165–175 bpm. Held truly easy
+   (**≤160**), they deepen the aerobic base that your resting HR of 53 says still has room to drop.
+3. **The long run may be missing or too short.** Aerobic strength — the literal fix for "fading at
+   distance" — is built on the weekend long run more than anywhere else.
+
+So the fix isn't *more* or *harder*; it's **better-targeted quality + genuinely easy easy days + a real
+long run.** That's most of your 61 seconds.
 
 ### Is the goal realistic?
 **Yes — appropriately ambitious, not a fantasy.** You need a 5.6% improvement on your 5k over 7
@@ -72,23 +78,28 @@ honest risk is not that the goal is too hard — it's doing too much too soon an
 
 ## 3. Weekly schedule (template)
 
-Your group runs hard **Tue / Thu / sometimes Sat**. The restructure below keeps you in the group but
-**demotes one of those hard days to controlled effort** so you train two real quality sessions, not
-three or four. This is the core behavioural change of the plan.
+Your two hard group days are **Tuesday and Thursday**. Two quality days is the right number — the only
+catch is they're close together (just Wednesday between them), so we **differentiate them**: make one
+*threshold* and one *VO₂max/speed* rather than two max-effort hammerings, and keep everything else
+genuinely easy.
 
 | Day | Session | Purpose | Target |
 |---|---|---|---|
 | **Mon** | Easy + 6×20s strides | Recovery, neuromuscular | ≤160 bpm · 4:40–5:10/km |
-| **Tue** | **Group — KEY 1** (threshold → VO₂max per phase) | Aerobic ceiling | see §5 |
-| **Wed** | Easy | Aerobic base | ≤160 bpm |
-| **Thu** | **Group, but run it EASY/CONTROLLED** — sit at the back, jog the reps, or do strides only | Stay social, *don't* spend the day | keep ≤160 bpm |
-| **Fri** | Rest or easy 20–30 min | Absorb training | very easy |
-| **Sat** | **Group — KEY 2** when it's a hard day (else easy + strides) | Speed/tempo | see §5 |
-| **Sun** | **Long run** | Aerobic strength (your weak spot) | ≤165 bpm · 4:40–5:00/km |
+| **Tue** | **Group — KEY 1: THRESHOLD** (tempo / cruise intervals) | Aerobic ceiling — your weak spot | 175–180 bpm |
+| **Wed** | Easy (full recovery before Thu) | Aerobic base | ≤160 bpm |
+| **Thu** | **Group — KEY 2: VO₂max / speed** (the group's fast reps) | Top-end, economy | 181–190 bpm |
+| **Fri** | Rest or easy 20–30 min | Absorb the Tue+Thu block | very easy |
+| **Sat** | Easy + strides (group social run, kept easy) | Base | ≤160 bpm |
+| **Sun** | **Long run** | Aerobic strength (fixes the 10k fade) | ≤165 bpm · 4:40–5:00/km, build 12→16 km |
 
-**The discipline that buys you sub-17:** on Mon/Wed/Thu/Fri, **keep HR ≤160 bpm (easy zone).** With a
-group it's tempting to race every session — don't. If Thursday's group session is hard, your job is to
-*ignore the pace* and stay aerobic. Two quality days a week (three only at peak), never back-to-back.
+> **Why threshold on Tue, speed on Thu:** Tuesday lands on the freshest legs of your two-day block, so
+> give it the session that matters most for *your* gap — threshold. Thursday's group speed reps then
+> sharpen on slightly tired legs, which is fine for VO₂max. If your group's fixed plan is the reverse,
+> just swap — the point is **one threshold + one VO₂max, not two of the same.**
+
+**The discipline that buys you sub-17:** on Mon/Wed/Fri/Sat, **keep HR ≤160 bpm.** With a group it's
+tempting to race the easy runs too — don't. Easy genuinely easy is what makes the two hard days work.
 
 **Volume:** you're at **45–55 km/week — that's a good, sufficient base; do not rush it up.** The win is
 shifting the *intensity mix*, not adding kilometres. Hold 45–55, and only drift toward ~55–60 in
@@ -200,17 +211,17 @@ With those, I'll convert this template into a week-by-week calendar with exact p
 
 ---
 
-## 10. The #1 finding: your intensity is upside-down
+## 10. What to actually fix
 
-**You run 3–4 hard sessions a week (Tue/Thu/sometimes Sat) on 45–55 km.** That's roughly **50% of your
-running at hard effort**, when a 5k runner wants **~80% easy / 20% hard.** This *is* your endurance
-gap — it explains the 68-second-slow 10k and the fade past your 2.1-mile PB distance. **Fixing this one
-thing is most of your 61 seconds, and it requires running *less* hard, not more.**
+Your intensity *count* is right (2 hard days), so the gains come from **quality, not quantity**:
 
-The hard part is social: it's a group, and groups race every rep. Your assignment is to keep **two**
-genuinely hard days (Tue + Sat) and run **Thursday's group session controlled — at the back, jogging
-the reps, HR ≤160** — even when everyone around you is flying. If that's not workable in your club,
-tell me and we'll pick which two days to keep and how to handle the third.
+1. **Make one of your two hard days a true threshold session** (Tue, 175–180 bpm). If your group does
+   mostly short fast reps, you're feeding the speed you already have and starving the endurance you
+   lack. Threshold is the highest-leverage workout for your specific 5k/10k fade.
+2. **Keep easy days ≤160 bpm.** Easy runs creeping to 165–175 in a group is the most common hidden
+   leak. Plug it and your base (and that RHR of 53) keep improving.
+3. **Protect the Sunday long run.** Aerobic strength is built here; it directly attacks the 68-second
+   10k fade. Build it 12 → 16 km, kept easy (≤165 bpm).
 
 ### Other cautions
 1. **Re-test paces as you improve** — the §5 paces are from your current 18:00 fitness; recalibrate after every race.
