@@ -4,9 +4,10 @@
 **Goal:** Run a sub-17:00 5k before the end of 2026 (= **3:24/km**, ~5:28/mile)
 **Plan written:** 31 May 2026 · ~7 months of runway
 
-> ⚠️ **Data caveat:** No raw Garmin export (`.fit`/CSV, HR, VO2max, weekly load, HRV, sleep stages)
-> was attached — this plan is built from the race PBs and lifestyle facts you provided. See
-> [§9 "Send me this"](#9-send-me-this-to-sharpen-the-plan) for what to export so round two can be data-driven.
+> **Confirmed data (round 2):** Weekly volume **45–55 km**. Resting HR **53 bpm**. 5k max HR **197**
+> (= age-predicted max of 197.5 → a genuine max, so HR zones below are real, not guessed). Group **hard
+> sessions on Tuesday, Thursday, and sometimes Saturday** → **3–4 hard days/week.** That last fact is
+> the most important thing in this whole plan — see [§10 red flags](#10-the-1-finding-your-intensity-is-upside-down).
 
 ---
 
@@ -37,6 +38,15 @@ ability to **hold fast pace under fatigue** — *not* from more raw speed. This 
 development is the most trainable, most reliable adaptation in distance running, and you're 15, which
 is the best possible age for it.
 
+**And your round-2 data tells me *why* the endurance lags:** you're running **3–4 hard sessions a
+week** (Tue/Thu/sometimes Sat) on **45–55 km**. That means roughly **half your running is hard** —
+the near-opposite of the 80/20 a 5k runner needs. You've been *over*-developing the speed you already
+have (hence the strong 2.1-mile PB) and *under*-developing the easy aerobic base that lets you hold
+pace to the line (hence the 68-second 10k fade). **Your resting HR of 53** is solid but not
+deep-aerobic-trained low for a sub-18 teen — consistent with a base that has more to give. The fix
+isn't training *harder*; it's training **easier on the easy days** and protecting just two quality
+sessions. That single change is most of your 61 seconds.
+
 ### Is the goal realistic?
 **Yes — appropriately ambitious, not a fantasy.** You need a 5.6% improvement on your 5k over 7
 months. For a 15-year-old who started in 2023 (still early in your training age) and already has a
@@ -62,31 +72,39 @@ honest risk is not that the goal is too hard — it's doing too much too soon an
 
 ## 3. Weekly schedule (template)
 
-Built around your run club on **Tuesday and Saturday**. This assumes ~6 runs/week. Adjust which day
-is the long run to fit club sessions.
+Your group runs hard **Tue / Thu / sometimes Sat**. The restructure below keeps you in the group but
+**demotes one of those hard days to controlled effort** so you train two real quality sessions, not
+three or four. This is the core behavioural change of the plan.
 
-> ❓ **One thing I need you to confirm:** you wrote "run 6 times a week, Tuesday and Saturday in a run
-> club." If your club sessions on Tue/Sat are *hard* (intervals/tempo), this template slots your key
-> work onto those days. If they're easy group runs, we move the hard work elsewhere. Tell me and I'll
-> re-key it.
-
-| Day | Session | Purpose | Pace |
+| Day | Session | Purpose | Target |
 |---|---|---|---|
-| **Mon** | Easy + 6×20s strides | Recovery, neuromuscular | 4:40–5:10/km |
-| **Tue** | **Run club — KEY 1** (threshold / VO₂max per phase) | Aerobic ceiling | see §5 |
-| **Wed** | Easy | Aerobic base | 4:40–5:10/km |
-| **Thu** | Easy + strides (or rest if tired) | Base / freshness | 4:40–5:10/km |
+| **Mon** | Easy + 6×20s strides | Recovery, neuromuscular | ≤160 bpm · 4:40–5:10/km |
+| **Tue** | **Group — KEY 1** (threshold → VO₂max per phase) | Aerobic ceiling | see §5 |
+| **Wed** | Easy | Aerobic base | ≤160 bpm |
+| **Thu** | **Group, but run it EASY/CONTROLLED** — sit at the back, jog the reps, or do strides only | Stay social, *don't* spend the day | keep ≤160 bpm |
 | **Fri** | Rest or easy 20–30 min | Absorb training | very easy |
-| **Sat** | **Run club — KEY 2** (depends on Tue) | Speed/tempo or long | see §5 |
-| **Sun** | **Long run** | Aerobic strength (your weak spot) | 4:40–5:00/km |
+| **Sat** | **Group — KEY 2** when it's a hard day (else easy + strides) | Speed/tempo | see §5 |
+| **Sun** | **Long run** | Aerobic strength (your weak spot) | ≤165 bpm · 4:40–5:00/km |
 
-**Rule:** never two hard days back-to-back. If Tue and Sat are both hard, keep Wed/Thu/Fri genuinely
-easy. Only **two** hard sessions per week, three at the very peak — never more at your age.
+**The discipline that buys you sub-17:** on Mon/Wed/Thu/Fri, **keep HR ≤160 bpm (easy zone).** With a
+group it's tempting to race every session — don't. If Thursday's group session is hard, your job is to
+*ignore the pace* and stay aerobic. Two quality days a week (three only at peak), never back-to-back.
 
-**Mileage guidance** (we don't have your current weekly km — *please send it*): if you're currently
-~40–50 km/week, build toward a **peak of ~55–65 km/week** by autumn, never jumping more than ~10% and
-taking a **down week every 4th week** (cut volume ~25%). If you're already higher, we hold and sharpen
-rather than pile on.
+**Volume:** you're at **45–55 km/week — that's a good, sufficient base; do not rush it up.** The win is
+shifting the *intensity mix*, not adding kilometres. Hold 45–55, and only drift toward ~55–60 in
+autumn if everything feels easy. **Down week every 4th week** (cut ~25%).
+
+### Your real HR zones (from RHR 53 / max 197, Karvonen)
+| Zone | bpm | Use |
+|---|---|---|
+| **Easy / recovery** | **139–160** | Mon, Wed, Thu, Fri, most of long run — *most of your week* |
+| Steady aerobic | 161–174 | upper end of long runs only |
+| **Threshold** | **175–180** | Tempo / cruise intervals |
+| **VO₂max** | **181–190** | 3–5 min interval reps |
+| Max | 190–197 | last reps of a race only |
+
+If your easy runs are sitting at 165–175, that's the leak — pull them down to ≤160 and the aerobic
+gains start compounding.
 
 ---
 
@@ -169,35 +187,40 @@ which tanks performance, stalls growth, and weakens bone. Speed comes from train
 
 ## 9. Send me this to sharpen the plan
 
-Right now I'm working off three race times. To make this genuinely data-driven, export from Garmin
-Connect (Settings → Export, or the `.fit` files) and send:
+Round-2 data (volume 45–55 km, RHR 53, max HR 197, Tue/Thu/Sat hard) is now baked in above. To go fully
+week-by-week, the remaining useful exports from Garmin Connect are:
 
-1. **Current weekly mileage / running time** (last 4–8 weeks) — the biggest missing number; it sets all volume targets.
-2. **Garmin VO₂max estimate** and its trend.
-3. **Resting HR + HR zones**, and **max HR** if you've ever truly maxed it.
-4. **HR traces from the 5k and 10k races** — tells me if the 10k faded from fitness or from pacing/heat.
-5. **Sleep + HRV trends** if available.
-6. **What your Tue/Sat club sessions actually are** (easy group run vs. intervals vs. tempo).
+1. **Garmin VO₂max estimate** and its trend over the last months.
+2. **Average HR of a typical "easy" run** — this confirms whether the ≤160 bpm leak is happening.
+3. **HR traces from the 5k and 10k races** — tells me if the 10k faded from fitness or pacing/heat.
+4. **Sleep + HRV trends** if available.
+5. **Exactly what the Tue/Thu/Sat group sessions are** (rep distances, paces, recoveries) so I can slot them correctly.
 
-With those, I'll convert this template into week-by-week sessions with exact paces and a load progression.
+With those, I'll convert this template into a week-by-week calendar with exact paces and load progression.
 
 ---
 
-## 10. Red flags & honest cautions
+## 10. The #1 finding: your intensity is upside-down
 
-1. **No raw data was actually provided.** Everything above is inferred from 3 race times + lifestyle
-   notes. Treat paces as a starting calibration, not gospel — re-test and adjust.
-2. **Schedule contradiction:** "6 runs/week, Tuesday and Saturday in a run club" is ambiguous (only two
-   days named). Confirm your real weekly layout so we don't accidentally stack hard days.
-3. **The 10k > 5k-equivalent gap (68s slow).** If it persists *after* aerobic training, get **ferritin
-   tested** — late-race fade in a teen is a classic low-iron signature, not just "needs more endurance."
-4. **You're 15 and still growing.** Cardiovascular ambition outruns skeletal readiness at your age. The
-   ≤10% rule, down weeks, strength work, and sleep aren't optional — they're how you reach sub-17
-   *without* a stress fracture pulling you out mid-build.
-5. **Don't chase weight.** 65 kg is fine. Restricting to "get lighter" is the fastest way to ruin a
-   promising 15-year-old's season (RED-S). Fuel the work.
-6. **Two hard sessions a week, max (three only at peak).** Your existing speed means you'll *feel* able
-   to do more quality — resist it. The gain is in the easy aerobic miles you're probably under-doing.
+**You run 3–4 hard sessions a week (Tue/Thu/sometimes Sat) on 45–55 km.** That's roughly **50% of your
+running at hard effort**, when a 5k runner wants **~80% easy / 20% hard.** This *is* your endurance
+gap — it explains the 68-second-slow 10k and the fade past your 2.1-mile PB distance. **Fixing this one
+thing is most of your 61 seconds, and it requires running *less* hard, not more.**
+
+The hard part is social: it's a group, and groups race every rep. Your assignment is to keep **two**
+genuinely hard days (Tue + Sat) and run **Thursday's group session controlled — at the back, jogging
+the reps, HR ≤160** — even when everyone around you is flying. If that's not workable in your club,
+tell me and we'll pick which two days to keep and how to handle the third.
+
+### Other cautions
+1. **Re-test paces as you improve** — the §5 paces are from your current 18:00 fitness; recalibrate after every race.
+2. **The 10k > 5k gap (68s slow).** If it persists *after* you've fixed the intensity mix and built base,
+   get **ferritin tested** — late-race fade in a teen is a classic low-iron signature.
+3. **Resting HR 53 is a baseline to watch.** Track it each morning: a sustained rise of ~7+ bpm =
+   under-recovery (very likely if you keep 3–4 hard days) → back off. It should *drift down* as your aerobic base deepens.
+4. **You're 15 and still growing.** Cardiovascular ambition outruns skeletal readiness. Holding volume
+   at 45–55 km, down weeks, strength work, and your 8.5h sleep are how you reach sub-17 *without* a stress fracture.
+5. **Don't chase weight.** 65 kg is fine. Restricting to "get lighter" (RED-S) is the fastest way to ruin a promising season. Fuel the work.
 
 ---
 
