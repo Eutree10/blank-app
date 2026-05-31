@@ -45,8 +45,8 @@ is the best possible age for it.
 1. **The *type* of hard work is probably speed-skewed.** A group that hammers short, fast reps builds
    exactly the strength your 2.1-mile PB shows — and neglects the **threshold/tempo** work that wins
    the back half of a 5k/10k. We make sure one of your two quality days is *threshold*, not more speed.
-2. **Easy days may not be easy enough.** With a group, easy runs creep to 165–175 bpm. Held truly easy
-   (**≤160**), they deepen the aerobic base that your resting HR of 53 says still has room to drop.
+2. **Easy days — confirmed genuinely easy (130–155 bpm).** This is done right; not the problem. (Most
+   runners fail here, so this is a real strength — protect it.)
 3. **The long run may be missing or too short.** Aerobic strength — the literal fix for "fading at
    distance" — is built on the weekend long run more than anywhere else.
 
@@ -218,8 +218,9 @@ Your intensity *count* is right (2 hard days), so the gains come from **quality,
 1. **Make one of your two hard days a true threshold session** (Tue, 175–180 bpm). If your group does
    mostly short fast reps, you're feeding the speed you already have and starving the endurance you
    lack. Threshold is the highest-leverage workout for your specific 5k/10k fade.
-2. **Keep easy days ≤160 bpm.** Easy runs creeping to 165–175 in a group is the most common hidden
-   leak. Plug it and your base (and that RHR of 53) keep improving.
+2. **Easy days — already nailed (confirmed 130–155 bpm).** This is well inside the easy zone, so the
+   common "grey-zone leak" is *not* happening for you. Keep doing exactly this; just don't let group
+   easy runs drift up over time.
 3. **Protect the Sunday long run.** Aerobic strength is built here; it directly attacks the 68-second
    10k fade. Build it 12 → 16 km, kept easy (≤165 bpm).
 
