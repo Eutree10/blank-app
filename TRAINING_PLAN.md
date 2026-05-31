@@ -19,14 +19,15 @@
 | Performance | Time | Pace/km | Riegel-equivalent 5k |
 |---|---|---|---|
 | 5k race | 18:00.3 | 3:36/km | — (this is the benchmark) |
-| ~~10k race (95% humidity — discounted)~~ | ~~38:40~~ | ~~3:52/km~~ | ~~18:33~~ |
+| ~~10k race (95% humidity + rain — discounted)~~ | ~~38:40~~ | ~~3:52/km~~ | ~~18:33~~ |
 | 2.1 mi PB (3.38 km) | ~11:26 | 3:23/km | **17:19** |
 | **Goal** | **16:59** | **3:24/km** | — |
 
-> **Important data correction:** the **10k (38:40) was run in 95% humidity** and should be discounted —
-> that level of humidity commonly adds 30–90+ seconds over 10k (sweat can't evaporate, HR climbs, pace
-> drops). It is **not** evidence of an endurance weakness, so the earlier "your engine fades at
-> distance" diagnosis is withdrawn. The table's 10k row is kept for reference only, struck through.
+> **Important data correction:** the **10k (38:40) was run in 95% humidity *and* rain** and should be
+> discounted — that humidity alone commonly adds 30–90+ seconds over 10k (sweat can't evaporate, HR
+> climbs, pace drops), and heavy rain adds wet shoes, puddles, and slick footing on top. It is **not**
+> evidence of an endurance weakness, so the earlier "your engine fades at distance" diagnosis is
+> withdrawn. The table's 10k row is kept for reference only, struck through.
 
 **What the *valid* data says:** with the heat-spoiled 10k removed, you have two trustworthy points — a
 **5k of 18:00** and a **2.1-mile PB implying a 17:19 5k.** The 2.1-mile still projects faster than your
