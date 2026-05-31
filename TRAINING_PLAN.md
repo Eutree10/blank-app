@@ -19,39 +19,28 @@
 | Performance | Time | Pace/km | Riegel-equivalent 5k |
 |---|---|---|---|
 | 5k race | 18:00.3 | 3:36/km | — (this is the benchmark) |
-| 10k race | 38:40 | 3:52/km | **18:33** |
+| ~~10k race (95% humidity — discounted)~~ | ~~38:40~~ | ~~3:52/km~~ | ~~18:33~~ |
 | 2.1 mi PB (3.38 km) | ~11:26 | 3:23/km | **17:19** |
 | **Goal** | **16:59** | **3:24/km** | — |
 
-**The single most important insight in your data:** your three results disagree, and *which way*
-they disagree tells you exactly what to train.
+> **Important data correction:** the **10k (38:40) was run in 95% humidity** and should be discounted —
+> that level of humidity commonly adds 30–90+ seconds over 10k (sweat can't evaporate, HR climbs, pace
+> drops). It is **not** evidence of an endurance weakness, so the earlier "your engine fades at
+> distance" diagnosis is withdrawn. The table's 10k row is kept for reference only, struck through.
 
-- Your **2.1-mile PB predicts a 17:19 5k** — already within ~20 s of your goal. Your top-end
-  speed and short-range engine are *not* the limiter. You can already run 3:23/km; you just can't
-  hold it for 5 km yet.
-- Your **10k predicts only an 18:33 5k**, and conversely your 5k predicts a **37:32 10k** — you
-  ran **38:40**, about **68 seconds slower** than your 5k fitness says you should. That gap is the
-  smoking gun: your **aerobic strength / endurance fades** as distance climbs.
+**What the *valid* data says:** with the heat-spoiled 10k removed, you have two trustworthy points — a
+**5k of 18:00** and a **2.1-mile PB implying a 17:19 5k.** The 2.1-mile still projects faster than your
+actual 5k, but a drop-off of that size from 3.4 km to 5 km is **within the normal range** — it's a mild
+hint that holding pace over the full 5k is your softer edge, not a glaring flaw.
 
-**Diagnosis:** You are a **speed-strong, endurance-light** runner. The 61 seconds between 18:00 and
-sub-17 will come almost entirely from raising your **aerobic ceiling (threshold + VO₂max)** and your
-ability to **hold fast pace under fatigue** — *not* from more raw speed. This is good news: aerobic
-development is the most trainable, most reliable adaptation in distance running, and you're 15, which
-is the best possible age for it.
-
-**Your round-2 data refines this.** You run **2 hard days (Tue + Thu) on 45–55 km** — that's a healthy
-~80/20 mix, so the problem is *not* too much intensity. Given that, the 68-second 10k fade points to
-**three** likely causes, all fixable:
-1. **The *type* of hard work is probably speed-skewed.** A group that hammers short, fast reps builds
-   exactly the strength your 2.1-mile PB shows — and neglects the **threshold/tempo** work that wins
-   the back half of a 5k/10k. We make sure one of your two quality days is *threshold*, not more speed.
-2. **Easy days — confirmed genuinely easy (130–155 bpm).** This is done right; not the problem. (Most
-   runners fail here, so this is a real strength — protect it.)
-3. **The long run may be missing or too short.** Aerobic strength — the literal fix for "fading at
-   distance" — is built on the weekend long run more than anywhere else.
-
-So the fix isn't *more* or *harder*; it's **better-targeted quality + genuinely easy easy days + a real
-long run.** That's most of your 61 seconds.
+**Honest diagnosis (round 3):** you are a **well-rounded, well-trained 18:00 runner with no obvious
+weakness in the data.** Your easy days are genuinely easy (130–155 bpm), your intensity count is right
+(2 quality days), your volume is sound (45–55 km). There's no single broken thing to "fix." Sub-17
+therefore comes from the boring, reliable stuff: **progressive threshold + VO₂max work, a consistent
+long run, and simply being 15** (you're still early in your training age, with natural improvement on
+your side). The one *emphasis* worth keeping — because the 2.1mi-vs-5k gap leans that way and it's the
+classic 5k limiter — is making sure you get real **threshold** work, not just the fast short reps a
+group tends to favour.
 
 ### Is the goal realistic?
 **Yes — appropriately ambitious, not a fantasy.** You need a 5.6% improvement on your 5k over 7
@@ -64,11 +53,11 @@ honest risk is not that the goal is too hard — it's doing too much too soon an
 ## 2. Training philosophy for this plan
 
 1. **Polarized / 80-20.** Roughly 80% of weekly running **easy** (truly conversational), 20% **hard**
-   and focused. Your data screams that you've likely been running too many runs in the "comfortably
-   hard grey zone" — that builds the speed you already have but neglects the aerobic base you're
-   missing. Easy days must be *easy*.
-2. **Threshold first, VO₂max second, race-pace last.** Sequence the build to attack your specific
-   weakness (endurance) before sharpening the strength you already own (speed).
+   and focused. You're *already* doing this well (easy runs at 130–155 bpm, 2 quality days) — the job
+   is to keep protecting it as training gets harder, not to overhaul it.
+2. **Threshold first, VO₂max second, race-pace last.** Classic, reliable sequencing — build the
+   aerobic engine and lactate threshold before sharpening top-end speed and race pace. (No glaring
+   weakness to chase; this is just the proven order.)
 3. **Consistency > heroics.** Six steady weeks beat one big week and a layoff. At 15, *durability*
    is the goal as much as fitness.
 4. **Age-appropriate volume.** We build mileage gradually (≤~10%/week, with down weeks). You're still
@@ -91,7 +80,7 @@ genuinely easy.
 | **Thu** | **Group — KEY 2: VO₂max / speed** (the group's fast reps) | Top-end, economy | 181–190 bpm |
 | **Fri** | Rest or easy 20–30 min | Absorb the Tue+Thu block | very easy |
 | **Sat** | Easy + strides (group social run, kept easy) | Base | ≤160 bpm |
-| **Sun** | **Long run** | Aerobic strength (fixes the 10k fade) | ≤165 bpm · 4:40–5:00/km, build 12→16 km |
+| **Sun** | **Long run** | Aerobic strength (underpins a fast 5k) | ≤165 bpm · 4:40–5:00/km, build 12→16 km |
 
 > **Why threshold on Tue, speed on Thu:** Tuesday lands on the freshest legs of your two-day block, so
 > give it the session that matters most for *your* gap — threshold. Thursday's group speed reps then
@@ -203,7 +192,7 @@ week-by-week, the remaining useful exports from Garmin Connect are:
 
 1. **Garmin VO₂max estimate** and its trend over the last months.
 2. **Average HR of a typical "easy" run** — this confirms whether the ≤160 bpm leak is happening.
-3. **HR traces from the 5k and 10k races** — tells me if the 10k faded from fitness or pacing/heat.
+3. **A cool-weather 10k or hard tempo** (the humidity 10k is unusable) — for a real endurance read.
 4. **Sleep + HRV trends** if available.
 5. **Exactly what the Tue/Thu/Sat group sessions are** (rep distances, paces, recoveries) so I can slot them correctly.
 
@@ -213,26 +202,28 @@ With those, I'll convert this template into a week-by-week calendar with exact p
 
 ## 10. What to actually fix
 
-Your intensity *count* is right (2 hard days), so the gains come from **quality, not quantity**:
+There's **no glaring weakness in your valid data** — easy days are easy, volume is sound, intensity
+count is right. So sub-17 is about **steady, well-sequenced progression**, not fixing something broken:
 
-1. **Make one of your two hard days a true threshold session** (Tue, 175–180 bpm). If your group does
-   mostly short fast reps, you're feeding the speed you already have and starving the endurance you
-   lack. Threshold is the highest-leverage workout for your specific 5k/10k fade.
-2. **Easy days — already nailed (confirmed 130–155 bpm).** This is well inside the easy zone, so the
-   common "grey-zone leak" is *not* happening for you. Keep doing exactly this; just don't let group
-   easy runs drift up over time.
-3. **Protect the Sunday long run.** Aerobic strength is built here; it directly attacks the 68-second
-   10k fade. Build it 12 → 16 km, kept easy (≤165 bpm).
+1. **Make one of your two hard days a true threshold session** (Tue, 175–180 bpm). Groups tend to favour
+   short fast reps, which feed the speed your 2.1-mile PB already shows. Threshold is the proven core
+   workout for 5k strength and the one *emphasis* your data leans toward — but it's a refinement, not a rescue.
+2. **Easy days — already nailed (confirmed 130–155 bpm).** Well inside the easy zone; the common
+   "grey-zone leak" isn't happening for you. Keep doing exactly this as training intensifies.
+3. **Build a consistent Sunday long run** (12 → 16 km, easy, ≤165 bpm). Aerobic strength underpins a
+   fast 5k and is the most common thing a speed-leaning runner is light on.
 
 ### Other cautions
 1. **Re-test paces as you improve** — the §5 paces are from your current 18:00 fitness; recalibrate after every race.
-2. **The 10k > 5k gap (68s slow).** If it persists *after* you've fixed the intensity mix and built base,
-   get **ferritin tested** — late-race fade in a teen is a classic low-iron signature.
-3. **Resting HR 53 is a baseline to watch.** Track it each morning: a sustained rise of ~7+ bpm =
-   under-recovery (very likely if you keep 3–4 hard days) → back off. It should *drift down* as your aerobic base deepens.
-4. **You're 15 and still growing.** Cardiovascular ambition outruns skeletal readiness. Holding volume
+2. **Ignore the humidity 10k.** It told us nothing about fitness. If you want a true endurance read,
+   race or time-trial a 10k (or a hard tempo) in cool conditions — *that's* a usable data point.
+3. **A baseline ferritin test is still worth it.** Not because of that 10k, but because teen endurance
+   runners are the highest-risk group for low iron, which silently flattens performance. Cheap insurance.
+4. **Resting HR 53 is a baseline to watch.** Track it each morning: a sustained rise of ~7+ bpm =
+   under-recovery → back off. It should *drift down* as your aerobic base deepens.
+5. **You're 15 and still growing.** Cardiovascular ambition outruns skeletal readiness. Holding volume
    at 45–55 km, down weeks, strength work, and your 8.5h sleep are how you reach sub-17 *without* a stress fracture.
-5. **Don't chase weight.** 65 kg is fine. Restricting to "get lighter" (RED-S) is the fastest way to ruin a promising season. Fuel the work.
+6. **Don't chase weight.** 65 kg is fine. Restricting to "get lighter" (RED-S) is the fastest way to ruin a promising season. Fuel the work.
 
 ---
 
