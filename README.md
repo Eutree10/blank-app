@@ -1,10 +1,18 @@
-# 🎈 Blank app template
+# 🏃 Sub-17 5k Training Plan
 
-A simple Streamlit app template for you to modify!
+An interactive Streamlit app with a personalized plan for a 15 y/o runner targeting a
+**sub-17:00 5k before the end of 2026** (current PB 18:00).
 
-[![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://blank-app-template.streamlit.app/)
+The app has five tabs:
+- **📊 Assessment** — honest fitness read + race-equivalent analysis
+- **🧮 Paces & HR** — live pace + heart-rate-zone calculator (recalculates as you get fitter)
+- **🎯 Your sessions** — analysis of your Tue/Thu group workouts and the recommended change
+- **🗓️ June plan** — week-by-week training calendar
+- **🥗 Fuel & recovery** — nutrition, recovery, and red flags
 
-### How to run it on your own machine
+The full coaching write-up lives in [`TRAINING_PLAN.md`](TRAINING_PLAN.md).
+
+### How to run it
 
 1. Install the requirements
 
