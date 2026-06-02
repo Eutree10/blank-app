@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🏃 Sub-17 5k Plan</title>
+<style>
+  :root{--bg:#0e1117;--card:#1a1f2b;--accent:#ff5a4d;--accent2:#4dd0a7;--txt:#e6e9ef;--mut:#9aa3b2;--line:#2a3140;}
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--txt);line-height:1.55;}
+  header{padding:22px 18px 14px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,#141926,#0e1117);}
+  h1{margin:0 0 4px;font-size:1.5rem;}
+  .sub{color:var(--mut);font-size:.9rem;}
+  nav{display:flex;flex-wrap:wrap;gap:6px;padding:12px 14px;position:sticky;top:0;background:var(--bg);border-bottom:1px solid var(--line);z-index:10;}
+  nav button{background:var(--card);color:var(--txt);border:1px solid var(--line);padding:8px 12px;border-radius:20px;font-size:.85rem;cursor:pointer;}
+  nav button.active{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600;}
+  main{max-width:760px;margin:0 auto;padding:18px 16px 60px;}
+  .tab{display:none;}
+  .tab.show{display:block;animation:f .25s ease;}
+  @keyframes f{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+  h2{font-size:1.2rem;margin:6px 0 12px;border-left:4px solid var(--accent);padding-left:10px;}
+  h3{font-size:1rem;margin:20px 0 8px;color:var(--accent2);}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:10px 0;}
+  .metrics{display:flex;gap:10px;flex-wrap:wrap;}
+  .metric{flex:1;min-width:120px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;text-align:center;}
+  .metric .v{font-size:1.6rem;font-weight:700;}
+  .metric .l{color:var(--mut);font-size:.78rem;}
+  .metric .d{font-size:.78rem;color:var(--accent2);}
+  table{width:100%;border-collapse:collapse;margin:8px 0;font-size:.9rem;}
+  th,td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--line);}
+  th{color:var(--mut);font-weight:600;}
+  .strike td{text-decoration:line-through;color:var(--mut);}
+  .pill{display:inline-block;background:#252b3a;border:1px solid var(--line);border-radius:6px;padding:1px 7px;font-size:.8rem;}
+  .good{color:var(--accent2);} .warn{color:#ffcf6b;}
+  .box{border-left:4px solid var(--accent2);background:#15201c;padding:10px 14px;border-radius:8px;margin:12px 0;font-size:.9rem;}
+  .box.w{border-color:#ffcf6b;background:#241f12;}
+  .box.i{border-color:#5b8def;background:#121a2a;}
+  label{display:block;font-size:.82rem;color:var(--mut);margin:10px 0 3px;}
+  input{width:100%;background:#0e1117;border:1px solid var(--line);color:var(--txt);padding:9px;border-radius:8px;font-size:1rem;}
+  .row{display:flex;gap:12px;}.row>div{flex:1;}
+  details{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin:8px 0;}
+  summary{cursor:pointer;font-weight:600;}
+  .day{margin:6px 0;padding-left:4px;}
+  .key{color:var(--accent);font-weight:600;}
+  ul{padding-left:20px;} li{margin:4px 0;}
+  footer{color:var(--mut);font-size:.78rem;text-align:center;padding:20px;border-top:1px solid var(--line);}
+</style>
+</head>
+<body>
+<header>
+  <h1>🏃 Sub-17 5k — Personal Plan</h1>
+  <div class="sub">15 y/o · 65 kg · 170 cm · 5k PB 18:00 · RHR 53 · max HR 197 · <b>Goal: sub-17:00 (3:24/km) by end of 2026</b></div>
+</header>
+
+<nav>
+  <button class="active" data-t="assess">📊 Assessment</button>
+  <button data-t="calc">🧮 Paces &amp; HR</button>
+  <button data-t="sess">🎯 Your sessions</button>
+  <button data-t="cal">🗓️ June plan</button>
+  <button data-t="fuel">🥗 Fuel &amp; recovery</button>
+</nav>
+
+<main>
+  <!-- ASSESSMENT -->
+  <section class="tab show" id="assess">
+    <h2>Honest assessment</h2>
+    <div class="metrics">
+      <div class="metric"><div class="v">18:00</div><div class="l">Current 5k PB</div><div class="d">benchmark</div></div>
+      <div class="metric"><div class="v">16:59</div><div class="l">Goal</div><div class="d">−61s to go</div></div>
+      <div class="metric"><div class="v">5.6%</div><div class="l">Improvement</div><div class="d">over ~7 months</div></div>
+    </div>
+    <div class="card">
+      <p><b>You're a well-rounded, well-trained 18:00 runner with no glaring weakness in the data.</b></p>
+      <ul>
+        <li>Easy days are genuinely easy (130–155 bpm) — most runners fail here; you've nailed it.</li>
+        <li>Intensity count is right: 2 quality days/week on 45–55 km (~80/20).</li>
+        <li>You're 15 and early in your training age, so natural improvement is on your side.</li>
+      </ul>
+      <p><b>The one clear lever:</b> both group sessions are short, fast reps faster than 5k pace. You bank ~8,400 m/week of speed work and <b>essentially zero threshold</b>. Adding the threshold gear is the highest-leverage change for sub-17.</p>
+    </div>
+    <h3>Race-equivalent check (Riegel)</h3>
+    <table>
+      <tr><th>Performance</th><th>Time</th><th>Pace</th><th>Note</th></tr>
+      <tr><td>5k race</td><td>18:00</td><td>3:36/km</td><td>benchmark</td></tr>
+      <tr><td>2.1 mi PB</td><td>11:26</td><td>3:23/km</td><td>predicts 17:19 5k</td></tr>
+      <tr class="strike"><td>10k (95% humidity + rain)</td><td>38:40</td><td>3:52/km</td><td>discounted</td></tr>
+      <tr><td>Goal</td><td>16:59</td><td>3:24/km</td><td>target</td></tr>
+    </table>
+    <div class="box i">The 10k was run in 95% humidity + rain, which routinely costs 30–90+ s over 10k. It is <b>not</b> evidence of an endurance weakness, so it's excluded from the analysis.</div>
+  </section>
+
+  <!-- CALCULATOR -->
+  <section class="tab" id="calc">
+    <h2>Training paces &amp; HR zones</h2>
+    <p class="sub">Live calculator — change your numbers and everything recomputes. Re-enter your 5k as you get fitter.</p>
+    <div class="card">
+      <div class="row">
+        <div><label>5k minutes</label><input id="m5" type="number" value="18" min="14" max="25"></div>
+        <div><label>5k seconds</label><input id="s5" type="number" value="0" min="0" max="59"></div>
+      </div>
+      <div class="row">
+        <div><label>Resting HR</label><input id="rhr" type="number" value="53" min="35" max="90"></div>
+        <div><label>Max HR</label><input id="hrmax" type="number" value="197" min="170" max="220"></div>
+      </div>
+    </div>
+    <h3>Paces (per km)</h3>
+    <table id="paceTbl"></table>
+    <h3>Heart-rate zones (Karvonen)</h3>
+    <table id="hrTbl"></table>
+    <div class="box">Your easy runs at <b>130–155 bpm</b> sit right in the easy zone — keep them there. That discipline is what makes the two hard days work.</div>
+    <h3>Predicted race times at this fitness</h3>
+    <table id="predTbl"></table>
+  </section>
+
+  <!-- SESSIONS -->
+  <section class="tab" id="sess">
+    <h2>Your group sessions — analysed</h2>
+    <table>
+      <tr><th>Day</th><th>What the group does</th><th>Trains</th></tr>
+      <tr><td><b>Tue</b></td><td>1k · 800 · 600 · 3×400, 4 min rest</td><td>VO₂max / speed</td></tr>
+      <tr><td><b>Thu</b></td><td>16 × 300 @ 3:03 (55s), 1:30 jog, 4 min every 4</td><td>Pure speed (~mile pace)</td></tr>
+    </table>
+    <div class="box w"><b>~8,400 m/week faster than 5k pace, and ~0 m of threshold.</b> You have plenty of speed (your 2.1-mile PB proves it). The missing gear is <b>threshold</b> — sustained "comfortably hard" running at ~3:48/km (175–180 bpm) that lets you hold pace for the full 5 km.</div>
+    <h3>The recommended change — keep Thursday, make Tuesday threshold</h3>
+    <ul>
+      <li><b>Best:</b> a real threshold workout Tuesday — e.g. <b>5 × 1 km @ 3:48/km, 75 s jog</b> (solo or ask the coach).</li>
+      <li><b>Keep both group days:</b> add <b>15–20 min @ 3:50/km</b> to the end of the Sunday long run every other week.</li>
+      <li><b>Compromise:</b> run the Tuesday ladder at controlled <b>3 k effort (~3:12/km)</b>, not all-out.</li>
+    </ul>
+    <div class="box i">Option 1 gets you to sub-17 fastest. Tell me which fits your club and I'll lock the calendar to it.</div>
+  </section>
+
+  <!-- CALENDAR -->
+  <section class="tab" id="cal">
+    <h2>June 2026 — week by week</h2>
+    <p class="sub">Base + introduce threshold. ~50–55 km. Easy ≤160 · Threshold 175–180 · Long run ≤165. Down week in week 4.</p>
+    <p class="sub">Every day: <b>Mon</b> easy 6 km + strides · <b>Wed</b> easy 6–7 km · <b>Fri</b> rest/easy 4 km · <b>Sat</b> easy 6 km + strides</p>
+    <details open><summary>Week 1 · Jun 1–7</summary>
+      <div class="day"><span class="key">Tue (threshold):</span> 4 × 1 km @ 3:50, 75 s jog</div>
+      <div class="day"><span class="key">Thu (speed):</span> 16 × 300 @ 3:05–3:08, 1:30 jog, 4 min every 4</div>
+      <div class="day"><span class="key">Sun (long):</span> 12 km easy (≤165)</div></details>
+    <details><summary>Week 2 · Jun 8–14</summary>
+      <div class="day"><span class="key">Tue:</span> 5 × 1 km @ 3:48, 75 s jog</div>
+      <div class="day"><span class="key">Thu:</span> 16 × 300 @ 3:03–3:06</div>
+      <div class="day"><span class="key">Sun:</span> 13 km easy</div></details>
+    <details><summary>Week 3 · Jun 15–21</summary>
+      <div class="day"><span class="key">Tue:</span> 2 × 2 km @ 3:50 + 1 × 1 km @ 3:45, 2–2.5 min jog</div>
+      <div class="day"><span class="key">Thu:</span> 16 × 300 @ 3:03</div>
+      <div class="day"><span class="key">Sun:</span> 15 km easy</div></details>
+    <details><summary>Week 4 · Jun 22–28 (DOWN week)</summary>
+      <div class="day"><span class="key">Tue:</span> 3 × 1 km @ 3:50, 90 s jog</div>
+      <div class="day"><span class="key">Thu:</span> 10 × 300 @ 3:05</div>
+      <div class="day"><span class="key">Sun:</span> 11 km easy</div></details>
+    <div class="box">Each key session: 2–3 km warm-up + strides before, 1–2 km cool-down after. Never two hard days back-to-back beyond Tue/Thu.</div>
+  </section>
+
+  <!-- FUEL -->
+  <section class="tab" id="fuel">
+    <h2>Fuel, recovery &amp; red flags</h2>
+    <h3>Nutrition (15 y/o endurance athlete)</h3>
+    <ul>
+      <li><b>Don't chase weight</b> — 65 kg is a healthy racing weight. Under-fuelling (RED-S) stalls growth and performance.</li>
+      <li><b>Carbs are your main fuel</b> — rice, pasta, oats, potatoes, bread, fruit. Refuel within ~60 min of key sessions.</li>
+      <li><b>Protein</b> ~1.4–1.6 g/kg/day (~90–105 g) across the day.</li>
+      <li><b>Iron</b> — teen runners are highest-risk for low ferritin. Iron-rich foods + vitamin C; consider a baseline ferritin blood test.</li>
+      <li><b>Calcium + vitamin D</b> for growing, loading bones.</li>
+    </ul>
+    <h3>Recovery &amp; monitoring</h3>
+    <ul>
+      <li><b>Sleep 8.5 h is excellent — protect it.</b> It's where adaptation happens at 15.</li>
+      <li>Track morning resting HR (baseline 53). A sustained rise of ~7+ bpm = back off.</li>
+      <li>Keep easy days genuinely easy (≤160 bpm). The talk test is your guide.</li>
+    </ul>
+    <h3>Red flags</h3>
+    <ul>
+      <li>No raw Garmin export was parsed — built from your race PBs. Re-test paces as you improve.</li>
+      <li>The humidity+rain 10k is unusable — for a real endurance read, race a 10k or hard tempo in cool conditions.</li>
+      <li>A baseline ferritin test is cheap insurance for a teen distance runner.</li>
+      <li>You're 15 and growing — hold volume at 45–55 km, take down weeks, do strength work. Durability first.</li>
+    </ul>
+  </section>
+</main>
+
+<footer>Coaching framework, not medical advice. Check with a doctor before ramping training or blood testing (you're a minor).</footer>
+
+<script>
+// tab switching
+document.querySelectorAll('nav button').forEach(b=>{
+  b.onclick=()=>{
+    document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('show'));
+    b.classList.add('active');
+    document.getElementById(b.dataset.t).classList.add('show');
+    window.scrollTo({top:0,behavior:'smooth'});
+  };
+});
+
+const GOAL=17*60;
+const fmt=s=>{s=Math.round(s);return Math.floor(s/60)+':'+String(s%60).padStart(2,'0');};
+const riegel=(t,a,b)=>t*Math.pow(b/a,1.06);
+
+function recompute(){
+  const t5=(+m5.value)*60+(+s5.value), p=t5/5;
+  const rhr=+document.getElementById('rhr').value, hx=+document.getElementById('hrmax').value, hrr=hx-rhr;
+  const paces=[
+    ['Easy / recovery',p+64,p+94],['Long run',p+64,p+84],['Threshold (tempo)',p+9,p+16],
+    ['5k goal pace',GOAL/5,GOAL/5],['VO₂max (intervals)',p-21,p-11],['Reps / strides',p-35,p-25]];
+  document.getElementById('paceTbl').innerHTML='<tr><th>Zone</th><th>Pace range</th></tr>'+
+    paces.map(z=>`<tr><td>${z[0]}</td><td>${z[1]===z[2]?fmt(z[1]):fmt(z[1])+' – '+fmt(z[2])}</td></tr>`).join('');
+  const z=(lo,hi)=>Math.round(rhr+lo*hrr)+' – '+Math.round(rhr+hi*hrr)+' bpm';
+  const hz=[['Easy / recovery',.60,.74],['Steady aerobic',.75,.84],['Threshold',.85,.88],['VO₂max',.89,.95],['Max',.95,1]];
+  document.getElementById('hrTbl').innerHTML='<tr><th>Zone</th><th>Heart rate</th></tr>'+
+    hz.map(h=>`<tr><td>${h[0]}</td><td>${z(h[1],h[2])}</td></tr>`).join('');
+  const pr=[['1500 m',1.5],['3 km',3],['5 km',5],['10 km',10]];
+  document.getElementById('predTbl').innerHTML='<tr><th>Distance</th><th>Predicted</th></tr>'+
+    pr.map(d=>`<tr><td>${d[0]}</td><td>${d[1]===5?fmt(t5):fmt(riegel(t5,5,d[1]))}</td></tr>`).join('');
+}
+['m5','s5','rhr','hrmax'].forEach(id=>document.getElementById(id).addEventListener('input',recompute));
+recompute();
+</script>
+</body>
+</html>
