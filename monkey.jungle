@@ -1,0 +1,10 @@
+# Questline build configuration.
+#
+# All layout is done with custom drawing that adapts at runtime to the screen
+# shape and size (see source/ui/Layout.mc), so a single resource set serves
+# every device. There are therefore no shape-qualified resource folders.
+
+project.manifest = manifest.xml
+
+base.sourcePath = source
+base.resourcePath = resources

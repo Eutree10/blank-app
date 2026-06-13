@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Questline manifest.
+    - type="watch-app": a full multi-view Watch App (not a widget/datafield).
+    - No <iq:permissions>: the app is 100% local. It uses no GPS, sensors,
+      FIT recording, communications or background services, so it needs no
+      permissions. This keeps Connect IQ Store approval simple.
+    - minApiLevel 3.1.0: required for Application.Storage/Properties and the
+      WatchUi.BehaviorDelegate semantic callbacks used for unified
+      button + touch navigation.
+    - Products span both AMOLED (Venu / newer Forerunner) and MIP (Fenix /
+      Forerunner / Instinct) families. The UI uses a pure-black background and
+      a once-per-minute refresh, which is correct for AMOLED burn-in / battery
+      and harmless on MIP.
+-->
+<iq:manifest xmlns:iq="http://www.garmin.com/xml/connectiq" version="3">
+    <iq:application
+        entry="QuestlineApp"
+        id="cd7c95774fa94c32a5fc5cc7f0d43fb8"
+        launcherIcon="@Drawables.LauncherIcon"
+        minApiLevel="3.1.0"
+        name="@Strings.AppName"
+        type="watch-app">
+
+        <!--
+            High-confidence product ids spanning AMOLED (Venu / FR965 / epix2)
+            and MIP (FR255 / FR955 / fenix7) families. Reconcile this list with
+            the device list of your installed SDK before publishing (the VS Code
+            "Connect IQ: Edit Products" command lists every valid id); adding
+            more devices needs no code changes thanks to runtime layout.
+        -->
+        <iq:products>
+            <!-- AMOLED -->
+            <iq:product id="venu2"/>
+            <iq:product id="venu2s"/>
+            <iq:product id="venu2plus"/>
+            <iq:product id="venu3"/>
+            <iq:product id="venu3s"/>
+            <iq:product id="fr965"/>
+            <iq:product id="epix2"/>
+            <!-- MIP / memory-in-pixel -->
+            <iq:product id="fr255"/>
+            <iq:product id="fr255s"/>
+            <iq:product id="fr955"/>
+            <iq:product id="fenix7"/>
+            <iq:product id="fenix7s"/>
+            <iq:product id="fenix7x"/>
+        </iq:products>
+
+        <iq:permissions/>
+
+        <iq:languages>
+            <iq:language>eng</iq:language>
+        </iq:languages>
+
+        <iq:barrels/>
+    </iq:application>
+</iq:manifest>

@@ -1,0 +1,7 @@
+<drawables>
+    <!-- Shown in the device's app/glance launcher. -->
+    <bitmap id="LauncherIcon" filename="launcher_icon.png"/>
+    <!-- Gold stopwatch emblem drawn at the top of the hub screen. -->
+    <bitmap id="Logo" filename="logo.png"/>
+    <bitmap id="LogoLarge" filename="logo_large.png"/>
+</drawables>

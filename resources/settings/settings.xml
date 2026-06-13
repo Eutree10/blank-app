@@ -1,0 +1,424 @@
+<settings>
+    <group id="grp_d" title="@Strings.SetGroupDailyTitle">
+        <!-- Daily quest 1 -->
+        <setting propertyKey="@Properties.d0_on" title="@Strings.s_d0">
+            <settingConfig type="boolean"/>
+        </setting>
+        <setting propertyKey="@Properties.d0_title" title="@Strings.SetTitlePrompt">
+            <settingConfig type="alphaNumeric" maxLength="60"/>
+        </setting>
+        <setting propertyKey="@Properties.d0_cat" title="@Strings.SetCatPrompt">
+            <settingConfig type="list">
+                <listEntry value="0">@Strings.Cat0</listEntry>
+                <listEntry value="1">@Strings.Cat1</listEntry>
+                <listEntry value="2">@Strings.Cat2</listEntry>
+                <listEntry value="3">@Strings.Cat3</listEntry>
+                <listEntry value="4">@Strings.Cat4</listEntry>
+            </settingConfig>
+        </setting>
+        <!-- Daily quest 2 -->
+        <setting propertyKey="@Properties.d1_on" title="@Strings.s_d1">
+            <settingConfig type="boolean"/>
+        </setting>
+        <setting propertyKey="@Properties.d1_title" title="@Strings.SetTitlePrompt">
+            <settingConfig type="alphaNumeric" maxLength="60"/>
+        </setting>
+        <setting propertyKey="@Properties.d1_cat" title="@Strings.SetCatPrompt">
+            <settingConfig type="list">
+                <listEntry value="0">@Strings.Cat0</listEntry>
+                <listEntry value="1">@Strings.Cat1</listEntry>
+                <listEntry value="2">@Strings.Cat2</listEntry>
+                <listEntry value="3">@Strings.Cat3</listEntry>
+                <listEntry value="4">@Strings.Cat4</listEntry>
+            </settingConfig>
+        </setting>
+        <!-- Daily quest 3 -->
+        <setting propertyKey="@Properties.d2_on" title="@Strings.s_d2">
+            <settingConfig type="boolean"/>
+        </setting>
+        <setting propertyKey="@Properties.d2_title" title="@Strings.SetTitlePrompt">
+            <settingConfig type="alphaNumeric" maxLength="60"/>
+        </setting>
+        <setting propertyKey="@Properties.d2_cat" title="@Strings.SetCatPrompt">
+            <settingConfig type="list">
+                <listEntry value="0">@Strings.Cat0</listEntry>
+                <listEntry value="1">@Strings.Cat1</listEntry>
+                <listEntry value="2">@Strings.Cat2</listEntry>
+                <listEntry value="3">@Strings.Cat3</listEntry>
+                <listEntry value="4">@Strings.Cat4</listEntry>
+            </settingConfig>
+        </setting>
+        <!-- Daily quest 4 -->
+        <setting propertyKey="@Properties.d3_on" title="@Strings.s_d3">
+            <settingConfig type="boolean"/>
+        </setting>
+        <setting propertyKey="@Properties.d3_title" title="@Strings.SetTitlePrompt">
+            <settingConfig type="alphaNumeric" maxLength="60"/>
+        </setting>
+        <setting propertyKey="@Properties.d3_cat" title="@Strings.SetCatPrompt">
+            <settingConfig type="list">
+                <listEntry value="0">@Strings.Cat0</listEntry>
+                <listEntry value="1">@Strings.Cat1</listEntry>
+                <listEntry value="2">@Strings.Cat2</listEntry>
+                <listEntry value="3">@Strings.Cat3</listEntry>
+                <listEntry value="4">@Strings.Cat4</listEntry>
+            </settingConfig>
+        </setting>
+        <!-- Daily quest 5 -->
+        <setting propertyKey="@Properties.d4_on" title="@Strings.s_d4">
+            <settingConfig type="boolean"/>
+        </setting>
+        <setting propertyKey="@Properties.d4_title" title="@Strings.SetTitlePrompt">
+            <settingConfig type="alphaNumeric" maxLength="60"/>
+        </setting>
+        <setting propertyKey="@Properties.d4_cat" title="@Strings.SetCatPrompt">
+            <settingConfig type="list">
+                <listEntry value="0">@Strings.Cat0</listEntry>
+                <listEntry value="1">@Strings.Cat1</listEntry>
+                <listEntry value="2">@Strings.Cat2</listEntry>
+                <listEntry value="3">@Strings.Cat3</listEntry>
+                <listEntry value="4">@Strings.Cat4</listEntry>
+            </settingConfig>
+        </setting>
+        <!-- Daily quest 6 -->
+        <setting propertyKey="@Properties.d5_on" title="@Strings.s_d5">
+            <settingConfig type="boolean"/>
+        </setting>
+        <setting propertyKey="@Properties.d5_title" title="@Strings.SetTitlePrompt">
+            <settingConfig type="alphaNumeric" maxLength="60"/>
+        </setting>
+        <setting propertyKey="@Properties.d5_cat" title="@Strings.SetCatPrompt">
+            <settingConfig type="list">
+                <listEntry value="0">@Strings.Cat0</listEntry>
+                <listEntry value="1">@Strings.Cat1</listEntry>
+                <listEntry value="2">@Strings.Cat2</listEntry>
+                <listEntry value="3">@Strings.Cat3</listEntry>
+                <listEntry value="4">@Strings.Cat4</listEntry>
+            </settingConfig>
+        </setting>
+    </group>
+    <group id="grp_w" title="@Strings.SetGroupWeeklyTitle">
+        <!-- Weekly quest 1 -->
+        <setting propertyKey="@Properties.w0_on" title="@Strings.s_w0">
+            <settingConfig type="boolean"/>
+        </setting>
+        <setting propertyKey="@Properties.w0_title" title="@Strings.SetTitlePrompt">
+            <settingConfig type="alphaNumeric" maxLength="60"/>
+        </setting>
+        <setting propertyKey="@Properties.w0_cat" title="@Strings.SetCatPrompt">
+            <settingConfig type="list">
+                <listEntry value="0">@Strings.Cat0</listEntry>
+                <listEntry value="1">@Strings.Cat1</listEntry>
+                <listEntry value="2">@Strings.Cat2</listEntry>
+                <listEntry value="3">@Strings.Cat3</listEntry>
+                <listEntry value="4">@Strings.Cat4</listEntry>
+            </settingConfig>
+        </setting>
+        <!-- Weekly quest 2 -->
+        <setting propertyKey="@Properties.w1_on" title="@Strings.s_w1">
+            <settingConfig type="boolean"/>
+        </setting>
+        <setting propertyKey="@Properties.w1_title" title="@Strings.SetTitlePrompt">
+            <settingConfig type="alphaNumeric" maxLength="60"/>
+        </setting>
+        <setting propertyKey="@Properties.w1_cat" title="@Strings.SetCatPrompt">
+            <settingConfig type="list">
+                <listEntry value="0">@Strings.Cat0</listEntry>
+                <listEntry value="1">@Strings.Cat1</listEntry>
+                <listEntry value="2">@Strings.Cat2</listEntry>
+                <listEntry value="3">@Strings.Cat3</listEntry>
+                <listEntry value="4">@Strings.Cat4</listEntry>
+            </settingConfig>
+        </setting>
+        <!-- Weekly quest 3 -->
+        <setting propertyKey="@Properties.w2_on" title="@Strings.s_w2">
+            <settingConfig type="boolean"/>
+        </setting>
+        <setting propertyKey="@Properties.w2_title" title="@Strings.SetTitlePrompt">
+            <settingConfig type="alphaNumeric" maxLength="60"/>
+        </setting>
+        <setting propertyKey="@Properties.w2_cat" title="@Strings.SetCatPrompt">
+            <settingConfig type="list">
+                <listEntry value="0">@Strings.Cat0</listEntry>
+                <listEntry value="1">@Strings.Cat1</listEntry>
+                <listEntry value="2">@Strings.Cat2</listEntry>
+                <listEntry value="3">@Strings.Cat3</listEntry>
+                <listEntry value="4">@Strings.Cat4</listEntry>
+            </settingConfig>
+        </setting>
+        <!-- Weekly quest 4 -->
+        <setting propertyKey="@Properties.w3_on" title="@Strings.s_w3">
+            <settingConfig type="boolean"/>
+        </setting>
+        <setting propertyKey="@Properties.w3_title" title="@Strings.SetTitlePrompt">
+            <settingConfig type="alphaNumeric" maxLength="60"/>
+        </setting>
+        <setting propertyKey="@Properties.w3_cat" title="@Strings.SetCatPrompt">
+            <settingConfig type="list">
+                <listEntry value="0">@Strings.Cat0</listEntry>
+                <listEntry value="1">@Strings.Cat1</listEntry>
+                <listEntry value="2">@Strings.Cat2</listEntry>
+                <listEntry value="3">@Strings.Cat3</listEntry>
+                <listEntry value="4">@Strings.Cat4</listEntry>
+            </settingConfig>
+        </setting>
+        <!-- Weekly quest 5 -->
+        <setting propertyKey="@Properties.w4_on" title="@Strings.s_w4">
+            <settingConfig type="boolean"/>
+        </setting>
+        <setting propertyKey="@Properties.w4_title" title="@Strings.SetTitlePrompt">
+            <settingConfig type="alphaNumeric" maxLength="60"/>
+        </setting>
+        <setting propertyKey="@Properties.w4_cat" title="@Strings.SetCatPrompt">
+            <settingConfig type="list">
+                <listEntry value="0">@Strings.Cat0</listEntry>
+                <listEntry value="1">@Strings.Cat1</listEntry>
+                <listEntry value="2">@Strings.Cat2</listEntry>
+                <listEntry value="3">@Strings.Cat3</listEntry>
+                <listEntry value="4">@Strings.Cat4</listEntry>
+            </settingConfig>
+        </setting>
+        <!-- Weekly quest 6 -->
+        <setting propertyKey="@Properties.w5_on" title="@Strings.s_w5">
+            <settingConfig type="boolean"/>
+        </setting>
+        <setting propertyKey="@Properties.w5_title" title="@Strings.SetTitlePrompt">
+            <settingConfig type="alphaNumeric" maxLength="60"/>
+        </setting>
+        <setting propertyKey="@Properties.w5_cat" title="@Strings.SetCatPrompt">
+            <settingConfig type="list">
+                <listEntry value="0">@Strings.Cat0</listEntry>
+                <listEntry value="1">@Strings.Cat1</listEntry>
+                <listEntry value="2">@Strings.Cat2</listEntry>
+                <listEntry value="3">@Strings.Cat3</listEntry>
+                <listEntry value="4">@Strings.Cat4</listEntry>
+            </settingConfig>
+        </setting>
+        <!-- Weekly quest 7 -->
+        <setting propertyKey="@Properties.w6_on" title="@Strings.s_w6">
+            <settingConfig type="boolean"/>
+        </setting>
+        <setting propertyKey="@Properties.w6_title" title="@Strings.SetTitlePrompt">
+            <settingConfig type="alphaNumeric" maxLength="60"/>
+        </setting>
+        <setting propertyKey="@Properties.w6_cat" title="@Strings.SetCatPrompt">
+            <settingConfig type="list">
+                <listEntry value="0">@Strings.Cat0</listEntry>
+                <listEntry value="1">@Strings.Cat1</listEntry>
+                <listEntry value="2">@Strings.Cat2</listEntry>
+                <listEntry value="3">@Strings.Cat3</listEntry>
+                <listEntry value="4">@Strings.Cat4</listEntry>
+            </settingConfig>
+        </setting>
+        <!-- Weekly quest 8 -->
+        <setting propertyKey="@Properties.w7_on" title="@Strings.s_w7">
+            <settingConfig type="boolean"/>
+        </setting>
+        <setting propertyKey="@Properties.w7_title" title="@Strings.SetTitlePrompt">
+            <settingConfig type="alphaNumeric" maxLength="60"/>
+        </setting>
+        <setting propertyKey="@Properties.w7_cat" title="@Strings.SetCatPrompt">
+            <settingConfig type="list">
+                <listEntry value="0">@Strings.Cat0</listEntry>
+                <listEntry value="1">@Strings.Cat1</listEntry>
+                <listEntry value="2">@Strings.Cat2</listEntry>
+                <listEntry value="3">@Strings.Cat3</listEntry>
+                <listEntry value="4">@Strings.Cat4</listEntry>
+            </settingConfig>
+        </setting>
+    </group>
+    <group id="grp_m" title="@Strings.SetGroupMonthlyTitle">
+        <!-- Monthly quest 1 -->
+        <setting propertyKey="@Properties.m0_on" title="@Strings.s_m0">
+            <settingConfig type="boolean"/>
+        </setting>
+        <setting propertyKey="@Properties.m0_title" title="@Strings.SetTitlePrompt">
+            <settingConfig type="alphaNumeric" maxLength="60"/>
+        </setting>
+        <setting propertyKey="@Properties.m0_cat" title="@Strings.SetCatPrompt">
+            <settingConfig type="list">
+                <listEntry value="0">@Strings.Cat0</listEntry>
+                <listEntry value="1">@Strings.Cat1</listEntry>
+                <listEntry value="2">@Strings.Cat2</listEntry>
+                <listEntry value="3">@Strings.Cat3</listEntry>
+                <listEntry value="4">@Strings.Cat4</listEntry>
+            </settingConfig>
+        </setting>
+        <!-- Monthly quest 2 -->
+        <setting propertyKey="@Properties.m1_on" title="@Strings.s_m1">
+            <settingConfig type="boolean"/>
+        </setting>
+        <setting propertyKey="@Properties.m1_title" title="@Strings.SetTitlePrompt">
+            <settingConfig type="alphaNumeric" maxLength="60"/>
+        </setting>
+        <setting propertyKey="@Properties.m1_cat" title="@Strings.SetCatPrompt">
+            <settingConfig type="list">
+                <listEntry value="0">@Strings.Cat0</listEntry>
+                <listEntry value="1">@Strings.Cat1</listEntry>
+                <listEntry value="2">@Strings.Cat2</listEntry>
+                <listEntry value="3">@Strings.Cat3</listEntry>
+                <listEntry value="4">@Strings.Cat4</listEntry>
+            </settingConfig>
+        </setting>
+        <!-- Monthly quest 3 -->
+        <setting propertyKey="@Properties.m2_on" title="@Strings.s_m2">
+            <settingConfig type="boolean"/>
+        </setting>
+        <setting propertyKey="@Properties.m2_title" title="@Strings.SetTitlePrompt">
+            <settingConfig type="alphaNumeric" maxLength="60"/>
+        </setting>
+        <setting propertyKey="@Properties.m2_cat" title="@Strings.SetCatPrompt">
+            <settingConfig type="list">
+                <listEntry value="0">@Strings.Cat0</listEntry>
+                <listEntry value="1">@Strings.Cat1</listEntry>
+                <listEntry value="2">@Strings.Cat2</listEntry>
+                <listEntry value="3">@Strings.Cat3</listEntry>
+                <listEntry value="4">@Strings.Cat4</listEntry>
+            </settingConfig>
+        </setting>
+        <!-- Monthly quest 4 -->
+        <setting propertyKey="@Properties.m3_on" title="@Strings.s_m3">
+            <settingConfig type="boolean"/>
+        </setting>
+        <setting propertyKey="@Properties.m3_title" title="@Strings.SetTitlePrompt">
+            <settingConfig type="alphaNumeric" maxLength="60"/>
+        </setting>
+        <setting propertyKey="@Properties.m3_cat" title="@Strings.SetCatPrompt">
+            <settingConfig type="list">
+                <listEntry value="0">@Strings.Cat0</listEntry>
+                <listEntry value="1">@Strings.Cat1</listEntry>
+                <listEntry value="2">@Strings.Cat2</listEntry>
+                <listEntry value="3">@Strings.Cat3</listEntry>
+                <listEntry value="4">@Strings.Cat4</listEntry>
+            </settingConfig>
+        </setting>
+        <!-- Monthly quest 5 -->
+        <setting propertyKey="@Properties.m4_on" title="@Strings.s_m4">
+            <settingConfig type="boolean"/>
+        </setting>
+        <setting propertyKey="@Properties.m4_title" title="@Strings.SetTitlePrompt">
+            <settingConfig type="alphaNumeric" maxLength="60"/>
+        </setting>
+        <setting propertyKey="@Properties.m4_cat" title="@Strings.SetCatPrompt">
+            <settingConfig type="list">
+                <listEntry value="0">@Strings.Cat0</listEntry>
+                <listEntry value="1">@Strings.Cat1</listEntry>
+                <listEntry value="2">@Strings.Cat2</listEntry>
+                <listEntry value="3">@Strings.Cat3</listEntry>
+                <listEntry value="4">@Strings.Cat4</listEntry>
+            </settingConfig>
+        </setting>
+        <!-- Monthly quest 6 -->
+        <setting propertyKey="@Properties.m5_on" title="@Strings.s_m5">
+            <settingConfig type="boolean"/>
+        </setting>
+        <setting propertyKey="@Properties.m5_title" title="@Strings.SetTitlePrompt">
+            <settingConfig type="alphaNumeric" maxLength="60"/>
+        </setting>
+        <setting propertyKey="@Properties.m5_cat" title="@Strings.SetCatPrompt">
+            <settingConfig type="list">
+                <listEntry value="0">@Strings.Cat0</listEntry>
+                <listEntry value="1">@Strings.Cat1</listEntry>
+                <listEntry value="2">@Strings.Cat2</listEntry>
+                <listEntry value="3">@Strings.Cat3</listEntry>
+                <listEntry value="4">@Strings.Cat4</listEntry>
+            </settingConfig>
+        </setting>
+        <!-- Monthly quest 7 -->
+        <setting propertyKey="@Properties.m6_on" title="@Strings.s_m6">
+            <settingConfig type="boolean"/>
+        </setting>
+        <setting propertyKey="@Properties.m6_title" title="@Strings.SetTitlePrompt">
+            <settingConfig type="alphaNumeric" maxLength="60"/>
+        </setting>
+        <setting propertyKey="@Properties.m6_cat" title="@Strings.SetCatPrompt">
+            <settingConfig type="list">
+                <listEntry value="0">@Strings.Cat0</listEntry>
+                <listEntry value="1">@Strings.Cat1</listEntry>
+                <listEntry value="2">@Strings.Cat2</listEntry>
+                <listEntry value="3">@Strings.Cat3</listEntry>
+                <listEntry value="4">@Strings.Cat4</listEntry>
+            </settingConfig>
+        </setting>
+        <!-- Monthly quest 8 -->
+        <setting propertyKey="@Properties.m7_on" title="@Strings.s_m7">
+            <settingConfig type="boolean"/>
+        </setting>
+        <setting propertyKey="@Properties.m7_title" title="@Strings.SetTitlePrompt">
+            <settingConfig type="alphaNumeric" maxLength="60"/>
+        </setting>
+        <setting propertyKey="@Properties.m7_cat" title="@Strings.SetCatPrompt">
+            <settingConfig type="list">
+                <listEntry value="0">@Strings.Cat0</listEntry>
+                <listEntry value="1">@Strings.Cat1</listEntry>
+                <listEntry value="2">@Strings.Cat2</listEntry>
+                <listEntry value="3">@Strings.Cat3</listEntry>
+                <listEntry value="4">@Strings.Cat4</listEntry>
+            </settingConfig>
+        </setting>
+        <!-- Monthly quest 9 -->
+        <setting propertyKey="@Properties.m8_on" title="@Strings.s_m8">
+            <settingConfig type="boolean"/>
+        </setting>
+        <setting propertyKey="@Properties.m8_title" title="@Strings.SetTitlePrompt">
+            <settingConfig type="alphaNumeric" maxLength="60"/>
+        </setting>
+        <setting propertyKey="@Properties.m8_cat" title="@Strings.SetCatPrompt">
+            <settingConfig type="list">
+                <listEntry value="0">@Strings.Cat0</listEntry>
+                <listEntry value="1">@Strings.Cat1</listEntry>
+                <listEntry value="2">@Strings.Cat2</listEntry>
+                <listEntry value="3">@Strings.Cat3</listEntry>
+                <listEntry value="4">@Strings.Cat4</listEntry>
+            </settingConfig>
+        </setting>
+        <!-- Monthly quest 10 -->
+        <setting propertyKey="@Properties.m9_on" title="@Strings.s_m9">
+            <settingConfig type="boolean"/>
+        </setting>
+        <setting propertyKey="@Properties.m9_title" title="@Strings.SetTitlePrompt">
+            <settingConfig type="alphaNumeric" maxLength="60"/>
+        </setting>
+        <setting propertyKey="@Properties.m9_cat" title="@Strings.SetCatPrompt">
+            <settingConfig type="list">
+                <listEntry value="0">@Strings.Cat0</listEntry>
+                <listEntry value="1">@Strings.Cat1</listEntry>
+                <listEntry value="2">@Strings.Cat2</listEntry>
+                <listEntry value="3">@Strings.Cat3</listEntry>
+                <listEntry value="4">@Strings.Cat4</listEntry>
+            </settingConfig>
+        </setting>
+        <!-- Monthly quest 11 -->
+        <setting propertyKey="@Properties.m10_on" title="@Strings.s_m10">
+            <settingConfig type="boolean"/>
+        </setting>
+        <setting propertyKey="@Properties.m10_title" title="@Strings.SetTitlePrompt">
+            <settingConfig type="alphaNumeric" maxLength="60"/>
+        </setting>
+        <setting propertyKey="@Properties.m10_cat" title="@Strings.SetCatPrompt">
+            <settingConfig type="list">
+                <listEntry value="0">@Strings.Cat0</listEntry>
+                <listEntry value="1">@Strings.Cat1</listEntry>
+                <listEntry value="2">@Strings.Cat2</listEntry>
+                <listEntry value="3">@Strings.Cat3</listEntry>
+                <listEntry value="4">@Strings.Cat4</listEntry>
+            </settingConfig>
+        </setting>
+        <!-- Monthly quest 12 -->
+        <setting propertyKey="@Properties.m11_on" title="@Strings.s_m11">
+            <settingConfig type="boolean"/>
+        </setting>
+        <setting propertyKey="@Properties.m11_title" title="@Strings.SetTitlePrompt">
+            <settingConfig type="alphaNumeric" maxLength="60"/>
+        </setting>
+        <setting propertyKey="@Properties.m11_cat" title="@Strings.SetCatPrompt">
+            <settingConfig type="list">
+                <listEntry value="0">@Strings.Cat0</listEntry>
+                <listEntry value="1">@Strings.Cat1</listEntry>
+                <listEntry value="2">@Strings.Cat2</listEntry>
+                <listEntry value="3">@Strings.Cat3</listEntry>
+                <listEntry value="4">@Strings.Cat4</listEntry>
+            </settingConfig>
+        </setting>
+    </group>
+</settings>
