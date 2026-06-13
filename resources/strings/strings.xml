@@ -1,0 +1,65 @@
+<strings>
+    <!-- App identity -->
+    <string id="AppName">Questline</string>
+
+    <!-- Hub stat cards -->
+    <string id="TotalXp">TOTAL XP</string>
+    <string id="Completed">COMPLETED</string>
+
+    <!-- Level names -->
+    <string id="DailyQuests">Daily Quests</string>
+    <string id="WeeklyQuests">Weekly Quests</string>
+    <string id="MonthlyQuests">Monthly Quests</string>
+    <string id="LevelDaily">DAILY</string>
+    <string id="LevelWeekly">WEEKLY</string>
+    <string id="LevelMonthly">MONTHLY</string>
+
+    <!-- Actions / links -->
+    <string id="ActionComplete">COMPLETE</string>
+    <string id="ActionReset">RESET</string>
+    <string id="ActionBack">Back</string>
+    <string id="CompletedLink">Completed</string>
+    <string id="SwitchLevel">Switch level</string>
+    <string id="EmptyLevel">Add quests in the phone app</string>
+
+    <!-- Category names (also used as dropdown labels in settings) -->
+    <string id="Cat0">Physical</string>
+    <string id="Cat1">Task</string>
+    <string id="Cat2">Mental</string>
+    <string id="Cat3">Habit</string>
+    <string id="Cat4">Other</string>
+
+    <!-- ===== Settings UI labels (Garmin Connect phone app) ===== -->
+    <string id="SetGroupDailyTitle">Daily Quests (100 XP each)</string>
+    <string id="SetGroupWeeklyTitle">Weekly Quests (300 XP each)</string>
+    <string id="SetGroupMonthlyTitle">Monthly Quests (500 XP each)</string>
+    <string id="SetTitlePrompt">Quest text</string>
+    <string id="SetCatPrompt">Category</string>
+    <string id="SetOnPrompt">Enabled</string>
+    <string id="s_d0">Daily 1</string>
+    <string id="s_d1">Daily 2</string>
+    <string id="s_d2">Daily 3</string>
+    <string id="s_d3">Daily 4</string>
+    <string id="s_d4">Daily 5</string>
+    <string id="s_d5">Daily 6</string>
+    <string id="s_w0">Weekly 1</string>
+    <string id="s_w1">Weekly 2</string>
+    <string id="s_w2">Weekly 3</string>
+    <string id="s_w3">Weekly 4</string>
+    <string id="s_w4">Weekly 5</string>
+    <string id="s_w5">Weekly 6</string>
+    <string id="s_w6">Weekly 7</string>
+    <string id="s_w7">Weekly 8</string>
+    <string id="s_m0">Monthly 1</string>
+    <string id="s_m1">Monthly 2</string>
+    <string id="s_m2">Monthly 3</string>
+    <string id="s_m3">Monthly 4</string>
+    <string id="s_m4">Monthly 5</string>
+    <string id="s_m5">Monthly 6</string>
+    <string id="s_m6">Monthly 7</string>
+    <string id="s_m7">Monthly 8</string>
+    <string id="s_m8">Monthly 9</string>
+    <string id="s_m9">Monthly 10</string>
+    <string id="s_m10">Monthly 11</string>
+    <string id="s_m11">Monthly 12</string>
+</strings>

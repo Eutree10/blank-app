@@ -1,0 +1,92 @@
+<properties>
+    <!-- One row of properties per quest slot:
+         {p}{i}_on    boolean  quest enabled
+         {p}{i}_title string   quest text written by the user
+         {p}{i}_cat   number   category index (0..4)
+         The minimum active set (3 daily / 5 weekly / 10 monthly) ships
+         enabled with neutral placeholder text so the app is populated on
+         first run; the user replaces the text from the phone. -->
+    <!-- Daily -->
+    <property id="d0_on" type="boolean">true</property>
+    <property id="d0_title" type="string">Sample daily quest 1</property>
+    <property id="d0_cat" type="number">0</property>
+    <property id="d1_on" type="boolean">true</property>
+    <property id="d1_title" type="string">Sample daily quest 2</property>
+    <property id="d1_cat" type="number">0</property>
+    <property id="d2_on" type="boolean">true</property>
+    <property id="d2_title" type="string">Sample daily quest 3</property>
+    <property id="d2_cat" type="number">0</property>
+    <property id="d3_on" type="boolean">false</property>
+    <property id="d3_title" type="string"></property>
+    <property id="d3_cat" type="number">0</property>
+    <property id="d4_on" type="boolean">false</property>
+    <property id="d4_title" type="string"></property>
+    <property id="d4_cat" type="number">0</property>
+    <property id="d5_on" type="boolean">false</property>
+    <property id="d5_title" type="string"></property>
+    <property id="d5_cat" type="number">0</property>
+    <!-- Weekly -->
+    <property id="w0_on" type="boolean">true</property>
+    <property id="w0_title" type="string">Sample weekly quest 1</property>
+    <property id="w0_cat" type="number">0</property>
+    <property id="w1_on" type="boolean">true</property>
+    <property id="w1_title" type="string">Sample weekly quest 2</property>
+    <property id="w1_cat" type="number">0</property>
+    <property id="w2_on" type="boolean">true</property>
+    <property id="w2_title" type="string">Sample weekly quest 3</property>
+    <property id="w2_cat" type="number">0</property>
+    <property id="w3_on" type="boolean">true</property>
+    <property id="w3_title" type="string">Sample weekly quest 4</property>
+    <property id="w3_cat" type="number">0</property>
+    <property id="w4_on" type="boolean">true</property>
+    <property id="w4_title" type="string">Sample weekly quest 5</property>
+    <property id="w4_cat" type="number">0</property>
+    <property id="w5_on" type="boolean">false</property>
+    <property id="w5_title" type="string"></property>
+    <property id="w5_cat" type="number">0</property>
+    <property id="w6_on" type="boolean">false</property>
+    <property id="w6_title" type="string"></property>
+    <property id="w6_cat" type="number">0</property>
+    <property id="w7_on" type="boolean">false</property>
+    <property id="w7_title" type="string"></property>
+    <property id="w7_cat" type="number">0</property>
+    <!-- Monthly -->
+    <property id="m0_on" type="boolean">true</property>
+    <property id="m0_title" type="string">Sample monthly quest 1</property>
+    <property id="m0_cat" type="number">0</property>
+    <property id="m1_on" type="boolean">true</property>
+    <property id="m1_title" type="string">Sample monthly quest 2</property>
+    <property id="m1_cat" type="number">0</property>
+    <property id="m2_on" type="boolean">true</property>
+    <property id="m2_title" type="string">Sample monthly quest 3</property>
+    <property id="m2_cat" type="number">0</property>
+    <property id="m3_on" type="boolean">true</property>
+    <property id="m3_title" type="string">Sample monthly quest 4</property>
+    <property id="m3_cat" type="number">0</property>
+    <property id="m4_on" type="boolean">true</property>
+    <property id="m4_title" type="string">Sample monthly quest 5</property>
+    <property id="m4_cat" type="number">0</property>
+    <property id="m5_on" type="boolean">true</property>
+    <property id="m5_title" type="string">Sample monthly quest 6</property>
+    <property id="m5_cat" type="number">0</property>
+    <property id="m6_on" type="boolean">true</property>
+    <property id="m6_title" type="string">Sample monthly quest 7</property>
+    <property id="m6_cat" type="number">0</property>
+    <property id="m7_on" type="boolean">true</property>
+    <property id="m7_title" type="string">Sample monthly quest 8</property>
+    <property id="m7_cat" type="number">0</property>
+    <property id="m8_on" type="boolean">true</property>
+    <property id="m8_title" type="string">Sample monthly quest 9</property>
+    <property id="m8_cat" type="number">0</property>
+    <property id="m9_on" type="boolean">true</property>
+    <property id="m9_title" type="string">Sample monthly quest 10</property>
+    <property id="m9_cat" type="number">0</property>
+    <property id="m10_on" type="boolean">false</property>
+    <property id="m10_title" type="string"></property>
+    <property id="m10_cat" type="number">0</property>
+    <property id="m11_on" type="boolean">false</property>
+    <property id="m11_title" type="string"></property>
+    <property id="m11_cat" type="number">0</property>
+
+    <!-- Persisted state lives in Application.Storage, not Properties. -->
+</properties>
