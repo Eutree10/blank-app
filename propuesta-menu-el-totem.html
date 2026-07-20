@@ -1,0 +1,734 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>El Tótem · Propuesta de nueva carta</title>
+<style>
+/* ============ EL TÓTEM — Propuesta de carta ============ */
+:root{
+  --bg:#0E0B07;        /* ember negro cálido */
+  --bg-2:#120D08;
+  --surface:#191309;   /* superficie madera */
+  --surface-2:#211809;
+  --border:#33291A;
+  --border-soft:#271F12;
+  --text:#F3E9D6;      /* crema cálida */
+  --muted:#A08C6B;     /* pergamino apagado */
+  --faint:#6E5F45;
+  --accent:#CBA85E;    /* latón / brasa */
+  --accent-deep:#A9863F;
+  --pine:#4E6A54;      /* verde bosque de Cariló */
+  --pine-soft:#3E5643;
+  --terra:#B5643C;     /* terracota / fuego */
+
+  --serif:"Hoefler Text","Iowan Old Style","Palatino Linotype","Palatino",Georgia,"Times New Roman",serif;
+  --sans:ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono","JetBrains Mono","Roboto Mono",Menlo,Consolas,monospace;
+
+  --maxw:1080px;
+}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  background:
+    radial-gradient(1200px 700px at 50% -8%, rgba(203,168,94,.10), transparent 60%),
+    radial-gradient(900px 600px at 100% 120%, rgba(78,106,84,.10), transparent 60%),
+    var(--bg);
+  color:var(--text);
+  font-family:var(--sans);
+  font-size:17px;
+  line-height:1.65;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+  overflow-x:hidden;
+}
+::selection{background:rgba(203,168,94,.28);color:#fff}
+a{color:inherit;text-decoration:none}
+img{max-width:100%}
+
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 28px}
+
+/* ---------- Type ---------- */
+h1,h2,h3,h4{font-family:var(--serif);font-weight:600;margin:0;text-wrap:balance;letter-spacing:.2px}
+.eyebrow{
+  font-family:var(--sans);
+  font-size:12.5px;font-weight:600;letter-spacing:.28em;text-transform:uppercase;
+  color:var(--accent);
+}
+.eyebrow.pine{color:var(--pine)}
+.serif-i{font-style:italic}
+.lead{color:var(--muted);font-size:18.5px;line-height:1.7}
+
+/* ---------- Nav ---------- */
+.nav{
+  position:sticky;top:0;z-index:50;
+  backdrop-filter:blur(10px);
+  background:linear-gradient(to bottom, rgba(14,11,7,.92), rgba(14,11,7,.66));
+  border-bottom:1px solid var(--border-soft);
+}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;height:66px}
+.brand{display:flex;align-items:center;gap:12px;font-family:var(--serif);font-size:20px;letter-spacing:.5px}
+.brand .mark{width:26px;height:26px;flex:0 0 auto}
+.nav-links{display:flex;gap:30px;font-size:13.5px;letter-spacing:.06em;color:var(--muted);text-transform:uppercase}
+.nav-links a{transition:color .2s}
+.nav-links a:hover{color:var(--text)}
+@media(max-width:720px){.nav-links{display:none}}
+
+/* ---------- Hero ---------- */
+.hero{position:relative;padding:96px 0 78px;overflow:hidden}
+#embers{position:absolute;inset:0;width:100%;height:100%;z-index:0;opacity:.9}
+.hero-inner{position:relative;z-index:2;text-align:center;display:flex;flex-direction:column;align-items:center;gap:26px}
+.totem-emblem{width:74px;height:auto;filter:drop-shadow(0 6px 20px rgba(203,168,94,.25))}
+.hero h1{
+  font-size:clamp(52px,11vw,120px);
+  line-height:.92;
+  letter-spacing:-1px;
+}
+.hero h1 .sub{display:block;font-size:.34em;letter-spacing:.42em;font-style:normal;color:var(--accent);margin-top:18px;text-transform:uppercase;font-family:var(--sans);font-weight:600}
+.hero .tagline{font-family:var(--serif);font-style:italic;font-size:clamp(20px,3.2vw,27px);color:var(--text);max-width:22ch}
+.hero .place{font-size:13px;letter-spacing:.24em;text-transform:uppercase;color:var(--muted)}
+.badge{
+  display:inline-flex;align-items:center;gap:9px;
+  border:1px solid var(--border);border-radius:999px;
+  padding:8px 16px;font-size:12.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);
+  background:rgba(25,19,9,.6);
+}
+.badge .dot{width:7px;height:7px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 4px rgba(203,168,94,.16)}
+.hero-cta{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;margin-top:6px}
+.btn{
+  display:inline-flex;align-items:center;gap:9px;
+  padding:13px 24px;border-radius:999px;font-size:14px;font-weight:600;letter-spacing:.02em;
+  border:1px solid var(--border);color:var(--text);background:transparent;cursor:pointer;transition:all .2s;
+}
+.btn:hover{border-color:var(--accent);color:var(--accent)}
+.btn.primary{background:linear-gradient(180deg,var(--accent),var(--accent-deep));color:#241a06;border-color:transparent;box-shadow:0 8px 24px rgba(203,168,94,.22)}
+.btn.primary:hover{filter:brightness(1.06);color:#241a06}
+
+/* ---------- Section shell ---------- */
+section{padding:76px 0;position:relative}
+.sec-head{max-width:640px;margin-bottom:48px}
+.sec-head h2{font-size:clamp(30px,5vw,46px);line-height:1.05;margin-top:14px}
+.sec-head p{margin:16px 0 0;color:var(--muted)}
+.rule{height:1px;background:linear-gradient(90deg,var(--border),transparent);border:0;margin:0}
+
+/* ---------- Pitch (para el dueño) ---------- */
+.pitch{background:
+  linear-gradient(180deg, rgba(78,106,84,.06), transparent 40%),
+  var(--bg-2);
+  border-top:1px solid var(--border-soft);border-bottom:1px solid var(--border-soft)}
+.pitch-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+@media(max-width:820px){.pitch-grid{grid-template-columns:1fr}}
+.card{
+  background:linear-gradient(180deg,var(--surface),var(--bg-2));
+  border:1px solid var(--border);border-radius:16px;padding:26px 24px;
+  transition:transform .25s ease, border-color .25s ease;
+}
+.card:hover{transform:translateY(-3px);border-color:var(--accent-deep)}
+.card .ic{width:34px;height:34px;margin-bottom:16px;color:var(--accent)}
+.card h3{font-size:21px;margin-bottom:8px}
+.card p{margin:0;color:var(--muted);font-size:15.5px}
+
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:44px}
+@media(max-width:820px){.metrics{grid-template-columns:repeat(2,1fr)}}
+.metric{border:1px solid var(--border-soft);border-radius:14px;padding:22px 20px;background:rgba(25,19,9,.45)}
+.metric .n{font-family:var(--serif);font-size:40px;color:var(--accent);line-height:1;font-variant-numeric:tabular-nums}
+.metric .l{margin-top:10px;font-size:13.5px;color:var(--muted);letter-spacing:.02em}
+.metric .n .u{font-size:.5em;color:var(--muted);margin-left:2px}
+
+/* ---------- Menu ---------- */
+.menu-wrap{display:grid;grid-template-columns:1fr;gap:64px}
+.course{scroll-margin-top:90px}
+.course-head{display:flex;align-items:baseline;gap:16px;margin-bottom:8px}
+.course-head h2{font-size:clamp(26px,4vw,38px)}
+.course-head .es{font-family:var(--sans);font-size:12px;letter-spacing:.24em;text-transform:uppercase;color:var(--pine);white-space:nowrap}
+.course > .course-note{color:var(--muted);font-style:italic;font-family:var(--serif);font-size:16.5px;margin:0 0 26px;max-width:60ch}
+
+.items{display:grid;grid-template-columns:1fr 1fr;gap:6px 56px}
+@media(max-width:760px){.items{grid-template-columns:1fr}}
+.item{padding:15px 0;border-bottom:1px solid var(--border-soft)}
+.item-top{display:flex;align-items:baseline;gap:10px}
+.item .name{font-family:var(--serif);font-size:19px;color:var(--text);white-space:nowrap}
+.item .leader{flex:1 1 auto;border-bottom:1px dotted var(--faint);transform:translateY(-4px);min-width:18px}
+.item .price{font-family:var(--mono);font-size:15px;color:var(--accent);font-variant-numeric:tabular-nums;white-space:nowrap}
+.item .desc{margin:5px 0 0;color:var(--muted);font-size:14.5px;line-height:1.55;max-width:46ch}
+.star{color:var(--accent);font-size:12px;translate:0 -2px}
+.tag{
+  display:inline-block;font-family:var(--sans);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;
+  padding:2px 8px;border-radius:999px;border:1px solid var(--border);color:var(--muted);margin-left:2px;vertical-align:middle;
+}
+.tag.hot{color:var(--terra);border-color:rgba(181,100,60,.4)}
+.tag.veg{color:var(--pine);border-color:rgba(78,106,84,.45)}
+.tag.star{color:var(--accent);border-color:rgba(203,168,94,.45)}
+
+/* strategy note toggle */
+.note{
+  margin-top:12px;padding:12px 14px;border-left:2px solid var(--accent);
+  background:rgba(203,168,94,.05);border-radius:0 10px 10px 0;
+  font-size:13px;color:var(--muted);line-height:1.5;
+}
+.note b{color:var(--accent);font-weight:600}
+body.hide-notes .note{display:none}
+
+/* course nav (sticky chips) */
+.course-nav{position:sticky;top:66px;z-index:40;background:rgba(14,11,7,.82);backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--border-soft);padding:12px 0}
+.course-nav .wrap{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);border:1px solid var(--border-soft);
+  padding:6px 13px;border-radius:999px;transition:all .2s;cursor:pointer}
+.chip:hover{color:var(--text);border-color:var(--accent-deep)}
+.toggle-notes{font-size:12px;letter-spacing:.06em;color:var(--muted);border:1px solid var(--border-soft);
+  padding:6px 13px;border-radius:999px;cursor:pointer;display:inline-flex;gap:8px;align-items:center;white-space:nowrap}
+.toggle-notes:hover{color:var(--accent);border-color:var(--accent-deep)}
+.toggle-notes .sw{width:26px;height:15px;border-radius:999px;background:var(--accent);position:relative;transition:background .2s}
+.toggle-notes .sw::after{content:"";position:absolute;top:2px;right:2px;width:11px;height:11px;border-radius:50%;background:#241a06;transition:all .2s}
+body.hide-notes .toggle-notes .sw{background:var(--border)}
+body.hide-notes .toggle-notes .sw::after{right:13px;background:var(--muted)}
+
+/* ---------- Antes / Después ---------- */
+.ba{background:var(--bg-2);border-top:1px solid var(--border-soft);border-bottom:1px solid var(--border-soft)}
+.ba-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+@media(max-width:760px){.ba-grid{grid-template-columns:1fr}}
+.ba-col{border:1px solid var(--border);border-radius:16px;padding:28px 26px}
+.ba-col.old{opacity:.9}
+.ba-col.new{border-color:var(--accent-deep);background:linear-gradient(180deg,rgba(203,168,94,.06),transparent)}
+.ba-col h3{font-size:15px;letter-spacing:.16em;text-transform:uppercase;font-family:var(--sans);margin-bottom:18px}
+.ba-col.old h3{color:var(--muted)}
+.ba-col.new h3{color:var(--accent)}
+.ba-col ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:13px}
+.ba-col li{display:flex;gap:12px;font-size:15px;color:var(--muted);align-items:flex-start}
+.ba-col.new li{color:var(--text)}
+.ba-col li .m{flex:0 0 auto;margin-top:2px}
+
+/* ---------- Pricing / plans (para vender el servicio) ---------- */
+.plans{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:8px}
+@media(max-width:820px){.plans{grid-template-columns:1fr}}
+.plan{border:1px solid var(--border);border-radius:18px;padding:30px 26px;background:var(--surface);display:flex;flex-direction:column;gap:8px}
+.plan.feat{border-color:var(--accent);box-shadow:0 12px 40px rgba(203,168,94,.12);position:relative}
+.plan.feat .ribbon{position:absolute;top:-11px;left:26px;background:var(--accent);color:#241a06;font-size:11px;font-weight:700;
+  letter-spacing:.12em;text-transform:uppercase;padding:4px 12px;border-radius:999px}
+.plan .pname{font-family:var(--serif);font-size:23px}
+.plan .pdesc{color:var(--muted);font-size:14px;min-height:40px}
+.plan .price-big{font-family:var(--serif);font-size:34px;color:var(--accent);margin:6px 0}
+.plan .price-big small{font-size:14px;color:var(--muted);font-family:var(--sans)}
+.plan ul{list-style:none;padding:0;margin:12px 0 0;display:flex;flex-direction:column;gap:10px}
+.plan li{display:flex;gap:10px;font-size:14.5px;color:var(--muted)}
+.plan li .c{color:var(--accent);flex:0 0 auto}
+
+/* ---------- Footer ---------- */
+.foot{padding:70px 0 40px;border-top:1px solid var(--border-soft);text-align:center}
+.foot .totem-emblem{width:52px;margin:0 auto 20px}
+.foot h3{font-family:var(--serif);font-size:30px}
+.foot .contact{display:flex;gap:28px;justify-content:center;flex-wrap:wrap;margin-top:22px;color:var(--muted);font-size:14.5px;letter-spacing:.02em}
+.foot .contact a:hover{color:var(--accent)}
+.foot .fine{margin-top:34px;font-size:12px;color:var(--faint);letter-spacing:.02em;max-width:60ch;margin-left:auto;margin-right:auto;line-height:1.6}
+
+.reveal{opacity:0;transform:translateY(18px);transition:opacity .7s ease, transform .7s ease}
+.reveal.in{opacity:1;transform:none}
+@media(prefers-reduced-motion:reduce){
+  .reveal{opacity:1;transform:none;transition:none}
+  html{scroll-behavior:auto}
+  #embers{display:none}
+}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:4px}
+</style>
+</head>
+<body>
+
+<!-- ================= NAV ================= -->
+<nav class="nav">
+  <div class="wrap nav-inner">
+    <a class="brand" href="#top">
+      <svg class="mark" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+        <path d="M20 2 L30 9 V13 L20 8 L10 13 V9 Z" fill="#CBA85E"/>
+        <rect x="13" y="15" width="14" height="7" rx="1" fill="#4E6A54"/>
+        <circle cx="20" cy="18.5" r="2.1" fill="#0E0B07"/>
+        <path d="M12 24 h16 l-2 5 h-12 Z" fill="#B5643C"/>
+        <rect x="16" y="31" width="8" height="7" rx="1" fill="#CBA85E"/>
+      </svg>
+      El&nbsp;Tótem
+    </a>
+    <div class="nav-links">
+      <a href="#dueno">La propuesta</a>
+      <a href="#carta">La carta</a>
+      <a href="#antes">Antes / Después</a>
+      <a href="#planes">Inversión</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ================= HERO ================= -->
+<header class="hero" id="top">
+  <canvas id="embers" aria-hidden="true"></canvas>
+  <div class="wrap hero-inner">
+    <svg class="totem-emblem" viewBox="0 0 80 120" fill="none" aria-label="Tótem de El Tótem">
+      <path d="M40 4 L64 20 V28 L40 14 L16 28 V20 Z" fill="#CBA85E"/>
+      <path d="M40 4 L64 20 V28 L40 14 Z" fill="#A9863F"/>
+      <rect x="20" y="32" width="40" height="20" rx="2" fill="#4E6A54"/>
+      <path d="M28 42 h24 M40 34 v16" stroke="#0E0B07" stroke-width="1.5"/>
+      <circle cx="40" cy="42" r="5" fill="#0E0B07"/><circle cx="40" cy="42" r="2.2" fill="#CBA85E"/>
+      <path d="M18 56 h44 l-6 16 h-32 Z" fill="#B5643C"/>
+      <path d="M30 62 h20 M34 68 h12" stroke="#0E0B07" stroke-width="1.5"/>
+      <rect x="26" y="76" width="28" height="20" rx="2" fill="#CBA85E"/>
+      <path d="M40 80 l6 6 -6 6 -6-6 Z" fill="#0E0B07"/>
+      <rect x="32" y="100" width="16" height="16" rx="2" fill="#A9863F"/>
+      <path d="M40 104 v8 M36 108 h8" stroke="#0E0B07" stroke-width="1.5"/>
+    </svg>
+    <div class="badge"><span class="dot"></span>Propuesta de rediseño de carta · 2026</div>
+    <h1>El&nbsp;Tótem<span class="sub">Cariló</span></h1>
+    <p class="tagline">Cocina de fuego a la piedra, en el corazón del bosque.</p>
+    <p class="place">Av. Divisadero 1510 · Cariló · Buenos Aires</p>
+    <div class="hero-cta">
+      <a class="btn primary" href="#carta">Ver la nueva carta →</a>
+      <a class="btn" href="#dueno">Por qué renovarla</a>
+    </div>
+  </div>
+</header>
+
+<!-- ================= PITCH: PARA EL DUEÑO ================= -->
+<section class="pitch" id="dueno">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="eyebrow pine">Para el dueño</span>
+      <h2>La carta es el vendedor más silencioso —<br>y hoy no está trabajando para vos.</h2>
+      <p class="lead">El menú es la única pieza que <em>todos</em> tus clientes tienen en la mano antes de decidir cuánto gastan. Una carta bien diseñada no cambia la cocina: cambia lo que la gente elige, cuánto pide y cuánto recuerda. Esta propuesta mantiene el alma de El Tótem —el fuego, la piedra, el bosque de Cariló— y la ordena para que venda mejor.</p>
+    </div>
+
+    <div class="pitch-grid">
+      <div class="card reveal">
+        <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 21h18M5 21V8l7-5 7 5v13M9 21v-6h6v6"/></svg>
+        <h3>Identidad, no plantilla</h3>
+        <p>Un tótem tallado, tipografías con oficio y una paleta de brasa y bosque. La carta se ve como Cariló, no como cualquier pizzería descargada de internet.</p>
+      </div>
+      <div class="card reveal">
+        <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 3v18h18M7 15l4-5 3 3 5-7"/></svg>
+        <h3>Ingeniería de menú</h3>
+        <p>Los platos más rentables se destacan; los que dejan margen guían la mirada. Menos precios "gritados", más decisiones que juegan a tu favor.</p>
+      </div>
+      <div class="card reveal">
+        <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2zM9 21h6M10 17v4M14 17v4"/></svg>
+        <h3>Una sola idea, bien contada</h3>
+        <p>Cada sección cuenta una historia corta. El cliente entiende de qué se trata El Tótem en 10 segundos y pide con más confianza (y ticket más alto).</p>
+      </div>
+    </div>
+
+    <div class="metrics">
+      <div class="metric reveal"><div class="n">+15<span class="u">%</span></div><div class="l">ticket promedio típico al rediseñar y destacar bien*</div></div>
+      <div class="metric reveal"><div class="n">10<span class="u">s</span></div><div class="l">para leer la carta y decidir, sin fatiga</div></div>
+      <div class="metric reveal"><div class="n">1</div><div class="l">identidad coherente: carta, redes, cartelería</div></div>
+      <div class="metric reveal"><div class="n">100<span class="u">%</span></div><div class="l">tus platos, tus precios, tu esencia — sin perder nada</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= COURSE NAV ================= -->
+<div class="course-nav">
+  <div class="wrap">
+    <div class="chips">
+      <a class="chip" href="#compartir">Para compartir</a>
+      <a class="chip" href="#pizzas">Pizzas</a>
+      <a class="chip" href="#pastas">Pastas</a>
+      <a class="chip" href="#principales">Principales</a>
+      <a class="chip" href="#mar">Del mar</a>
+      <a class="chip" href="#postres">Postres</a>
+      <a class="chip" href="#beber">Para beber</a>
+    </div>
+    <button class="toggle-notes" id="toggleNotes" type="button" aria-pressed="true">
+      <span class="sw" aria-hidden="true"></span> Notas de estrategia
+    </button>
+  </div>
+</div>
+
+<!-- ================= LA CARTA ================= -->
+<section id="carta">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="eyebrow">La carta</span>
+      <h2>El Tótem, plato por plato</h2>
+      <p>Misma cocina, mejor contada. Los <span class="star">★</span> son los <em>destacados de la casa</em>: los que conviene que el cliente vea primero. Las notas al margen explican la estrategia detrás de cada sección (podés ocultarlas con el interruptor de arriba).</p>
+    </div>
+
+    <div class="menu-wrap">
+
+      <!-- COMPARTIR -->
+      <div class="course reveal" id="compartir">
+        <div class="course-head"><h2>Para compartir</h2><span class="es">Entradas del bosque</span></div>
+        <p class="course-note">Lo primero que llega a la mesa marca el ritmo. Entradas para picar mientras se elige el resto.</p>
+        <div class="items">
+          <div class="item">
+            <div class="item-top"><span class="name">Provoleta al horno de barro <span class="tag star">★ De la casa</span></span><span class="leader"></span><span class="price">$14.900</span></div>
+            <p class="desc">Provolone fundido con orégano, tomillo del bosque y pan de campo tostado.</p>
+          </div>
+          <div class="item">
+            <div class="item-top"><span class="name">Rabas del Tótem</span><span class="leader"></span><span class="price">$21.500</span></div>
+            <p class="desc">Anillas rebozadas crocantes, alioli de limón y sal marina.</p>
+          </div>
+          <div class="item">
+            <div class="item-top"><span class="name">Tabla del leñador <span class="tag">2 personas</span></span><span class="leader"></span><span class="price">$28.900</span></div>
+            <p class="desc">Fiambres, quesos, aceitunas y encurtidos de la casa.</p>
+          </div>
+          <div class="item">
+            <div class="item-top"><span class="name">Bruschettas a la piedra</span><span class="leader"></span><span class="price">$12.400</span></div>
+            <p class="desc">Tres unidades: tomate y albahaca, hongos, y jamón crudo.</p>
+          </div>
+          <div class="item">
+            <div class="item-top"><span class="name">Papas Tótem</span><span class="leader"></span><span class="price">$11.900</span></div>
+            <p class="desc">Rústicas al horno con cheddar, panceta y verdeo.</p>
+          </div>
+          <div class="item">
+            <div class="item-top"><span class="name">Empanadas de la brasa <span class="tag">c/u</span></span><span class="leader"></span><span class="price">$2.600</span></div>
+            <p class="desc">Carne cortada a cuchillo, humita o caprese.</p>
+          </div>
+        </div>
+        <div class="note"><b>Estrategia:</b> la provoleta abre la sección como destacado de alto margen. La tabla "2 personas" empuja el ticket cuando llega una pareja o grupo.</div>
+      </div>
+
+      <!-- PIZZAS -->
+      <div class="course reveal" id="pizzas">
+        <div class="course-head"><h2>Pizzas a la piedra</h2><span class="es">El fuego del Tótem</span></div>
+        <p class="course-note">Masa madre de fermentación lenta, horneada sobre piedra a fuego vivo. La firma de la casa.</p>
+        <div class="items">
+          <div class="item">
+            <div class="item-top"><span class="name">La Tótem <span class="tag star">★ Especial</span></span><span class="leader"></span><span class="price">$24.900</span></div>
+            <p class="desc">Muzzarella, jamón crudo, rúcula, parmesano y reducción de balsámico.</p>
+          </div>
+          <div class="item">
+            <div class="item-top"><span class="name">Fugazzeta rellena</span><span class="leader"></span><span class="price">$22.500</span></div>
+            <p class="desc">Doble muzzarella, cebolla dorada y orégano.</p>
+          </div>
+          <div class="item">
+            <div class="item-top"><span class="name">Muzzarella</span><span class="leader"></span><span class="price">$15.900</span></div>
+            <p class="desc">La clásica: salsa de tomate, muzza y aceitunas.</p>
+          </div>
+          <div class="item">
+            <div class="item-top"><span class="name">Napolitana</span><span class="leader"></span><span class="price">$18.400</span></div>
+            <p class="desc">Tomate fresco, ajo, albahaca y muzzarella.</p>
+          </div>
+          <div class="item">
+            <div class="item-top"><span class="name">Calabresa</span><span class="leader"></span><span class="price">$19.900</span></div>
+            <p class="desc">Longaniza, muzzarella y morrón asado.</p>
+          </div>
+          <div class="item">
+            <div class="item-top"><span class="name">Cuatro quesos</span><span class="leader"></span><span class="price">$21.900</span></div>
+            <p class="desc">Muzza, provolone, roquefort y parmesano.</p>
+          </div>
+          <div class="item">
+            <div class="item-top"><span class="name">De hongos y verdeo <span class="tag veg">Veggie</span></span><span class="leader"></span><span class="price">$20.400</span></div>
+            <p class="desc">Portobello, champiñón, verdeo y muzzarella.</p>
+          </div>
+          <div class="item">
+            <div class="item-top"><span class="name">Media y media</span><span class="leader"></span><span class="price">$20.900</span></div>
+            <p class="desc">Combiná dos gustos de la carta en una pizza.</p>
+          </div>
+        </div>
+        <div class="note"><b>Estrategia:</b> "La Tótem" encabeza la sección como <b>plato ancla</b> de mayor precio: hace que el resto parezca accesible y es la más rentable. La media-y-media invita a probar sabores nuevos sin fricción.</div>
+      </div>
+
+      <!-- PASTAS -->
+      <div class="course reveal" id="pastas">
+        <div class="course-head"><h2>Pastas caseras</h2><span class="es">Amasadas del día</span></div>
+        <p class="course-note">Elaboradas cada mañana. Elegí la pasta y sumale tu salsa.</p>
+        <div class="items">
+          <div class="item">
+            <div class="item-top"><span class="name">Sorrentinos de jamón y muzza <span class="tag star">★ De la casa</span></span><span class="leader"></span><span class="price">$19.900</span></div>
+            <p class="desc">Rellenos, con salsa a elección. El favorito de la casa.</p>
+          </div>
+          <div class="item">
+            <div class="item-top"><span class="name">Ñoquis de papa</span><span class="leader"></span><span class="price">$16.900</span></div>
+            <p class="desc">Clásicos, ligeros, con la salsa que elijas.</p>
+          </div>
+          <div class="item">
+            <div class="item-top"><span class="name">Ravioles de verdura <span class="tag veg">Veggie</span></span><span class="leader"></span><span class="price">$17.900</span></div>
+            <p class="desc">Espinaca y ricota, masa fina.</p>
+          </div>
+          <div class="item">
+            <div class="item-top"><span class="name">Fetuccini al huevo</span><span class="leader"></span><span class="price">$16.400</span></div>
+            <p class="desc">Cinta fresca, ideal con crema o pesto.</p>
+          </div>
+        </div>
+        <div class="note"><b>Estrategia:</b> las salsas se cobran aparte como <b>add-on</b> (ver abajo). Sube el ticket sin encarecer el plato base a simple vista.</div>
+        <div class="items" style="margin-top:18px">
+          <div class="item">
+            <div class="item-top"><span class="name">+ Salsas</span><span class="leader"></span><span class="price">desde $2.900</span></div>
+            <p class="desc">Bolognesa · Fileto · Crema · Pesto del bosque · Cuatro quesos · Scarparo.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- PRINCIPALES -->
+      <div class="course reveal" id="principales">
+        <div class="course-head"><h2>Principales &amp; minutas</h2><span class="es">De la parrilla y la plancha</span></div>
+        <p class="course-note">Platos de fondo para cerrar la noche con hambre de verdad.</p>
+        <div class="items">
+          <div class="item">
+            <div class="item-top"><span class="name">Bife de chorizo al malbec <span class="tag star">★ De la casa</span></span><span class="leader"></span><span class="price">$32.900</span></div>
+            <p class="desc">A la parrilla, reducción de malbec y papas rústicas.</p>
+          </div>
+          <div class="item">
+            <div class="item-top"><span class="name">Milanesa napolitana</span><span class="leader"></span><span class="price">$23.900</span></div>
+            <p class="desc">De ternera, con jamón, salsa, muzza y papas fritas.</p>
+          </div>
+          <div class="item">
+            <div class="item-top"><span class="name">Suprema Tótem</span><span class="leader"></span><span class="price">$21.900</span></div>
+            <p class="desc">Pollo crocante, guarnición a elección.</p>
+          </div>
+          <div class="item">
+            <div class="item-top"><span class="name">Lomo al bosque</span><span class="leader"></span><span class="price">$29.900</span></div>
+            <p class="desc">Medallón de lomo, salsa de hongos y puré rústico.</p>
+          </div>
+        </div>
+        <div class="note"><b>Estrategia:</b> el bife encabeza como opción premium. La milanesa —imbatible en volumen— queda visible pero no domina la sección.</div>
+      </div>
+
+      <!-- DEL MAR -->
+      <div class="course reveal" id="mar">
+        <div class="course-head"><h2>Del mar</h2><span class="es">A pasos de la playa</span></div>
+        <p class="course-note">Cariló es bosque y mar. Frescura de la costa atlántica.</p>
+        <div class="items">
+          <div class="item">
+            <div class="item-top"><span class="name">Langostinos a la provenzal</span><span class="leader"></span><span class="price">$27.500</span></div>
+            <p class="desc">Salteados en ajo, perejil y oliva, con pan tostado.</p>
+          </div>
+          <div class="item">
+            <div class="item-top"><span class="name">Lenguado grillado</span><span class="leader"></span><span class="price">$28.900</span></div>
+            <p class="desc">A la manteca de limón, con ensalada fresca.</p>
+          </div>
+          <div class="item">
+            <div class="item-top"><span class="name">Rabas para dos <span class="tag">2 personas</span></span><span class="leader"></span><span class="price">$34.900</span></div>
+            <p class="desc">Porción generosa, dos salsas y limón.</p>
+          </div>
+          <div class="item">
+            <div class="item-top"><span class="name">Cazuela de mariscos</span><span class="leader"></span><span class="price">$31.900</span></div>
+            <p class="desc">Mejillones, calamar y langostinos en salsa de tomate y vino blanco.</p>
+          </div>
+        </div>
+        <div class="note"><b>Estrategia:</b> una sección "del mar" corta refuerza la identidad costera de Cariló y justifica precios más altos que una pizzería sin ese relato.</div>
+      </div>
+
+      <!-- POSTRES -->
+      <div class="course reveal" id="postres">
+        <div class="course-head"><h2>Postres</h2><span class="es">El final feliz</span></div>
+        <p class="course-note">Hechos en casa. El momento donde se decide si vuelven.</p>
+        <div class="items">
+          <div class="item">
+            <div class="item-top"><span class="name">Volcán de chocolate <span class="tag star">★ De la casa</span></span><span class="leader"></span><span class="price">$10.900</span></div>
+            <p class="desc">Tibio, con centro fundido y helado de crema americana.</p>
+          </div>
+          <div class="item">
+            <div class="item-top"><span class="name">Flan casero</span><span class="leader"></span><span class="price">$7.900</span></div>
+            <p class="desc">Con dulce de leche y crema.</p>
+          </div>
+          <div class="item">
+            <div class="item-top"><span class="name">Panqueque de dulce de leche</span><span class="leader"></span><span class="price">$8.400</span></div>
+            <p class="desc">Flambeado en la mesa.</p>
+          </div>
+          <div class="item">
+            <div class="item-top"><span class="name">Helado artesanal <span class="tag">2 bochas</span></span><span class="leader"></span><span class="price">$7.500</span></div>
+            <p class="desc">Sabores de la heladería del pueblo.</p>
+          </div>
+        </div>
+        <div class="note"><b>Estrategia:</b> el volcán, foto-génico y de alto margen, encabeza la sección: es el postre que se comparte en redes y trae mesas nuevas.</div>
+      </div>
+
+      <!-- BEBER -->
+      <div class="course reveal" id="beber">
+        <div class="course-head"><h2>Para beber</h2><span class="es">Bodega &amp; barra</span></div>
+        <p class="course-note">Maridajes pensados para el fuego y el mar.</p>
+        <div class="items">
+          <div class="item">
+            <div class="item-top"><span class="name">Malbec de la casa <span class="tag star">★ Maridaje</span></span><span class="leader"></span><span class="price">$18.900</span></div>
+            <p class="desc">Botella. Selección del Tótem, ideal con las pizzas y la parrilla.</p>
+          </div>
+          <div class="item">
+            <div class="item-top"><span class="name">Copa de vino</span><span class="leader"></span><span class="price">$5.900</span></div>
+            <p class="desc">Malbec, Cabernet o Torrontés.</p>
+          </div>
+          <div class="item">
+            <div class="item-top"><span class="name">Cerveza artesanal</span><span class="leader"></span><span class="price">$6.400</span></div>
+            <p class="desc">Pinta. Golden, Roja o IPA de la región.</p>
+          </div>
+          <div class="item">
+            <div class="item-top"><span class="name">Limonada del bosque</span><span class="leader"></span><span class="price">$5.400</span></div>
+            <p class="desc">Con menta, jengibre y romero.</p>
+          </div>
+          <div class="item">
+            <div class="item-top"><span class="name">Aperitivos &amp; cócteles</span><span class="leader"></span><span class="price">desde $7.900</span></div>
+            <p class="desc">Aperol spritz, Negroni, Gin tonic de la casa.</p>
+          </div>
+          <div class="item">
+            <div class="item-top"><span class="name">Aguas &amp; gaseosas</span><span class="leader"></span><span class="price">desde $3.400</span></div>
+            <p class="desc">Línea Coca-Cola, aguas con y sin gas.</p>
+          </div>
+        </div>
+        <div class="note"><b>Estrategia:</b> el Malbec "de la casa" por botella, ubicado primero, es el mayor multiplicador de ticket de toda la carta. El maridaje sugerido guía la compra.</div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ================= ANTES / DESPUÉS ================= -->
+<section class="ba" id="antes">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="eyebrow pine">Qué cambia</span>
+      <h2>Antes / Después</h2>
+      <p>No tocamos la cocina ni subimos precios porque sí. Solo ordenamos cómo se muestra.</p>
+    </div>
+    <div class="ba-grid">
+      <div class="ba-col old reveal">
+        <h3>La carta de hoy</h3>
+        <ul>
+          <li><span class="m">·</span> Lista plana: todos los platos con el mismo peso visual.</li>
+          <li><span class="m">·</span> Sin destacados: el cliente no sabe qué pedir y elige lo más barato o conocido.</li>
+          <li><span class="m">·</span> Precios alineados en columna que invitan a comparar hacia abajo.</li>
+          <li><span class="m">·</span> Poca historia: no transmite el fuego, el bosque ni la costa.</li>
+          <li><span class="m">·</span> Identidad genérica, difícil de recordar o compartir.</li>
+        </ul>
+      </div>
+      <div class="ba-col new reveal">
+        <h3>La carta propuesta</h3>
+        <ul>
+          <li><span class="m" style="color:var(--accent)">✦</span> Jerarquía clara: destacados de la casa que guían la elección.</li>
+          <li><span class="m" style="color:var(--accent)">✦</span> Platos ancla que hacen que el resto parezca conveniente.</li>
+          <li><span class="m" style="color:var(--accent)">✦</span> Precios sin "$" gritados ni columnas para comparar de arriba a abajo.</li>
+          <li><span class="m" style="color:var(--accent)">✦</span> Relato de marca: fuego a la piedra, bosque y mar de Cariló.</li>
+          <li><span class="m" style="color:var(--accent)">✦</span> Identidad propia: tótem, colores y tipografías memorables.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= INVERSIÓN / PLANES ================= -->
+<section id="planes">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="eyebrow">La inversión</span>
+      <h2>Cómo lo entregamos</h2>
+      <p>Tres formas de llevarlo adelante, según cuánto quieras renovar. Todo mantiene tu esencia; vos elegís el alcance.</p>
+    </div>
+    <div class="plans">
+      <div class="plan reveal">
+        <div class="pname">Rediseño de carta</div>
+        <div class="pdesc">La carta impresa y digital, lista para usar.</div>
+        <div class="price-big">Base <small>· entrega en 1 semana</small></div>
+        <ul>
+          <li><span class="c">✓</span> Carta rediseñada (mismos platos y precios)</li>
+          <li><span class="c">✓</span> Versión imprimible y versión digital / QR</li>
+          <li><span class="c">✓</span> Ingeniería de menú y destacados</li>
+          <li><span class="c">✓</span> 2 rondas de ajustes</li>
+        </ul>
+      </div>
+      <div class="plan feat reveal">
+        <div class="ribbon">Recomendado</div>
+        <div class="pname">Carta + Identidad</div>
+        <div class="pdesc">La carta y una identidad visual coherente.</div>
+        <div class="price-big">Completo <small>· entrega en 2–3 semanas</small></div>
+        <ul>
+          <li><span class="c">✓</span> Todo lo del plan Base</li>
+          <li><span class="c">✓</span> Logo / tótem y paleta definida</li>
+          <li><span class="c">✓</span> Plantillas para redes (posteos e historias)</li>
+          <li><span class="c">✓</span> Cartelería y señalética del salón</li>
+          <li><span class="c">✓</span> Fotos guía de los platos destacados</li>
+        </ul>
+      </div>
+      <div class="plan reveal">
+        <div class="pname">Experiencia integral</div>
+        <div class="pdesc">La marca completa, dentro y fuera del local.</div>
+        <div class="price-big">A medida</div>
+        <ul>
+          <li><span class="c">✓</span> Todo lo del plan Completo</li>
+          <li><span class="c">✓</span> Menú web / página del restaurante</li>
+          <li><span class="c">✓</span> Sistema de reservas y pedidos</li>
+          <li><span class="c">✓</span> Cartas de temporada (verano / invierno)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= FOOTER ================= -->
+<footer class="foot">
+  <div class="wrap">
+    <svg class="totem-emblem" viewBox="0 0 80 120" fill="none" aria-hidden="true">
+      <path d="M40 4 L64 20 V28 L40 14 L16 28 V20 Z" fill="#CBA85E"/>
+      <rect x="20" y="32" width="40" height="20" rx="2" fill="#4E6A54"/>
+      <circle cx="40" cy="42" r="5" fill="#0E0B07"/><circle cx="40" cy="42" r="2.2" fill="#CBA85E"/>
+      <path d="M18 56 h44 l-6 16 h-32 Z" fill="#B5643C"/>
+      <rect x="26" y="76" width="28" height="20" rx="2" fill="#CBA85E"/>
+      <rect x="32" y="100" width="16" height="16" rx="2" fill="#A9863F"/>
+    </svg>
+    <h3>Renovemos la carta de El Tótem.</h3>
+    <div class="contact">
+      <a href="#top">Av. Divisadero 1510, Cariló</a>
+      <span>·</span>
+      <a href="#carta">Ver la carta</a>
+      <span>·</span>
+      <a href="#planes">Empezar la propuesta</a>
+    </div>
+    <p class="fine">Propuesta de diseño para El Tótem. Los platos, descripciones y precios son de referencia y se ajustan a la carta y a los valores reales del restaurante. Los colores toman como base la brasa del horno y el bosque de Cariló, y pueden alinearse a la paleta actual del local.</p>
+  </div>
+</footer>
+
+<script>
+/* ---------- Embers (fuego del horno) ---------- */
+(function(){
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var c = document.getElementById('embers');
+  if(!c || reduce) return;
+  var ctx = c.getContext('2d'), W, H, parts = [], seed = 1;
+  function rnd(){ seed = (seed*16807) % 2147483647; return (seed-1)/2147483646; }
+  function resize(){
+    var host = c.parentElement;
+    W = c.width = host.offsetWidth; H = c.height = host.offsetHeight;
+  }
+  function make(){
+    return { x: rnd()*W, y: H + rnd()*40, r: .6 + rnd()*2.1,
+      vy: .2 + rnd()*.8, vx: (rnd()-.5)*.3, a: .15 + rnd()*.5, life: rnd() };
+  }
+  function init(){ resize(); parts = []; for(var i=0;i<70;i++){ parts.push(make()); } }
+  function tick(){
+    ctx.clearRect(0,0,W,H);
+    for(var i=0;i<parts.length;i++){
+      var p = parts[i];
+      p.y -= p.vy; p.x += p.vx; p.life += .004;
+      var flick = .7 + Math.sin(p.life*8)*.3;
+      if(p.y < -10){ parts[i] = make(); continue; }
+      var g = ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,p.r*3);
+      g.addColorStop(0,'rgba(230,180,90,'+(p.a*flick)+')');
+      g.addColorStop(1,'rgba(200,120,50,0)');
+      ctx.fillStyle = g;
+      ctx.beginPath(); ctx.arc(p.x,p.y,p.r*3,0,Math.PI*2); ctx.fill();
+    }
+    requestAnimationFrame(tick);
+  }
+  window.addEventListener('resize', resize);
+  init(); tick();
+})();
+
+/* ---------- Reveal on scroll ---------- */
+(function(){
+  var els = document.querySelectorAll('.reveal');
+  if(!('IntersectionObserver' in window)){ els.forEach(function(e){e.classList.add('in');}); return; }
+  var io = new IntersectionObserver(function(en){
+    en.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+  },{threshold:.12});
+  els.forEach(function(e){ io.observe(e); });
+})();
+
+/* ---------- Toggle strategy notes ---------- */
+(function(){
+  var btn = document.getElementById('toggleNotes');
+  if(!btn) return;
+  btn.addEventListener('click', function(){
+    var hidden = document.body.classList.toggle('hide-notes');
+    btn.setAttribute('aria-pressed', String(!hidden));
+  });
+})();
+</script>
+</body>
+</html>
