@@ -116,6 +116,10 @@ button{font-family:inherit}
 .sheet{position:absolute;left:0;right:0;bottom:0;z-index:90;background:var(--surface);border-radius:28px 28px 0 0;padding:0 18px calc(20px + var(--safe-b));box-shadow:0 -20px 50px -20px rgba(27,23,18,.4);transform:translateY(100%);transition:transform .32s cubic-bezier(.32,.72,0,1);max-height:94%;overflow-y:auto}
 .sheet.on{transform:translateY(0)}
 .grab{width:40px;height:5px;border-radius:3px;background:var(--border-2);margin:10px auto 6px}
+.sheet-handle{touch-action:none;cursor:grab;padding-bottom:2px}
+.sheet-handle:active{cursor:grabbing}
+.sheet-handle .grab{transition:width .15s ease}
+.sheet-handle:active .grab{width:52px;background:var(--faint)}
 .type-toggle{display:flex;background:var(--surface-2);border-radius:14px;padding:4px;gap:3px;margin:6px 0 10px}
 .type-toggle button{flex:1;border:0;background:transparent;font-weight:750;font-size:14px;color:var(--muted);padding:11px;border-radius:11px}
 .type-toggle button.on-exp{background:var(--surface);color:var(--down);box-shadow:var(--shadow)}
@@ -636,8 +640,8 @@ function renderSheet(){
   const showCats=CATS.filter(c=>draft.type==='inc'?c.id==='income':c.id!=='income');
   if(draft.type==='inc')draft.cat='income'; else if(draft.cat==='income')draft.cat='food';
   document.getElementById('sheet').innerHTML=`
-  <div class="grab"></div>
-  <div style="text-align:center;margin:2px 0 6px"><div class="label-xs">Nuevo movimiento</div></div>
+  <div class="sheet-handle"><div class="grab"></div>
+  <div style="text-align:center;margin:2px 0 6px"><div class="label-xs">Nuevo movimiento</div></div></div>
   <div class="type-toggle" id="typeTog">
     <button class="${draft.type==='exp'?'on-exp':''}" data-type="exp">Gasto</button>
     <button class="${draft.type==='inc'?'on-inc':''}" data-type="inc">Ingreso</button>
@@ -653,7 +657,8 @@ function renderSheet(){
     <input class="inp" id="dDesc" placeholder="Descripción (ej. ${draft.type==='inc'?'Nómina':'Chipotle'})" value="${esc(draft.desc)}" autocomplete="off">
   </div>
   <div class="field-row">
-    <button class="selpill" id="dDate"><span>${I.calendar} ${dayLabel(draft.date)}</span></button>
+    <label class="selpill" id="dDate" style="position:relative"><span>${I.calendar} ${dayLabel(draft.date)}</span><span style="color:var(--faint)">${I.chev}</span>
+      <input type="date" id="dDateInput" value="${dateInputVal(draft.date)}" max="${dateInputVal(Date.now())}" style="position:absolute;inset:0;width:100%;height:100%;opacity:0;border:0;font-size:16px"></label>
     <button class="selpill" id="dMethod"><span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${I.card} ${esc(draft.method)}</span></button>
   </div>
   <div class="recur"><span>${I.subs}</span><span class="tt" style="font-size:14px">Pago recurrente</span><span class="grow"></span><button class="toggle ${draft.recur?'on':''}" id="dRecur"></button></div>
@@ -677,16 +682,13 @@ function wireSheet(){
   document.getElementById('dDesc').oninput=e=>draft.desc=e.target.value;
   document.getElementById('dRecur').onclick=()=>{draft.recur=!draft.recur;renderSheet();};
   const fs=document.getElementById('freqSeg');if(fs)fs.querySelectorAll('button').forEach(b=>b.onclick=()=>{draft.freq=b.dataset.freq;renderSheet();});
-  document.getElementById('dDate').onclick=cycleDate;
+  const di=document.getElementById('dDateInput');
+  if(di)di.onchange=e=>{const parts=(e.target.value||'').split('-').map(Number);if(parts[0]){const nd=new Date(parts[0],parts[1]-1,parts[2],12,0,0);draft.date=nd.getTime();renderSheet();}};
   document.getElementById('dMethod').onclick=cycleMethod;
   document.getElementById('keypad').querySelectorAll('button').forEach(b=>b.onclick=()=>key(b.dataset.k));
   document.getElementById('saveBtn').onclick=commit;
 }
-function cycleDate(){
-  // cycle Today -> yesterday -> 2 days -> 3 days -> Today
-  const back=Math.round((new Date(new Date().toDateString())-new Date(new Date(draft.date).toDateString()))/864e5);
-  const nb=(back+1)%4;const d=new Date();d.setDate(d.getDate()-nb);d.setHours(12,0,0,0);draft.date=d.getTime();renderSheet();
-}
+function dateInputVal(ts){const d=new Date(ts);const p=n=>String(n).padStart(2,'0');return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`;}
 function cycleMethod(){const i=METHODS.indexOf(draft.method);draft.method=METHODS[(i+1)%METHODS.length];renderSheet();}
 function key(k){
   let a=draft.amount;
@@ -773,8 +775,8 @@ function openDetail(txid){
 /* ============ CURRENCY PICKER (profile) ============ */
 function openCurrencyPicker(onPick){
   document.getElementById('curSheet').innerHTML=`
-    <div class="grab"></div>
-    <div style="text-align:center;margin:2px 0 12px"><div class="label-xs">Elegí tu moneda</div></div>
+    <div class="sheet-handle"><div class="grab"></div>
+    <div style="text-align:center;margin:2px 0 12px"><div class="label-xs">Elegí tu moneda</div></div></div>
     <div class="cur-list" style="max-height:46vh">${curListHTML(CURRENCIES,S.settings.currency)}</div>`;
   document.getElementById('curSheet').querySelectorAll('.cur-item').forEach(b=>b.onclick=()=>{closeCur();onPick(b.dataset.code);});
   document.getElementById('curScrim').classList.add('on');
@@ -812,6 +814,24 @@ document.getElementById('fab').innerHTML=I.plus;
 document.getElementById('fab').onclick=openSheet;
 document.getElementById('scrim').onclick=closeSheet;
 document.getElementById('curScrim').onclick=closeCur;
+
+/* drag-down-to-close on the bottom sheets (grab from the top handle) */
+function enableSheetDrag(sheetId, closeFn){
+  const sheet=document.getElementById(sheetId);
+  let startY=0,dy=0,dragging=false;
+  const pt=e=>e.touches?e.touches[0].clientY:e.clientY;
+  const start=e=>{const h=e.target.closest('.sheet-handle');if(!h||!sheet.classList.contains('on'))return;dragging=true;startY=pt(e);dy=0;sheet.style.transition='none';};
+  const move=e=>{if(!dragging)return;dy=Math.max(0,pt(e)-startY);sheet.style.transform=`translateY(${dy}px)`;};
+  const end=()=>{if(!dragging)return;dragging=false;sheet.style.transition='';sheet.style.transform='';if(dy>100)closeFn();};
+  sheet.addEventListener('touchstart',start,{passive:true});
+  sheet.addEventListener('touchmove',move,{passive:true});
+  sheet.addEventListener('touchend',end);
+  sheet.addEventListener('mousedown',start);
+  window.addEventListener('mousemove',move);
+  window.addEventListener('mouseup',end);
+}
+enableSheetDrag('sheet',closeSheet);
+enableSheetDrag('curSheet',closeCur);
 
 // delegate clicks: tx rows, "ver todo" links, settings
 document.getElementById('app').addEventListener('click',e=>{
