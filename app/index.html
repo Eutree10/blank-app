@@ -353,6 +353,46 @@ function seed(name,code,income,limit){
 }
 function id(){return Math.random().toString(36).slice(2,10)+Date.now().toString(36);}
 
+/* ============ RECURRING ENGINE ============ */
+const MESES=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+function freqLabel(f){return f==='week'?'Semanal':f==='year'?'Anual':'Mensual';}
+function recurText(ts,f){
+  const d=new Date(ts);
+  if(f==='week'){const dias=['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];return `cada semana los ${dias[d.getDay()]}`;}
+  if(f==='year'){return `cada año el ${d.getDate()} de ${MESES[d.getMonth()]}`;}
+  return `cada mes el día ${d.getDate()}`;
+}
+// next occurrence timestamp after ts for a given frequency (month/year clamp day to month length)
+function addPeriod(ts,freq){
+  const d=new Date(ts);
+  if(freq==='week'){d.setDate(d.getDate()+7);return d.getTime();}
+  const day=d.getDate();
+  if(freq==='year'){d.setDate(1);d.setFullYear(d.getFullYear()+1);}
+  else{d.setDate(1);d.setMonth(d.getMonth()+1);} // default monthly
+  const lastDay=new Date(d.getFullYear(),d.getMonth()+1,0).getDate();
+  d.setDate(Math.min(day,lastDay));
+  return d.getTime();
+}
+// generate any occurrences that are already due (up to end of today) for every recurring series
+function runRecurring(){
+  const todayEnd=new Date();todayEnd.setHours(23,59,59,999);const cutoff=todayEnd.getTime();
+  const series={};
+  S.tx.filter(t=>t.recur&&t.seriesId&&t.freq).forEach(t=>{(series[t.seriesId]=series[t.seriesId]||[]).push(t);});
+  let added=false;
+  Object.values(series).forEach(list=>{
+    list.sort((a,b)=>a.date-b.date);
+    let last=list[list.length-1],guard=0;
+    while(guard++<600){
+      const next=addPeriod(last.date,last.freq);
+      if(next>cutoff)break;
+      const n={...last,id:id(),date:next};
+      S.tx.push(n);added=true;last=n;
+    }
+  });
+  if(added)save();
+  return added;
+}
+
 /* ============ HELPERS ============ */
 const cur=()=>CC().sym;
 function fmt(n){const c=CC();return c.sym+Math.abs(n).toLocaleString(c.locale,{minimumFractionDigits:2,maximumFractionDigits:2});}
@@ -445,7 +485,7 @@ function makeInsight(by,spent,limit){
 function txRow(t){
   const c=CAT(t.cat);
   return `<div class="list-row" data-tx="${t.id}">${catIcHTML(t.cat,t.type==='inc')}
-    <div class="grow"><div class="tt">${esc(t.desc)||c.name}</div>
+    <div class="grow"><div class="tt">${esc(t.desc)||c.name}${t.recur?' <span style="font-size:11px">🔁</span>':''}</div>
     <div class="ts">${c.name} · ${timeLabel(t.date)}${t.method?' · '+esc(t.method):''}</div></div>
     <div class="amt ${t.type==='inc'?'pos':''}">${t.type==='inc'?'+':'-'}${fmt(t.amount)}</div></div>`;
 }
@@ -568,7 +608,7 @@ function renderProfile(){
 /* ============ ADD SHEET ============ */
 let draft=null;
 function openSheet(){
-  draft={type:'exp',amount:'0',cat:'food',desc:'',method:METHODS[0],date:Date.now(),recur:false};
+  draft={type:'exp',amount:'0',cat:'food',desc:'',method:METHODS[0],date:Date.now(),recur:false,freq:'month'};
   renderSheet();
   document.getElementById('scrim').classList.add('on');
   document.getElementById('sheet').classList.add('on');
@@ -604,6 +644,12 @@ function renderSheet(){
     <button class="selpill" id="dMethod"><span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${I.card} ${esc(draft.method)}</span></button>
   </div>
   <div class="recur"><span>${I.subs}</span><span class="tt" style="font-size:14px">Pago recurrente</span><span class="grow"></span><button class="toggle ${draft.recur?'on':''}" id="dRecur"></button></div>
+  ${draft.recur?`<div class="seg" id="freqSeg" style="margin-top:10px">
+    <button class="${draft.freq==='week'?'on':''}" data-freq="week">Semanal</button>
+    <button class="${draft.freq==='month'?'on':''}" data-freq="month">Mensual</button>
+    <button class="${draft.freq==='year'?'on':''}" data-freq="year">Anual</button>
+  </div>
+  <div class="ts" style="margin:8px 2px 0;white-space:normal">🔁 Se registrará solo, ${recurText(draft.date,draft.freq)}.</div>`:''}
 
   <div class="keypad" id="keypad">
     ${[1,2,3,4,5,6,7,8,9].map(n=>`<button data-k="${n}">${n}</button>`).join('')}
@@ -617,6 +663,7 @@ function wireSheet(){
   document.getElementById('catPick').querySelectorAll('.ip').forEach(b=>b.onclick=()=>{draft.cat=b.dataset.cat;renderSheet();});
   document.getElementById('dDesc').oninput=e=>draft.desc=e.target.value;
   document.getElementById('dRecur').onclick=()=>{draft.recur=!draft.recur;renderSheet();};
+  const fs=document.getElementById('freqSeg');if(fs)fs.querySelectorAll('button').forEach(b=>b.onclick=()=>{draft.freq=b.dataset.freq;renderSheet();});
   document.getElementById('dDate').onclick=cycleDate;
   document.getElementById('dMethod').onclick=cycleMethod;
   document.getElementById('keypad').querySelectorAll('button').forEach(b=>b.onclick=()=>key(b.dataset.k));
@@ -637,7 +684,10 @@ function key(k){
 }
 function commit(){
   const amt=parseFloat(draft.amount)||0;if(amt<=0)return;
-  S.tx.push({id:id(),type:draft.type,amount:Math.round(amt*100)/100,cat:draft.cat,desc:draft.desc.trim(),method:draft.method,date:draft.date,recur:draft.recur});
+  const t={id:id(),type:draft.type,amount:Math.round(amt*100)/100,cat:draft.cat,desc:draft.desc.trim(),method:draft.method,date:draft.date,recur:draft.recur};
+  if(draft.recur){t.freq=draft.freq;t.seriesId=id();}
+  S.tx.push(t);
+  runRecurring();          // catch up any occurrences already due (e.g. back-dated series)
   save();closeSheet();renderAll();
   toast(draft.type==='inc'?'Ingreso agregado ✓':'Gasto agregado ✓');
 }
@@ -658,12 +708,21 @@ function openDetail(txid){
     <div class="kv"><span class="k">Categoría</span><span class="v">${catIcHTML(t.cat)} ${c.name}</span></div>
     <div class="kv"><span class="k">Método</span><span class="v">${I.card} ${esc(t.method||'—')}</span></div>
     <div class="kv"><span class="k">Tipo</span><span class="v">${t.type==='inc'?'Ingreso':'Gasto'}</span></div>
-    <div class="kv"><span class="k">Recurrente</span><span class="v" style="color:${t.recur?'var(--accent-ink)':'var(--muted)'}">${t.recur?'Sí':'No'}</span></div>
+    <div class="kv"><span class="k">Recurrente</span><span class="v" style="color:${t.recur?'var(--accent-ink)':'var(--muted)'}">${t.recur?'Sí · '+freqLabel(t.freq):'No'}</span></div>
+    ${t.recur?`<div class="kv"><span class="k">Se repite</span><span class="v" style="white-space:normal;text-align:right;max-width:60%">${recurText(t.date,t.freq)}</span></div>`:''}
   </div>
   <button class="btn ghost" id="dDelete2" style="color:var(--down);margin-top:18px">Eliminar movimiento</button>`;
   const close=()=>document.getElementById('detail').classList.remove('on');
   document.getElementById('dBack').onclick=close;
-  const del=()=>{if(confirm('¿Eliminar este movimiento?')){S.tx=S.tx.filter(x=>x.id!==txid);save();close();renderAll();toast('Movimiento eliminado');}};
+  const del=()=>{
+    const tx=S.tx.find(x=>x.id===txid);
+    if(tx&&tx.seriesId){
+      if(confirm('Es un pago recurrente. Se eliminará toda la serie y dejará de registrarse. ¿Continuar?')){
+        S.tx=S.tx.filter(x=>x.seriesId!==tx.seriesId);save();close();renderAll();toast('Pago recurrente eliminado');}
+      return;
+    }
+    if(confirm('¿Eliminar este movimiento?')){S.tx=S.tx.filter(x=>x.id!==txid);save();close();renderAll();toast('Movimiento eliminado');}
+  };
   document.getElementById('dDelete').onclick=del;
   document.getElementById('dDelete2').onclick=del;
   document.getElementById('detail').classList.add('on');
@@ -743,5 +802,7 @@ function startOnboarding(){
 
 /* ============ BOOT ============ */
 if(!S){startOnboarding();}
-else{renderAll();go('home');}
+else{runRecurring();renderAll();go('home');}
+// re-check due recurring payments whenever the app comes back to the foreground
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&S){if(runRecurring())renderAll();}});
 </script>
