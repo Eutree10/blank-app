@@ -1,4 +1,4 @@
-# Pennywise — Personal Finance App Design
+# Tino — Personal Finance App Design
 
 A complete **mobile-first iPhone design** for a personal finance tracking app. The
 goal: help people understand where their money goes, organize every expense into

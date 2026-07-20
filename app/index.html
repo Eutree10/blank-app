@@ -1,4 +1,4 @@
-<title>Pennywise</title>
+<title>Tino</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -69,6 +69,9 @@ button{font-family:inherit}
 .cat-ic.accent{background:var(--accent-soft);border-color:#FFD9C6;color:var(--accent-ink)}
 .list-row{display:flex;align-items:center;gap:13px;padding:11px 2px}
 .list-row+.list-row{border-top:1px solid var(--border)}
+.cat-line{display:flex;align-items:center;gap:13px}
+.tap{transition:transform .12s ease}
+.tap:active{transform:scale(.985);opacity:.85}
 .grow{flex:1;min-width:0}
 .tt{font-weight:700;font-size:15px;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ts{color:var(--muted);font-size:12.5px;font-weight:500;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -220,10 +223,10 @@ button{font-family:inherit}
 
   <!-- Onboarding -->
   <div class="ob" id="ob">
-    <div class="logo">P</div>
+    <div class="logo">T</div>
     <div class="steps"><i class="on" id="obs0"></i><i id="obs1"></i></div>
     <div id="obStep0">
-      <h1>Bienvenido a<br><em>Pennywise.</em></h1>
+      <h1>Bienvenido a<br><em>Tino.</em></h1>
       <p>Controla cada peso: registra gastos en segundos y entiende a dónde se va tu dinero.</p>
       <div class="field"><label>¿Cómo te llamas?</label>
         <input class="inp" id="obName" placeholder="Tu nombre" autocomplete="off"></div>
@@ -252,7 +255,8 @@ button{font-family:inherit}
   <!-- PROFILE -->
   <div class="screen" id="s-profile"></div>
 
-  <!-- detail modal -->
+  <!-- detail modals -->
+  <div class="modal" id="catModal"></div>
   <div class="modal" id="detail"></div>
 
   <!-- add sheet -->
@@ -488,13 +492,13 @@ function renderHome(){
   <div class="blk-head"><h3>Top categorías</h3><a data-tab="insights">Ver todo</a></div>
   <div class="card pad stack">
     ${top.length?top.map(([id,v])=>`
-      <div style="display:flex;align-items:center;gap:13px">${catIcHTML(id,id===top[0][0])}
+      <div class="cat-line tap" data-cat="${id}" style="cursor:pointer">${catIcHTML(id,id===top[0][0])}
       <div class="grow"><div class="tt">${CAT(id).name}</div>
         <div class="progress mini" style="margin-top:7px"><i style="width:${Math.round(v/maxTop*100)}%"></i></div></div>
-      <div class="amt">${fmt0(v)}</div></div>`).join(''):`<div class="empty">Sin gastos aún este mes</div>`}
+      <div class="amt">${fmt0(v)}</div><span class="chev">${I.chev}</span></div>`).join(''):`<div class="empty">Sin gastos aún este mes</div>`}
   </div>
 
-  ${insight?`<div style="margin-top:16px" class="insight"><div class="spark">${I.spark}</div><p>${insight}</p></div>`:''}
+  ${insight?`<div style="margin-top:16px;cursor:pointer" class="insight tap" data-tab="insights"><div class="spark">${I.spark}</div><p>${insight}</p></div>`:''}
 
   <div class="blk-head"><h3>Reciente</h3><a data-tab="tx">Toda la actividad</a></div>
   <div class="card pad">
@@ -596,9 +600,9 @@ function renderInsights(){
   <div class="blk-head"><h3>Gasto por categoría</h3></div>
   <div class="stack">
     ${entries.length?(()=>{const maxCat=entries[0][1]||1;return entries.map(([id,v])=>{const share=Math.round(v/total*100);const p=Math.round(v/maxCat*100);
-      return `<div class="card pad"><div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">${catIcHTML(id)}
+      return `<div class="card pad tap" data-cat="${id}" style="cursor:pointer"><div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">${catIcHTML(id)}
       <div class="grow"><div class="tt">${CAT(id).name}</div><div class="ts">${fmt0(v)} · ${share}% del total</div></div>
-      <div style="font-weight:700;font-size:12.5px;color:var(--accent-ink)">${share}%</div></div>
+      <span class="chev">${I.chev}</span></div>
       <div class="progress"><i style="width:${p}%"></i></div></div>`;}).join('')})()
     :`<div class="empty">Aún no hay datos para mostrar</div>`}
   </div>`;
@@ -722,6 +726,35 @@ function commit(){
 }
 
 /* ============ DETAIL ============ */
+/* ---- category detail (drill-in) ---- */
+function openCatDetail(catId){
+  const c=CAT(catId);
+  const all=S.tx.filter(t=>t.cat===catId).sort((a,b)=>b.date-a.date);
+  const monthTx=all.filter(t=>sameMonth(t.date));
+  const monthTotal=monthTx.reduce((a,t)=>a+t.amount,0);
+  const allTotal=all.reduce((a,t)=>a+t.amount,0);
+  const isInc=catId==='income';
+  // group all transactions by day
+  const groups={};all.forEach(t=>{const k=dayLabel(t.date);(groups[k]=groups[k]||[]).push(t);});
+  document.getElementById('catModal').innerHTML=`
+  <div class="head"><button class="iconbtn" id="cmBack">${I.back}</button>
+    <div class="h-title" style="font-size:19px;align-self:center;display:flex;gap:9px;align-items:center">${catIcHTML(catId,isInc)} ${c.name}</div>
+    <div style="width:42px"></div></div>
+  <div class="card pad" style="text-align:center">
+    <div class="label-xs">${isInc?'Ingresado este mes':'Gastado este mes'}</div>
+    <div class="money" style="font-size:32px;margin:8px 0;color:${isInc?'var(--up)':'var(--accent-ink)'}">${fmt0(monthTotal)}</div>
+    <div class="ts" style="white-space:normal">${monthTx.length} ${monthTx.length===1?'movimiento':'movimientos'} este mes · ${fmt0(allTotal)} en total</div>
+  </div>
+  ${all.length?Object.entries(groups).map(([day,items])=>{
+    const net=items.reduce((a,t)=>a+t.amount,0);
+    return `<div class="blk-head"><h3>${day}</h3><span class="money" style="color:var(--muted);font-size:13px;font-weight:700">${fmt0(net)}</span></div>
+    <div class="card pad">${items.map(t=>txRow(t)).join('')}</div>`;
+  }).join(''):`<div class="empty" style="margin-top:20px"><div class="big">🗂️</div>Sin movimientos en ${c.name} todavía.</div>`}`;
+  document.getElementById('cmBack').onclick=()=>document.getElementById('catModal').classList.remove('on');
+  document.getElementById('catModal').scrollTop=0;
+  document.getElementById('catModal').classList.add('on');
+}
+
 function openDetail(txid){
   const t=S.tx.find(x=>x.id===txid);if(!t)return;const c=CAT(t.cat);
   document.getElementById('detail').innerHTML=`
@@ -810,8 +843,9 @@ document.getElementById('curScrim').onclick=closeCur;
 // delegate clicks: tx rows, "ver todo" links, settings
 document.getElementById('app').addEventListener('click',e=>{
   const row=e.target.closest('[data-tx]');if(row){openDetail(row.dataset.tx);return;}
+  const catRow=e.target.closest('[data-cat]');if(catRow&&!catRow.classList.contains('ip')){openCatDetail(catRow.dataset.cat);return;}
   const sl=e.target.closest('#setLimitHome');if(sl){editSetting('limit');return;}
-  const link=e.target.closest('a[data-tab]');if(link){go(link.dataset.tab);return;}
+  const link=e.target.closest('[data-tab]');if(link&&!link.classList.contains('t')){go(link.dataset.tab);return;}
   const s=e.target.closest('.set-row');if(s){
     if(s.id==='setName')editSetting('name');
     if(s.id==='setLimit')editSetting('limit');
@@ -848,7 +882,7 @@ function startOnboarding(){
       document.getElementById('obStep0').style.display='none';
       document.getElementById('obStep1').style.display='';
       document.getElementById('obs1').classList.add('on');
-      document.getElementById('obNext').textContent='Empezar a usar Pennywise';
+      document.getElementById('obNext').textContent='Empezar a usar Tino';
       step=1;return;
     }
     const name=document.getElementById('obName').value.trim();
