@@ -364,6 +364,7 @@ const CATS=[
  {id:'tech',name:'Tecnología',icon:'tech',budget:150},
  {id:'travel',name:'Viajes',icon:'travel',budget:200},
  {id:'other',name:'Otros',icon:'other',budget:150},
+ {id:'subs',name:'Suscripciones',icon:'subs',budget:0},
  {id:'income',name:'Ingreso',icon:'income',budget:0},
 ];
 const CAT=id=>CATS.find(c=>c.id===id)||CATS.find(c=>c.id==='other');
@@ -711,7 +712,7 @@ function closeSheet(){
 function renderSheet(){
   const amtNum=parseFloat(draft.amount)||0;
   const [intp,decp]=Number(draft.amount).toString().includes('.')?draft.amount.split('.'):[draft.amount,null];
-  const showCats=CATS.filter(c=>draft.type==='inc'?c.id==='income':c.id!=='income');
+  const showCats=CATS.filter(c=>draft.type==='inc'?c.id==='income':(c.id!=='income'&&c.id!=='subs'));
   if(draft.type==='inc')draft.cat='income'; else if(draft.cat==='income')draft.cat='food';
   document.getElementById('sheet').innerHTML=`
   <div class="sheet-handle"><div class="grab"></div>
@@ -722,10 +723,13 @@ function renderSheet(){
   </div>
   <div class="amount-display"><span class="money"><span class="cur">${cur()}</span>${esc(intp||'0')}${decp!==null?'.'+esc(decp):'<span class="z">.00</span>'}</span></div>
 
+  ${draft.recur&&draft.type==='exp'?`
+  <div class="label-xs" style="margin:6px 2px">Categoría</div>
+  <div class="selpill" style="justify-content:flex-start;gap:10px;margin-top:2px;color:var(--accent-ink);border-color:#FFD9C6;background:var(--accent-soft)">${I.subs}<span style="font-weight:700">Suscripciones</span></div>`:`
   <div class="label-xs" style="margin:6px 2px">${draft.type==='inc'?'Fuente':'Categoría'}</div>
   <div class="icon-picker" id="catPick">
     ${showCats.map(c=>`<button class="ip ${draft.cat===c.id?'on':''}" data-cat="${c.id}">${catIcHTML(c.id,draft.cat===c.id)}<small>${c.name}</small></button>`).join('')}
-  </div>
+  </div>`}
 
   <div class="field-row">
     <input class="inp" id="dDesc" placeholder="Descripción (ej. ${draft.type==='inc'?'Nómina':'Chipotle'})" value="${esc(draft.desc)}" autocomplete="off">
@@ -752,7 +756,7 @@ function renderSheet(){
 }
 function wireSheet(){
   document.getElementById('typeTog').querySelectorAll('button').forEach(b=>b.onclick=()=>{draft.type=b.dataset.type;renderSheet();});
-  document.getElementById('catPick').querySelectorAll('.ip').forEach(b=>b.onclick=()=>{draft.cat=b.dataset.cat;renderSheet();});
+  const cp=document.getElementById('catPick');if(cp)cp.querySelectorAll('.ip').forEach(b=>b.onclick=()=>{draft.cat=b.dataset.cat;renderSheet();});
   document.getElementById('dDesc').oninput=e=>draft.desc=e.target.value;
   document.getElementById('dRecur').onclick=()=>{draft.recur=!draft.recur;renderSheet();};
   const fs=document.getElementById('freqSeg');if(fs)fs.querySelectorAll('button').forEach(b=>b.onclick=()=>{draft.freq=b.dataset.freq;renderSheet();});
@@ -773,7 +777,9 @@ function key(k){
 }
 function commit(){
   const amt=parseFloat(draft.amount)||0;if(amt<=0)return;
-  const t={id:id(),type:draft.type,amount:Math.round(amt*100)/100,cat:draft.cat,desc:draft.desc.trim(),method:draft.method,date:draft.date,recur:draft.recur};
+  // a recurring expense is a subscription -> auto category "Suscripciones" (no manual pick)
+  const catForSave=draft.type==='inc'?'income':(draft.recur?'subs':draft.cat);
+  const t={id:id(),type:draft.type,amount:Math.round(amt*100)/100,cat:catForSave,desc:draft.desc.trim(),method:draft.method,date:draft.date,recur:draft.recur};
   if(draft.recur){t.freq=draft.freq;t.seriesId=id();}
   S.tx.push(t);
   runRecurring();          // catch up any occurrences already due (e.g. back-dated series)
