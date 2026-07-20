@@ -341,28 +341,8 @@ const METHODS=['Tarjeta ·1234','Efectivo','Transferencia','Amex ·5678'];
 /* ============ CURRENCIES ============ */
 const CURRENCIES=[
  {code:'ARS',sym:'$',locale:'es-AR',name:'Peso argentino',popular:true},
- {code:'USD',sym:'US$',locale:'en-US',name:'Dólar estadounidense',popular:true},
+ {code:'USD',sym:'US$',locale:'en-US',name:'Dólar',popular:true},
  {code:'EUR',sym:'€',locale:'es-ES',name:'Euro',popular:true},
- {code:'BRL',sym:'R$',locale:'pt-BR',name:'Real brasileño',popular:true},
- {code:'MXN',sym:'MX$',locale:'es-MX',name:'Peso mexicano',popular:true},
- {code:'CLP',sym:'CL$',locale:'es-CL',name:'Peso chileno',popular:true},
- {code:'UYU',sym:'$U',locale:'es-UY',name:'Peso uruguayo'},
- {code:'COP',sym:'COL$',locale:'es-CO',name:'Peso colombiano'},
- {code:'PEN',sym:'S/',locale:'es-PE',name:'Sol peruano'},
- {code:'PYG',sym:'₲',locale:'es-PY',name:'Guaraní paraguayo'},
- {code:'BOB',sym:'Bs',locale:'es-BO',name:'Boliviano'},
- {code:'VES',sym:'Bs.S',locale:'es-VE',name:'Bolívar venezolano'},
- {code:'CRC',sym:'₡',locale:'es-CR',name:'Colón costarricense'},
- {code:'GTQ',sym:'Q',locale:'es-GT',name:'Quetzal guatemalteco'},
- {code:'DOP',sym:'RD$',locale:'es-DO',name:'Peso dominicano'},
- {code:'PAB',sym:'B/.',locale:'es-PA',name:'Balboa panameño'},
- {code:'GBP',sym:'£',locale:'en-GB',name:'Libra esterlina'},
- {code:'CAD',sym:'C$',locale:'en-CA',name:'Dólar canadiense'},
- {code:'AUD',sym:'A$',locale:'en-AU',name:'Dólar australiano'},
- {code:'CHF',sym:'CHF',locale:'de-CH',name:'Franco suizo'},
- {code:'JPY',sym:'¥',locale:'ja-JP',name:'Yen japonés'},
- {code:'CNY',sym:'CN¥',locale:'zh-CN',name:'Yuan chino'},
- {code:'INR',sym:'₹',locale:'en-IN',name:'Rupia india'},
 ];
 const CC=()=>CURRENCIES.find(c=>c.code===S.settings.currency)||CURRENCIES[0];
 
@@ -792,18 +772,11 @@ function openDetail(txid){
 
 /* ============ CURRENCY PICKER (profile) ============ */
 function openCurrencyPicker(onPick){
-  let q='';const sel=()=>S.settings.currency;
-  const render=()=>{
-    document.getElementById('curSheet').innerHTML=`
-      <div class="grab"></div>
-      <div style="text-align:center;margin:2px 0 8px"><div class="label-xs">Elegí tu moneda</div></div>
-      <div class="search">${I.search}<input id="cpSearch" placeholder="Buscá tu moneda (peso, dólar, euro...)" value="${esc(q)}" autocomplete="off"></div>
-      <div class="cur-list" style="max-height:46vh">${curListHTML(filterCurrencies(q,sel()),sel())}</div>`;
-    const inp=document.getElementById('cpSearch');
-    inp.oninput=e=>{q=e.target.value;const pos=e.target.selectionStart;render();const ni=document.getElementById('cpSearch');ni.focus();ni.setSelectionRange(pos,pos);};
-    document.getElementById('curSheet').querySelectorAll('.cur-item').forEach(b=>b.onclick=()=>{closeCur();onPick(b.dataset.code);});
-  };
-  render();
+  document.getElementById('curSheet').innerHTML=`
+    <div class="grab"></div>
+    <div style="text-align:center;margin:2px 0 12px"><div class="label-xs">Elegí tu moneda</div></div>
+    <div class="cur-list" style="max-height:46vh">${curListHTML(CURRENCIES,S.settings.currency)}</div>`;
+  document.getElementById('curSheet').querySelectorAll('.cur-item').forEach(b=>b.onclick=()=>{closeCur();onPick(b.dataset.code);});
   document.getElementById('curScrim').classList.add('on');
   document.getElementById('curSheet').classList.add('on');
 }
@@ -872,11 +845,10 @@ function startOnboarding(){
   const ob=document.getElementById('ob');ob.classList.add('on');
   let curCode='ARS';let step=0;
   const box=document.getElementById('curBox');
-  box.innerHTML=`<div class="search" style="margin-top:7px">${I.search}<input id="curSearch" placeholder="Buscá tu moneda (peso, dólar, euro...)" autocomplete="off"></div><div id="curList" class="cur-list"></div>`;
-  const paint=q=>{document.getElementById('curList').innerHTML=curListHTML(filterCurrencies(q,curCode),curCode);
-    document.querySelectorAll('#curList .cur-item').forEach(b=>b.onclick=()=>{curCode=b.dataset.code;paint(document.getElementById('curSearch').value);});};
-  paint('');
-  document.getElementById('curSearch').addEventListener('input',e=>paint(e.target.value));
+  box.innerHTML=`<div id="curList" class="cur-list" style="margin-top:8px"></div>`;
+  const paint=()=>{document.getElementById('curList').innerHTML=curListHTML(CURRENCIES,curCode);
+    document.querySelectorAll('#curList .cur-item').forEach(b=>b.onclick=()=>{curCode=b.dataset.code;paint();});};
+  paint();
   document.getElementById('obNext').onclick=()=>{
     if(step===0){
       document.getElementById('obStep0').style.display='none';
