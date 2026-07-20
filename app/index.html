@@ -471,7 +471,7 @@ function initials(name){const w=(name||'?').trim().split(/\s+/);return ((w[0]?.[
 // build one object per recurring series
 function getSubscriptions(){
   const byS={};
-  S.tx.filter(t=>t.recur&&t.seriesId&&t.freq).forEach(t=>{(byS[t.seriesId]=byS[t.seriesId]||[]).push(t);});
+  S.tx.filter(t=>t.recur&&t.seriesId&&t.freq&&t.type==='exp').forEach(t=>{(byS[t.seriesId]=byS[t.seriesId]||[]).push(t);});
   const now=Date.now();
   return Object.entries(byS).map(([sid,list])=>{
     list.sort((a,b)=>a.date-b.date);
@@ -723,10 +723,18 @@ function renderSheet(){
   </div>
   <div class="amount-display"><span class="money"><span class="cur">${cur()}</span>${esc(intp||'0')}${decp!==null?'.'+esc(decp):'<span class="z">.00</span>'}</span></div>
 
+  <div class="recur"><span>${I.subs}</span><span class="tt" style="font-size:14px">Cuotas / Suscripciones</span><span class="grow"></span><button class="toggle ${draft.recur?'on':''}" id="dRecur"></button></div>
+  ${draft.recur?`<div class="seg" id="freqSeg" style="margin-top:10px">
+    <button class="${draft.freq==='week'?'on':''}" data-freq="week">Semanal</button>
+    <button class="${draft.freq==='month'?'on':''}" data-freq="month">Mensual</button>
+    <button class="${draft.freq==='year'?'on':''}" data-freq="year">Anual</button>
+  </div>
+  <div class="ts" style="margin:8px 2px 0;white-space:normal">Se registrará solo, ${recurText(draft.date,draft.freq)}.</div>`:''}
+
   ${draft.recur&&draft.type==='exp'?`
-  <div class="label-xs" style="margin:6px 2px">Categoría</div>
+  <div class="label-xs" style="margin:14px 2px 6px">Categoría</div>
   <div class="selpill" style="justify-content:flex-start;gap:10px;margin-top:2px;color:var(--accent-ink);border-color:#FFD9C6;background:var(--accent-soft)">${I.subs}<span style="font-weight:700">Suscripciones</span></div>`:`
-  <div class="label-xs" style="margin:6px 2px">${draft.type==='inc'?'Fuente':'Categoría'}</div>
+  <div class="label-xs" style="margin:14px 2px 6px">${draft.type==='inc'?'Fuente':'Categoría'}</div>
   <div class="icon-picker" id="catPick">
     ${showCats.map(c=>`<button class="ip ${draft.cat===c.id?'on':''}" data-cat="${c.id}">${catIcHTML(c.id,draft.cat===c.id)}<small>${c.name}</small></button>`).join('')}
   </div>`}
@@ -739,13 +747,6 @@ function renderSheet(){
       <input type="date" id="dDateInput" value="${dateInputVal(draft.date)}" max="${dateInputVal(Date.now())}" style="position:absolute;inset:0;width:100%;height:100%;opacity:0;border:0;font-size:16px"></label>
     <button class="selpill" id="dMethod"><span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${I.card} ${esc(draft.method)}</span></button>
   </div>
-  <div class="recur"><span>${I.subs}</span><span class="tt" style="font-size:14px">Cuotas / Suscripciones</span><span class="grow"></span><button class="toggle ${draft.recur?'on':''}" id="dRecur"></button></div>
-  ${draft.recur?`<div class="seg" id="freqSeg" style="margin-top:10px">
-    <button class="${draft.freq==='week'?'on':''}" data-freq="week">Semanal</button>
-    <button class="${draft.freq==='month'?'on':''}" data-freq="month">Mensual</button>
-    <button class="${draft.freq==='year'?'on':''}" data-freq="year">Anual</button>
-  </div>
-  <div class="ts" style="margin:8px 2px 0;white-space:normal">Se registrará solo, ${recurText(draft.date,draft.freq)}.</div>`:''}
 
   <div class="keypad" id="keypad">
     ${[1,2,3,4,5,6,7,8,9].map(n=>`<button data-k="${n}">${n}</button>`).join('')}
