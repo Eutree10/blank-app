@@ -867,8 +867,7 @@ function openDetail(txid){
     <div class="kv"><span class="k">Tipo</span><span class="v">${t.type==='inc'?'Ingreso':'Gasto'}</span></div>
     <div class="kv"><span class="k">Cuotas / Susc.</span><span class="v" style="color:${t.recur?'var(--accent-ink)':'var(--muted)'}">${t.recur?'Sí · '+freqLabel(t.freq):'No'}</span></div>
     ${t.recur?`<div class="kv"><span class="k">Se repite</span><span class="v" style="white-space:normal;text-align:right;max-width:60%">${recurText(t.date,t.freq)}</span></div>`:''}
-  </div>
-  <button class="btn ghost" id="dDelete2" style="color:var(--down);margin-top:18px">Eliminar movimiento</button>`;
+  </div>`;
   const close=()=>document.getElementById('detail').classList.remove('on');
   document.getElementById('dBack').onclick=close;
   const del=()=>{
@@ -881,7 +880,6 @@ function openDetail(txid){
     if(confirm('¿Eliminar este movimiento?')){S.tx=S.tx.filter(x=>x.id!==txid);save();close();renderAll();toast('Movimiento eliminado');}
   };
   document.getElementById('dDelete').onclick=del;
-  document.getElementById('dDelete2').onclick=del;
   document.getElementById('detail').classList.add('on');
 }
 
@@ -1056,6 +1054,19 @@ function enableSheetDrag(sheetId, closeFn){
 }
 enableSheetDrag('sheet',closeSheet);
 enableSheetDrag('curSheet',closeCur);
+
+/* iOS-style swipe from the left edge to close a full-screen modal */
+function enableSwipeBack(modalId){
+  const el=document.getElementById(modalId);
+  let sx=0,sy=0,dx=0,active=false;
+  const pt=e=>e.touches?e.touches[0]:e;
+  el.addEventListener('touchstart',e=>{const t=pt(e);if(!el.classList.contains('on')||t.clientX>40){active=false;return;}active=true;sx=t.clientX;sy=t.clientY;dx=0;el.style.transition='none';},{passive:true});
+  el.addEventListener('touchmove',e=>{if(!active)return;const t=pt(e);const rx=t.clientX-sx,ry=t.clientY-sy;
+    if(Math.abs(ry)>Math.abs(rx)&&rx<12){active=false;el.style.transition='';el.style.transform='';return;} // vertical scroll wins
+    dx=Math.max(0,rx);el.style.transform=`translateX(${dx}px)`;},{passive:true});
+  el.addEventListener('touchend',()=>{if(!active)return;active=false;el.style.transition='';el.style.transform='';if(dx>90)el.classList.remove('on');},{passive:true});
+}
+['detail','catModal','subsModal','subDetail'].forEach(enableSwipeBack);
 
 // delegate clicks: tx rows, "ver todo" links, settings
 document.getElementById('app').addEventListener('click',e=>{
