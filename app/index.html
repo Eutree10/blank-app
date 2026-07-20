@@ -197,11 +197,14 @@ button{font-family:inherit}
 .kv .v{font-size:14.5px;font-weight:700;display:flex;align-items:center;gap:8px}
 
 /* bars */
-.bars{display:flex;align-items:flex-end;gap:7px;height:120px;padding:6px 2px 0}
-.bars .b{flex:1;display:flex;flex-direction:column;align-items:center;gap:7px;height:100%;justify-content:flex-end}
-.bars .b i{width:100%;max-width:26px;border-radius:8px 8px 4px 4px;background:var(--surface-2);transition:height .5s ease}
-.bars .b.on i{background:linear-gradient(180deg,#FF7A3D,#FF4D14)}
-.bars .b span{font-size:10.5px;font-weight:700;color:var(--muted)}
+.bars{display:flex;align-items:flex-end;gap:8px;height:150px;padding:8px 2px 0}
+.bars .b{flex:1;display:flex;flex-direction:column;align-items:center;height:100%;justify-content:flex-end}
+.bars .b .bv{font-size:10px;font-weight:800;font-family:var(--mono);color:var(--muted);margin-bottom:5px;white-space:nowrap;min-height:13px}
+.bars .b.on .bv{color:var(--accent-ink)}
+.bars .b .track{flex:1;width:100%;max-width:30px;background:var(--surface-2);border-radius:9px;display:flex;align-items:flex-end;overflow:hidden}
+.bars .b .track i{width:100%;background:var(--border-2);transition:height .5s ease}
+.bars .b.on .track i{background:linear-gradient(180deg,#FF7A3D,#FF4D14)}
+.bars .b span{font-size:11px;font-weight:700;color:var(--muted);margin-top:8px}
 .bars .b.on span{color:var(--text)}
 
 .donut{width:130px;height:130px;border-radius:50%;position:relative;flex:none}
@@ -454,6 +457,10 @@ const cur=()=>CC().sym;
 function fmt(n){const c=CC();return c.sym+Math.abs(n).toLocaleString(c.locale,{minimumFractionDigits:2,maximumFractionDigits:2});}
 function fmt0(n){const c=CC();return c.sym+Math.round(Math.abs(n)).toLocaleString(c.locale);}
 function fmtAmount(n){const c=CC();const cents=Math.abs(n%1)>0.001;return c.sym+Math.abs(n).toLocaleString(c.locale,{minimumFractionDigits:cents?2:0,maximumFractionDigits:2});}
+function fmtCompact(n){const c=CC();const a=Math.abs(n);
+  if(a>=1e6)return c.sym+(a/1e6).toLocaleString(c.locale,{maximumFractionDigits:1})+'M';
+  if(a>=1e4)return c.sym+Math.round(a/1e3).toLocaleString(c.locale)+'k';
+  return c.sym+Math.round(a).toLocaleString(c.locale);}
 function sameMonth(t){const d=new Date(t),n=new Date();return d.getMonth()===n.getMonth()&&d.getFullYear()===n.getFullYear();}
 function prevMonth(t){const d=new Date(t),n=new Date();const p=new Date(n.getFullYear(),n.getMonth()-1,1);return d.getMonth()===p.getMonth()&&d.getFullYear()===p.getFullYear();}
 function monthExp(filter){return S.tx.filter(t=>t.type==='exp'&&!t.template&&filter(t.date)).reduce((a,t)=>a+t.amount,0);}
@@ -644,12 +651,13 @@ function renderInsights(){
       <div><div class="label-xs">Gastado este mes</div><div class="money" style="font-size:26px;margin-top:5px">${fmt0(spent)}</div></div>
       ${prev>0?`<div class="${dp>=0?'chip-down':'chip-up'}" style="background:var(--accent-soft);color:var(--accent-ink)">${dp>=0?'▲':'▼'} ${Math.abs(dp)}% vs mes previo</div>`:''}
     </div>
-    <div class="bars">${months.map(m=>`<div class="b ${m.v===Math.max(...months.map(x=>x.v))&&m.v>0?'on':''}"><i style="height:${Math.max(4,m.v/maxM*100)}%"></i><span>${m.label}</span></div>`).join('')}</div>
+    <div class="bars">${(()=>{const maxV=Math.max(...months.map(x=>x.v));return months.map(m=>{const h=maxV>0?Math.round(m.v/maxV*100):0;const on=m.v===maxV&&m.v>0;return `<div class="b ${on?'on':''}"><div class="bv">${m.v>0?fmtCompact(m.v):''}</div><div class="track"><i style="height:${h}%"></i></div><span>${m.label}</span></div>`;}).join('')})()}</div>
+    <div class="ts" style="text-align:center;margin-top:12px;white-space:normal">${prev>0?`Este mes gastaste <b style="color:${dp>=0?'var(--down)':'var(--up)'}">${fmt0(spent)}</b>, ${dp>=0?`${dp}% más`:`${Math.abs(dp)}% menos`} que en ${months[4].label}`:months.filter(m=>m.v>0).length>1?'Tu gasto de los últimos 6 meses':'A medida que cargues gastos vas a ver tu tendencia acá'}</div>
   </div>
 
   <div class="blk-head"><h3>A dónde se fue</h3></div>
   <div class="card pad" style="display:flex;gap:16px;align-items:center">
-    ${entries.length?`<div class="donut" style="background:${donut}"><div class="ctr"><b>${fmt0(spent)}</b><small>total</small></div></div>
+    ${entries.length?`<div class="donut" style="background:${donut}"><div class="ctr"><b>${fmtCompact(spent)}</b><small>total</small></div></div>
     <div class="legend">${entries.slice(0,6).map(([id,v],i)=>`<div class="leg"><span class="sw" style="background:${PIE[i%PIE.length]}"></span><span class="nm">${CAT(id).name}</span><span class="lv">${fmt0(v)}</span></div>`).join('')}</div>`
     :`<div class="empty" style="width:100%">Sin gastos este mes todavía</div>`}
   </div>
