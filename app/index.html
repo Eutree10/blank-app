@@ -509,7 +509,7 @@ function renderHome(){
 
   document.getElementById('s-home').innerHTML=`
   <div class="head">
-    <div><div class="h-greet">Hola,</div><div class="h-title">${esc(S.settings.name)} 👋</div></div>
+    <div><div class="h-greet">Hola,</div><div class="h-title">${esc(S.settings.name)}</div></div>
     <div class="avatar">${esc((S.settings.name||'A').trim()[0]||'A').toUpperCase()}</div>
   </div>
   <div class="balance-hero">
@@ -564,7 +564,7 @@ function makeInsight(by,spent,limit){
 function txRow(t){
   const c=CAT(t.cat);
   return `<div class="list-row" data-tx="${t.id}">${catIcHTML(t.cat,t.type==='inc')}
-    <div class="grow"><div class="tt">${esc(t.desc)||c.name}${t.recur?' <span style="font-size:11px">🔁</span>':''}</div>
+    <div class="grow"><div class="tt">${esc(t.desc)||c.name}</div>
     <div class="ts">${c.name} · ${timeLabel(t.date)}${t.method?' · '+esc(t.method):''}</div></div>
     <div class="amt ${t.type==='inc'?'pos':''}">${t.type==='inc'?'+':'-'}${fmt(t.amount)}</div></div>`;
 }
@@ -593,7 +593,7 @@ function renderTx(){
     const net=items.reduce((a,t)=>a+(t.type==='inc'?t.amount:-t.amount),0);
     return `<div class="blk-head"><h3>${day}</h3><span class="money" style="color:${net>=0?'var(--up)':'var(--muted)'};font-size:13px;font-weight:700">${net>=0?'+':'-'}${fmt0(net)}</span></div>
     <div class="card pad">${items.map(t=>txRow(t)).join('')}</div>`;
-  }).join(''):`<div class="empty"><div class="big">🔍</div>Sin movimientos${txSearch||txFilter!=='all'?' con ese filtro':''}.</div>`}`;
+  }).join(''):`<div class="empty">Sin movimientos${txSearch||txFilter!=='all'?' con ese filtro':''}.</div>`}`;
 }
 
 /* ============ RENDER: INSIGHTS ============ */
@@ -648,7 +648,7 @@ function renderInsights(){
       <div class="grow"><div class="label-xs">Gastos</div><div class="money" style="color:var(--down);font-size:19px;margin-top:5px">-${fmt0(spent)}</div>
         <div class="progress mini" style="margin-top:8px"><i style="width:${inc>0?Math.min(100,spent/inc*100):(spent>0?100:0)}%;background:var(--down)"></i></div></div>
     </div>
-    <div class="ts" style="margin-top:11px;text-align:center;white-space:normal">${inc>spent?`Ahorraste <b style="color:var(--up)">${fmt0(inc-spent)}</b> este mes 🎉`:inc>0?`Gastaste <b style="color:var(--down)">${fmt0(spent-inc)}</b> más de lo que ingresó`:'Registra un ingreso para ver tu ahorro'}</div>
+    <div class="ts" style="margin-top:11px;text-align:center;white-space:normal">${inc>spent?`Ahorraste <b style="color:var(--up)">${fmt0(inc-spent)}</b> este mes`:inc>0?`Gastaste <b style="color:var(--down)">${fmt0(spent-inc)}</b> más de lo que ingresó`:'Registra un ingreso para ver tu ahorro'}</div>
   </div>
 
   <div class="blk-head"><h3>Gasto por categoría</h3></div>
@@ -745,7 +745,7 @@ function renderSheet(){
     <button class="${draft.freq==='month'?'on':''}" data-freq="month">Mensual</button>
     <button class="${draft.freq==='year'?'on':''}" data-freq="year">Anual</button>
   </div>
-  <div class="ts" style="margin:8px 2px 0;white-space:normal">🔁 Se registrará solo, ${recurText(draft.date,draft.freq)}.</div>`:''}
+  <div class="ts" style="margin:8px 2px 0;white-space:normal">Se registrará solo, ${recurText(draft.date,draft.freq)}.</div>`:''}
 
   <div class="keypad" id="keypad">
     ${[1,2,3,4,5,6,7,8,9].map(n=>`<button data-k="${n}">${n}</button>`).join('')}
@@ -784,7 +784,7 @@ function commit(){
   S.tx.push(t);
   runRecurring();          // catch up any occurrences already due (e.g. back-dated series)
   save();closeSheet();renderAll();
-  toast(draft.type==='inc'?'Ingreso agregado ✓':'Gasto agregado ✓');
+  toast(draft.type==='inc'?'Ingreso agregado':'Gasto agregado');
 }
 
 /* ============ DETAIL ============ */
@@ -811,7 +811,7 @@ function openCatDetail(catId){
     const net=items.reduce((a,t)=>a+t.amount,0);
     return `<div class="blk-head"><h3>${day}</h3><span class="money" style="color:var(--muted);font-size:13px;font-weight:700">${fmt0(net)}</span></div>
     <div class="card pad">${items.map(t=>txRow(t)).join('')}</div>`;
-  }).join(''):`<div class="empty" style="margin-top:20px"><div class="big">🗂️</div>Sin movimientos en ${c.name} todavía.</div>`}`;
+  }).join(''):`<div class="empty" style="margin-top:20px">Sin movimientos en ${c.name} todavía.</div>`}`;
   document.getElementById('cmBack').onclick=()=>document.getElementById('catModal').classList.remove('on');
   document.getElementById('catModal').scrollTop=0;
   document.getElementById('catModal').classList.add('on');
@@ -888,7 +888,7 @@ function openSubs(){
         <div><div class="label-xs">Próximo pago</div><div class="tt" style="margin-top:5px">${esc(nextSub.name)}</div></div>
         <div style="text-align:right"><div class="sub-price">${fmt0(nextSub.price)}</div><div class="ts">${shortDate(nextSub.next)}</div></div></div>`:''}
    </div>
-   ${active.length?`<div class="proj-phrase" style="margin-top:14px;background:var(--surface);border-color:var(--border)">Gastás <b>${fmt0(monthlyTotal)}</b> por mes en suscripciones${annualEstimate>0?`, o <b>${fmt0(annualEstimate)}</b> al año`:''}.</div>`:''}
+   ${active.length?`<div class="proj-phrase" style="margin-top:14px;background:var(--surface);border-color:var(--border)">Gastás <b>${fmt0(monthlyTotal)}</b> por mes en suscripciones${annualEstimate>0?`, que equivalen a <b>${fmt0(annualEstimate)}</b> al año`:''}.</div>`:''}
    ${subs.length?groupsHTML:`<div class="empty" style="margin-top:26px">Sin suscripciones todavía.<br>Marcá un gasto como <b>Cuotas / Suscripciones</b> al cargarlo y aparecerá acá.</div>`}`;
   document.getElementById('subsBack').onclick=()=>document.getElementById('subsModal').classList.remove('on');
   document.getElementById('subsModal').scrollTop=0;
