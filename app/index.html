@@ -629,17 +629,9 @@ function renderInsights(){
     months.push({label:m.toLocaleDateString('es-ES',{month:'short'}),v});}
   const maxM=Math.max(...months.map(m=>m.v),1);
   const dp=prev>0?Math.round((spent-prev)/prev*100):0;
-  const activeSubs=getSubscriptions().filter(s=>s.status==='active');
-  const subsMonthly=activeSubs.reduce((a,s)=>a+perMonth(s.price,s.freq),0);
 
   document.getElementById('s-insights').innerHTML=`
   <div class="head"><div><div class="h-greet">Entiende</div><div class="h-title">Análisis</div></div></div>
-
-  <button class="card pad tap" data-open="subs" style="display:flex;align-items:center;gap:13px;width:100%;text-align:left;border:1px solid var(--border)">
-    <div class="cat-ic">${I.subs}</div>
-    <div class="grow"><div class="tt">Suscripciones</div><div class="ts">${activeSubs.length?`${fmt0(subsMonthly)} por mes · ${activeSubs.length} activa${activeSubs.length===1?'':'s'}`:'Gestioná tus cuotas y suscripciones'}</div></div>
-    <span class="chev">${I.chev}</span>
-  </button>
 
   <div class="card pad">
     <div style="display:flex;justify-content:space-between;align-items:baseline">
