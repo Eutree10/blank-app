@@ -204,6 +204,16 @@ button{font-family:inherit}
 .cur-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
 .cur-opt{border:1.5px solid var(--border-2);background:var(--surface);border-radius:14px;padding:14px;font-weight:700;font-size:14.5px;text-align:left}
 .cur-opt.on{border-color:var(--accent);background:var(--accent-soft);color:var(--accent-ink)}
+.cur-list{margin-top:12px;display:flex;flex-direction:column;gap:8px;max-height:264px;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.cur-list::-webkit-scrollbar{display:none}
+.cur-item{display:flex;align-items:center;gap:12px;border:1.5px solid var(--border-2);background:var(--surface);border-radius:14px;padding:12px 14px;text-align:left;width:100%}
+.cur-item.on{border-color:var(--accent);background:var(--accent-soft)}
+.cur-item .sym{font-family:var(--mono);font-weight:800;font-size:15px;min-width:40px;color:var(--text)}
+.cur-item.on .sym{color:var(--accent-ink)}
+.cur-item .nm{font-weight:700;font-size:14.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cur-item .cd{margin-left:auto;font-size:12px;font-weight:700;color:var(--muted);flex:none}
+.cur-item.on .cd{color:var(--accent-ink)}
+.cur-empty{color:var(--muted);font-size:13px;padding:18px 4px;text-align:center}
 </style>
 
 <div class="app" id="app">
@@ -218,7 +228,7 @@ button{font-family:inherit}
       <div class="field"><label>¿Cómo te llamas?</label>
         <input class="inp" id="obName" placeholder="Tu nombre" autocomplete="off"></div>
       <div class="field"><label>Moneda</label>
-        <div class="cur-grid" id="curGrid"></div></div>
+        <div id="curBox"></div></div>
     </div>
     <div id="obStep1" style="display:none">
       <h1>Tu límite<br>mensual</h1>
@@ -248,6 +258,10 @@ button{font-family:inherit}
   <!-- add sheet -->
   <div class="scrim" id="scrim"></div>
   <div class="sheet" id="sheet"></div>
+
+  <!-- currency picker sheet -->
+  <div class="scrim" id="curScrim"></div>
+  <div class="sheet" id="curSheet"></div>
 
   <!-- toast -->
   <div class="toast" id="toast"></div>
@@ -322,14 +336,29 @@ const METHODS=['Tarjeta ·1234','Efectivo','Transferencia','Amex ·5678'];
 
 /* ============ CURRENCIES ============ */
 const CURRENCIES=[
- {code:'ARS',sym:'$',locale:'es-AR',name:'Peso argentino'},
- {code:'USD',sym:'US$',locale:'en-US',name:'Dólar'},
- {code:'EUR',sym:'€',locale:'es-ES',name:'Euro'},
- {code:'BRL',sym:'R$',locale:'pt-BR',name:'Real'},
- {code:'MXN',sym:'MX$',locale:'es-MX',name:'Peso mexicano'},
- {code:'CLP',sym:'CL$',locale:'es-CL',name:'Peso chileno'},
+ {code:'ARS',sym:'$',locale:'es-AR',name:'Peso argentino',popular:true},
+ {code:'USD',sym:'US$',locale:'en-US',name:'Dólar estadounidense',popular:true},
+ {code:'EUR',sym:'€',locale:'es-ES',name:'Euro',popular:true},
+ {code:'BRL',sym:'R$',locale:'pt-BR',name:'Real brasileño',popular:true},
+ {code:'MXN',sym:'MX$',locale:'es-MX',name:'Peso mexicano',popular:true},
+ {code:'CLP',sym:'CL$',locale:'es-CL',name:'Peso chileno',popular:true},
  {code:'UYU',sym:'$U',locale:'es-UY',name:'Peso uruguayo'},
- {code:'GBP',sym:'£',locale:'en-GB',name:'Libra'},
+ {code:'COP',sym:'COL$',locale:'es-CO',name:'Peso colombiano'},
+ {code:'PEN',sym:'S/',locale:'es-PE',name:'Sol peruano'},
+ {code:'PYG',sym:'₲',locale:'es-PY',name:'Guaraní paraguayo'},
+ {code:'BOB',sym:'Bs',locale:'es-BO',name:'Boliviano'},
+ {code:'VES',sym:'Bs.S',locale:'es-VE',name:'Bolívar venezolano'},
+ {code:'CRC',sym:'₡',locale:'es-CR',name:'Colón costarricense'},
+ {code:'GTQ',sym:'Q',locale:'es-GT',name:'Quetzal guatemalteco'},
+ {code:'DOP',sym:'RD$',locale:'es-DO',name:'Peso dominicano'},
+ {code:'PAB',sym:'B/.',locale:'es-PA',name:'Balboa panameño'},
+ {code:'GBP',sym:'£',locale:'en-GB',name:'Libra esterlina'},
+ {code:'CAD',sym:'C$',locale:'en-CA',name:'Dólar canadiense'},
+ {code:'AUD',sym:'A$',locale:'en-AU',name:'Dólar australiano'},
+ {code:'CHF',sym:'CHF',locale:'de-CH',name:'Franco suizo'},
+ {code:'JPY',sym:'¥',locale:'ja-JP',name:'Yen japonés'},
+ {code:'CNY',sym:'CN¥',locale:'zh-CN',name:'Yuan chino'},
+ {code:'INR',sym:'₹',locale:'en-IN',name:'Rupia india'},
 ];
 const CC=()=>CURRENCIES.find(c=>c.code===S.settings.currency)||CURRENCIES[0];
 
@@ -728,6 +757,25 @@ function openDetail(txid){
   document.getElementById('detail').classList.add('on');
 }
 
+/* ============ CURRENCY PICKER (profile) ============ */
+function openCurrencyPicker(onPick){
+  let q='';const sel=()=>S.settings.currency;
+  const render=()=>{
+    document.getElementById('curSheet').innerHTML=`
+      <div class="grab"></div>
+      <div style="text-align:center;margin:2px 0 8px"><div class="label-xs">Elegí tu moneda</div></div>
+      <div class="search">${I.search}<input id="cpSearch" placeholder="Buscá tu moneda (peso, dólar, euro...)" value="${esc(q)}" autocomplete="off"></div>
+      <div class="cur-list" style="max-height:46vh">${curListHTML(filterCurrencies(q,sel()),sel())}</div>`;
+    const inp=document.getElementById('cpSearch');
+    inp.oninput=e=>{q=e.target.value;const pos=e.target.selectionStart;render();const ni=document.getElementById('cpSearch');ni.focus();ni.setSelectionRange(pos,pos);};
+    document.getElementById('curSheet').querySelectorAll('.cur-item').forEach(b=>b.onclick=()=>{closeCur();onPick(b.dataset.code);});
+  };
+  render();
+  document.getElementById('curScrim').classList.add('on');
+  document.getElementById('curSheet').classList.add('on');
+}
+function closeCur(){document.getElementById('curScrim').classList.remove('on');document.getElementById('curSheet').classList.remove('on');}
+
 /* ============ TOAST ============ */
 let toastT;
 function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('on');clearTimeout(toastT);toastT=setTimeout(()=>el.classList.remove('on'),1800);}
@@ -746,7 +794,7 @@ function editSetting(kind){
   if(kind==='name'){const v=prompt('Tu nombre:',S.settings.name);if(v!==null){S.settings.name=v.trim()||S.settings.name;save();renderAll();}}
   if(kind==='limit'){const v=prompt('Límite mensual:',S.settings.limit);if(v!==null){const n=parseFloat(v.replace(/[^0-9.]/g,''));if(n>0){S.settings.limit=n;save();renderAll();toast('Límite actualizado');}}}
   if(kind==='income'){const v=prompt('Ingreso mensual:',S.settings.income);if(v!==null){const n=parseFloat(v.replace(/[^0-9.]/g,''))||0;S.settings.income=n;save();renderAll();}}
-  if(kind==='cur'){const i=CURRENCIES.findIndex(c=>c.code===S.settings.currency);const nx=CURRENCIES[(i+1)%CURRENCIES.length];S.settings.currency=nx.code;save();renderAll();toast('Moneda: '+nx.name+' ('+nx.sym+')');}
+  if(kind==='cur'){openCurrencyPicker(code=>{S.settings.currency=code;save();renderAll();toast('Moneda: '+CC().name+' ('+CC().sym+')');});}
   if(kind==='reset'){if(confirm('¿Borrar TODOS los datos y volver a empezar?')){localStorage.removeItem(LS);location.reload();}}
 }
 
@@ -757,6 +805,7 @@ document.querySelectorAll('.tabbar .t').forEach(t=>{const d=TABS.find(x=>x[0]===
 document.getElementById('fab').innerHTML=I.plus;
 document.getElementById('fab').onclick=openSheet;
 document.getElementById('scrim').onclick=closeSheet;
+document.getElementById('curScrim').onclick=closeCur;
 
 // delegate clicks: tx rows, "ver todo" links, settings
 document.getElementById('app').addEventListener('click',e=>{
@@ -776,13 +825,24 @@ document.getElementById('s-tx').addEventListener('input',e=>{if(e.target.id==='t
 document.getElementById('s-tx').addEventListener('click',e=>{const c=e.target.closest('[data-f]');if(c){txFilter=c.dataset.f;renderTx();}});
 
 /* ============ ONBOARDING ============ */
+function curListHTML(items,sel){
+  if(!items.length)return `<div class="cur-empty">Sin resultados</div>`;
+  return items.map(c=>`<button class="cur-item ${c.code===sel?'on':''}" data-code="${c.code}"><span class="sym">${c.sym}</span><span class="nm">${c.name}</span><span class="cd">${c.code}</span></button>`).join('');
+}
+function filterCurrencies(q,sel){
+  q=(q||'').trim().toLowerCase();
+  if(q)return CURRENCIES.filter(c=>(c.name+' '+c.code+' '+c.sym).toLowerCase().includes(q));
+  return CURRENCIES.filter(c=>c.popular||c.code===sel);
+}
 function startOnboarding(){
   const ob=document.getElementById('ob');ob.classList.add('on');
   let curCode='ARS';let step=0;
-  const grid=document.getElementById('curGrid');
-  grid.innerHTML=CURRENCIES.map(c=>`<button class="cur-opt ${c.code==='ARS'?'on':''}" data-code="${c.code}">${c.sym} · ${c.name}</button>`).join('');
-  grid.querySelectorAll('.cur-opt').forEach(b=>b.onclick=()=>{
-    grid.querySelectorAll('.cur-opt').forEach(x=>x.classList.remove('on'));b.classList.add('on');curCode=b.dataset.code;});
+  const box=document.getElementById('curBox');
+  box.innerHTML=`<div class="search" style="margin-top:7px">${I.search}<input id="curSearch" placeholder="Buscá tu moneda (peso, dólar, euro...)" autocomplete="off"></div><div id="curList" class="cur-list"></div>`;
+  const paint=q=>{document.getElementById('curList').innerHTML=curListHTML(filterCurrencies(q,curCode),curCode);
+    document.querySelectorAll('#curList .cur-item').forEach(b=>b.onclick=()=>{curCode=b.dataset.code;paint(document.getElementById('curSearch').value);});};
+  paint('');
+  document.getElementById('curSearch').addEventListener('input',e=>paint(e.target.value));
   document.getElementById('obNext').onclick=()=>{
     if(step===0){
       document.getElementById('obStep0').style.display='none';
