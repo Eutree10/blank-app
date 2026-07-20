@@ -1029,7 +1029,7 @@ document.getElementById('app').addEventListener('click',e=>{
   const row=e.target.closest('[data-tx]');if(row){openDetail(row.dataset.tx);return;}
   const subEl=e.target.closest('[data-sub]');if(subEl){openSubDetail(subEl.dataset.sub);return;}
   const openSubsEl=e.target.closest('[data-open="subs"]');if(openSubsEl){openSubs();return;}
-  const catRow=e.target.closest('[data-cat]');if(catRow&&!catRow.classList.contains('ip')){openCatDetail(catRow.dataset.cat);return;}
+  const catRow=e.target.closest('[data-cat]');if(catRow&&!catRow.classList.contains('ip')){const c=catRow.dataset.cat;if(c==='subs')openSubs();else openCatDetail(c);return;}
   const sl=e.target.closest('#setLimitHome');if(sl){editSetting('limit');return;}
   const link=e.target.closest('[data-tab]');if(link&&!link.classList.contains('t')){go(link.dataset.tab);return;}
   const s=e.target.closest('.set-row');if(s){
