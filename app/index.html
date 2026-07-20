@@ -434,12 +434,15 @@ function runRecurring(){
   Object.entries(series).forEach(([sid,list])=>{
     if(subStatus(sid)!=='active')return; // paused/cancelled series stop generating
     list.sort((a,b)=>a.date-b.date);
+    // never back-fill charges from before the subscription was added: past months
+    // were already paid outside the app and are baked into the current balance.
+    const createdAt=list[0].createdAt||list[0].date;
     let last=list[list.length-1],guard=0;
     while(guard++<600){
       const next=addPeriod(last.date,last.freq);
       if(next>cutoff)break;
-      const n={...last,id:id(),date:next};
-      S.tx.push(n);added=true;last=n;
+      if(next>createdAt){const n={...last,id:id(),date:next};delete n.template;S.tx.push(n);added=true;}
+      last={...last,date:next}; // advance through past periods without charging them
     }
   });
   if(added)save();
@@ -453,8 +456,8 @@ function fmt0(n){const c=CC();return c.sym+Math.round(Math.abs(n)).toLocaleStrin
 function fmtAmount(n){const c=CC();const cents=Math.abs(n%1)>0.001;return c.sym+Math.abs(n).toLocaleString(c.locale,{minimumFractionDigits:cents?2:0,maximumFractionDigits:2});}
 function sameMonth(t){const d=new Date(t),n=new Date();return d.getMonth()===n.getMonth()&&d.getFullYear()===n.getFullYear();}
 function prevMonth(t){const d=new Date(t),n=new Date();const p=new Date(n.getFullYear(),n.getMonth()-1,1);return d.getMonth()===p.getMonth()&&d.getFullYear()===p.getFullYear();}
-function monthExp(filter){return S.tx.filter(t=>t.type==='exp'&&filter(t.date)).reduce((a,t)=>a+t.amount,0);}
-function balance(){return S.tx.reduce((a,t)=>a+(t.type==='inc'?t.amount:-t.amount),0);}
+function monthExp(filter){return S.tx.filter(t=>t.type==='exp'&&!t.template&&filter(t.date)).reduce((a,t)=>a+t.amount,0);}
+function balance(){return S.tx.reduce((a,t)=>t.template?a:a+(t.type==='inc'?t.amount:-t.amount),0);}
 function catIcHTML(id,accent){const c=CAT(id);return `<div class="cat-ic ${accent?'accent':''}">${I[c.icon]}</div>`;}
 function dayLabel(t){
   const d=new Date(t),n=new Date();const strip=x=>new Date(x.getFullYear(),x.getMonth(),x.getDate()).getTime();
@@ -482,13 +485,16 @@ function getSubscriptions(){
   const now=Date.now();
   return Object.entries(byS).map(([sid,list])=>{
     list.sort((a,b)=>a.date-b.date);
-    const anchor=list[0],latest=list[list.length-1];
-    const paid=list.filter(t=>t.date<=now);
-    const status=subStatus(sid);
-    return {sid,name:anchor.desc||CAT(anchor.cat).name,price:anchor.price??anchor.amount,freq:anchor.freq,
-      start:anchor.date,method:anchor.method,cat:anchor.cat,status,count:paid.length,
-      totalPaid:paid.reduce((a,t)=>a+t.amount,0),paid,
-      next:status==='active'?addPeriod(latest.date,anchor.freq):null};
+    const anchor=list[0];
+    const price=anchor.amount,freq=anchor.freq,start=anchor.date,status=subStatus(sid);
+    // computed schedule from the start date up to today (history/display only — NOT ledger charges,
+    // so past months are never deducted from the balance)
+    const schedule=[];let d=start,g=0;while(d<=now&&g++<3000){schedule.push(d);d=addPeriod(d,freq);}
+    // next charge strictly after now
+    let next=start,g2=0;while(next<=now&&g2++<3000){next=addPeriod(next,freq);}
+    return {sid,name:anchor.desc||CAT(anchor.cat).name,price,freq,start,method:anchor.method,cat:anchor.cat,
+      status,count:schedule.length,totalPaid:price*schedule.length,schedule,
+      next:status==='active'?next:null};
   }).sort((a,b)=>(a.next||Infinity)-(b.next||Infinity));
 }
 function subDurationStr(sub){
@@ -508,10 +514,10 @@ function renderHome(){
   if(prev>0){const dp=Math.round((spent-prev)/prev*100);
     cmp=dp>=0?`<span class="chip-down">▲ ${dp}% vs mes previo</span>`:`<span class="chip-up">▼ ${Math.abs(dp)}% vs mes previo</span>`;}
   // top categories this month
-  const by={};S.tx.filter(t=>t.type==='exp'&&sameMonth(t.date)).forEach(t=>by[t.cat]=(by[t.cat]||0)+t.amount);
+  const by={};S.tx.filter(t=>t.type==='exp'&&!t.template&&sameMonth(t.date)).forEach(t=>by[t.cat]=(by[t.cat]||0)+t.amount);
   const top=Object.entries(by).sort((a,b)=>b[1]-a[1]).slice(0,3);
   const maxTop=top.length?top[0][1]:1;
-  const recent=[...S.tx].sort((a,b)=>b.date-a.date).slice(0,4);
+  const recent=[...S.tx].filter(t=>!t.template).sort((a,b)=>b.date-a.date).slice(0,4);
   const insight=makeInsight(by,spent,limit);
 
   document.getElementById('s-home').innerHTML=`
@@ -581,7 +587,7 @@ function txRow(t){
 /* ============ RENDER: TRANSACTIONS ============ */
 let txFilter='all', txSearch='';
 function renderTx(){
-  let list=[...S.tx].sort((a,b)=>b.date-a.date);
+  let list=[...S.tx].filter(t=>!t.template).sort((a,b)=>b.date-a.date);
   if(txFilter==='inc')list=list.filter(t=>t.type==='inc');
   else if(txFilter!=='all')list=list.filter(t=>t.cat===txFilter);
   if(txSearch)list=list.filter(t=>((t.desc||'')+' '+CAT(t.cat).name+' '+t.amount).toLowerCase().includes(txSearch.toLowerCase()));
@@ -590,7 +596,7 @@ function renderTx(){
   const groups={};list.forEach(t=>{const k=dayLabel(t.date);(groups[k]=groups[k]||[]).push(t);});
   const usedCats=[...new Set(S.tx.map(t=>t.cat))];
   const mes=new Date().toLocaleDateString('es-ES',{month:'long'});
-  const salidas=S.tx.filter(t=>t.type==='exp'&&sameMonth(t.date)).reduce((a,t)=>a+t.amount,0);
+  const salidas=S.tx.filter(t=>t.type==='exp'&&!t.template&&sameMonth(t.date)).reduce((a,t)=>a+t.amount,0);
   const ingresos=S.tx.filter(t=>t.type==='inc'&&sameMonth(t.date)).reduce((a,t)=>a+t.amount,0);
 
   document.getElementById('s-tx').innerHTML=`
@@ -616,7 +622,7 @@ function renderTx(){
 function renderInsights(){
   const spent=monthExp(sameMonth), prev=monthExp(prevMonth);
   const inc=S.tx.filter(t=>t.type==='inc'&&sameMonth(t.date)).reduce((a,t)=>a+t.amount,0);
-  const by={};S.tx.filter(t=>t.type==='exp'&&sameMonth(t.date)).forEach(t=>by[t.cat]=(by[t.cat]||0)+t.amount);
+  const by={};S.tx.filter(t=>t.type==='exp'&&!t.template&&sameMonth(t.date)).forEach(t=>by[t.cat]=(by[t.cat]||0)+t.amount);
   const entries=Object.entries(by).sort((a,b)=>b[1]-a[1]);
   const total=entries.reduce((a,[,v])=>a+v,0)||1;
   // donut gradient
@@ -625,7 +631,7 @@ function renderInsights(){
   // 6-month bars
   const now=new Date();const months=[];
   for(let i=5;i>=0;i--){const m=new Date(now.getFullYear(),now.getMonth()-i,1);
-    const v=S.tx.filter(t=>t.type==='exp'&&new Date(t.date).getMonth()===m.getMonth()&&new Date(t.date).getFullYear()===m.getFullYear()).reduce((a,t)=>a+t.amount,0);
+    const v=S.tx.filter(t=>t.type==='exp'&&!t.template&&new Date(t.date).getMonth()===m.getMonth()&&new Date(t.date).getFullYear()===m.getFullYear()).reduce((a,t)=>a+t.amount,0);
     months.push({label:m.toLocaleDateString('es-ES',{month:'short'}),v});}
   const maxM=Math.max(...months.map(m=>m.v),1);
   const dp=prev>0?Math.round((spent-prev)/prev*100):0;
@@ -672,8 +678,8 @@ function renderInsights(){
 
 /* ============ RENDER: PROFILE ============ */
 function renderProfile(){
-  const inc=S.tx.filter(t=>t.type==='inc').reduce((a,t)=>a+t.amount,0);
-  const exp=S.tx.filter(t=>t.type==='exp').reduce((a,t)=>a+t.amount,0);
+  const inc=S.tx.filter(t=>t.type==='inc'&&!t.template).reduce((a,t)=>a+t.amount,0);
+  const exp=S.tx.filter(t=>t.type==='exp'&&!t.template).reduce((a,t)=>a+t.amount,0);
   document.getElementById('s-profile').innerHTML=`
   <div class="head"><div><div class="h-greet">Cuenta</div><div class="h-title">Perfil</div></div></div>
   <div class="card pad" style="display:flex;align-items:center;gap:14px">
@@ -795,7 +801,11 @@ function commit(){
   // a recurring expense is a subscription -> auto category "Suscripciones" (no manual pick)
   const catForSave=draft.type==='inc'?'income':(draft.recur?'subs':draft.cat);
   const t={id:id(),type:draft.type,amount:Math.round(amt*100)/100,cat:catForSave,desc:draft.desc.trim(),method:draft.method,date:draft.date,recur:draft.recur};
-  if(draft.recur){t.freq=draft.freq;t.seriesId=id();}
+  if(draft.recur){t.freq=draft.freq;t.seriesId=id();t.createdAt=Date.now();
+    const sot=new Date();sot.setHours(0,0,0,0);
+    // back-dated start = an already-existing subscription: keep it as a definition only, don't
+    // charge the balance for it. New charges start from its next due date going forward.
+    if(draft.date<sot.getTime())t.template=true;}
   S.tx.push(t);
   runRecurring();          // catch up any occurrences already due (e.g. back-dated series)
   save();closeSheet();renderAll();
@@ -916,11 +926,11 @@ function openSubDetail(sid){
   const py=perYear(s.price,s.freq);
   const freqName=s.freq==='month'?'Mensual':s.freq==='year'?'Anual':'Semanal';
   const st=s.status;
-  const paidSorted=[...s.paid].sort((a,b)=>b.date-a.date);
-  const byYear={};paidSorted.forEach(t=>{const y=new Date(t.date).getFullYear();(byYear[y]=byYear[y]||[]).push(t);});
+  const paidSorted=[...s.schedule].sort((a,b)=>b-a);
+  const byYear={};paidSorted.forEach(d=>{const y=new Date(d).getFullYear();(byYear[y]=byYear[y]||[]).push(d);});
   const histHTML=Object.entries(byYear).sort((a,b)=>b[0]-a[0]).map(([y,items])=>`
-    <div class="blk-head"><h3>${y}</h3><span class="money" style="color:var(--muted);font-size:13px;font-weight:700">${fmt0(items.reduce((a,t)=>a+t.amount,0))}</span></div>
-    <div class="card pad">${items.map(t=>`<div class="list-row"><div class="grow"><div class="tt">${longDate(t.date)}</div></div><div class="amt">-${fmt(t.amount)}</div></div>`).join('')}</div>`).join('');
+    <div class="blk-head"><h3>${y}</h3><span class="money" style="color:var(--muted);font-size:13px;font-weight:700">${fmt0(items.length*s.price)}</span></div>
+    <div class="card pad">${items.map(d=>`<div class="list-row"><div class="grow"><div class="tt">${longDate(d)}</div></div><div class="amt">-${fmtAmount(s.price)}</div></div>`).join('')}</div>`).join('');
   const stChip=st==='active'?'<span class="st-chip st-active">Activa</span>':st==='paused'?'<span class="st-chip st-paused">Pausada</span>':'<span class="st-chip st-cancelled">Cancelada</span>';
   document.getElementById('subDetail').innerHTML=`
     <div class="head"><button class="iconbtn" id="sdBack">${I.back}</button><div style="width:42px"></div><button class="iconbtn" id="sdDelete" style="color:var(--down)">${I.trash}</button></div>
@@ -955,7 +965,7 @@ function openSubDetail(sid){
     </div>
     ${st!=='cancelled'?`<div class="proj-phrase" style="background:var(--surface);border-color:var(--border);margin-top:14px">Cancelarla te permitiría ahorrar <b>${fmt0(py)}</b> al año.</div>`:''}
 
-    ${s.paid.length?`<div class="blk-head"><h3>Pagos realizados</h3></div>${histHTML}`:''}
+    ${s.schedule.length?`<div class="blk-head"><h3>Pagos realizados</h3></div>${histHTML}`:''}
 
     <div style="display:flex;gap:10px;margin-top:18px">
       ${st==='active'?`<button class="btn ghost" id="sdPause" style="flex:1">Pausar</button><button class="btn ghost" id="sdCancel" style="flex:1;color:var(--down)">Cancelar</button>`
