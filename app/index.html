@@ -157,6 +157,33 @@ button{font-family:inherit}
 /* detail modal */
 .modal{position:absolute;inset:0;z-index:95;background:var(--bg);transform:translateX(100%);transition:transform .3s cubic-bezier(.32,.72,0,1);overflow-y:auto;padding:calc(14px + env(safe-area-inset-top,0px)) 18px calc(30px + var(--safe-b));display:none}
 .modal.on{transform:translateX(0);display:block}
+/* subscriptions */
+.sub-monogram{width:46px;height:46px;border-radius:12px;flex:none;display:grid;place-items:center;background:var(--surface-2);border:1px solid var(--border);font-family:var(--sans);font-weight:800;font-size:16px;letter-spacing:-.02em;color:var(--text)}
+.sub-row{display:flex;align-items:center;gap:14px;padding:15px 2px}
+.sub-row+.sub-row{border-top:1px solid var(--border)}
+.sub-row .nm{font-size:16.5px;font-weight:750;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sub-row .meta{color:var(--muted);font-size:12.5px;font-weight:500;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sub-row.dim .sub-monogram,.sub-row.dim .nm{opacity:.5}
+.sub-row.dim .nm{text-decoration:line-through}
+.st-chip{font-size:10.5px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;padding:3px 8px;border-radius:999px;white-space:nowrap}
+.st-active{color:var(--up);background:var(--up-soft)}
+.st-paused{color:#9A7B10;background:#FBF1CF}
+.st-cancelled{color:var(--muted);background:var(--surface-2)}
+.sub-price{font-family:var(--mono);font-weight:800;font-size:16px;white-space:nowrap}
+.sum-hero{font-family:var(--mono);font-weight:820;font-size:34px;letter-spacing:-.02em}
+.sum-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);border-radius:16px;overflow:hidden;margin-top:14px}
+.sum-cell{background:var(--surface);padding:14px 16px}
+.sum-cell .k{font-size:11.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+.sum-cell .v{font-family:var(--mono);font-weight:800;font-size:19px;margin-top:6px}
+.proj-hero{font-family:var(--mono);font-weight:820;font-size:30px;letter-spacing:-.02em;color:var(--accent-ink);text-align:center}
+.proj-presets{display:flex;gap:8px;margin:12px 0 4px}
+.proj-presets button{flex:1;border:1.5px solid var(--border-2);background:var(--surface);border-radius:12px;padding:9px 4px;font-weight:800;font-size:13px;color:var(--muted)}
+.proj-presets button.on{border-color:var(--accent);background:var(--accent-soft);color:var(--accent-ink)}
+.proj-slider{width:100%;-webkit-appearance:none;appearance:none;height:6px;border-radius:999px;background:var(--surface-2);outline:none;margin:14px 0 6px}
+.proj-slider::-webkit-slider-thumb{-webkit-appearance:none;width:26px;height:26px;border-radius:50%;background:var(--accent);border:4px solid #fff;box-shadow:var(--shadow);cursor:pointer}
+.proj-slider::-moz-range-thumb{width:22px;height:22px;border-radius:50%;background:var(--accent);border:4px solid #fff;cursor:pointer}
+.proj-phrase{background:var(--accent-soft);border:1px solid #FFD9C6;border-radius:16px;padding:15px;font-size:14px;font-weight:600;line-height:1.5;margin-top:14px}
+.proj-phrase b{color:var(--accent-ink)}
 .detail-amt{font-size:40px;font-family:var(--mono);font-weight:820;letter-spacing:-.03em;text-align:center;margin:8px 0}
 .kv{display:flex;align-items:center;justify-content:space-between;padding:14px 2px}
 .kv+.kv{border-top:1px solid var(--border)}
@@ -261,6 +288,8 @@ button{font-family:inherit}
 
   <!-- detail modals -->
   <div class="modal" id="catModal"></div>
+  <div class="modal" id="subsModal"></div>
+  <div class="modal" id="subDetail"></div>
   <div class="modal" id="detail"></div>
 
   <!-- add sheet -->
@@ -363,7 +392,7 @@ function seed(name,code,income,limit){
   // Start empty — the user creates their own movements from scratch.
   S={
     settings:{name:name||'Amig@',currency:code||'ARS',income:income||0,limit:limit||0,dark:false},
-    tx:[],
+    tx:[],subsMeta:{},
   };
   save();
 }
@@ -395,7 +424,8 @@ function runRecurring(){
   const series={};
   S.tx.filter(t=>t.recur&&t.seriesId&&t.freq).forEach(t=>{(series[t.seriesId]=series[t.seriesId]||[]).push(t);});
   let added=false;
-  Object.values(series).forEach(list=>{
+  Object.entries(series).forEach(([sid,list])=>{
+    if(subStatus(sid)!=='active')return; // paused/cancelled series stop generating
     list.sort((a,b)=>a.date-b.date);
     let last=list[list.length-1],guard=0;
     while(guard++<600){
@@ -426,6 +456,38 @@ function dayLabel(t){
 }
 function timeLabel(t){return new Date(t).toLocaleTimeString('es-ES',{hour:'numeric',minute:'2-digit'});}
 const esc=s=>(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function longDate(ts){return new Date(ts).toLocaleDateString('es-ES',{day:'numeric',month:'long',year:'numeric'});}
+function shortDate(ts){return new Date(ts).toLocaleDateString('es-ES',{day:'numeric',month:'short',year:'numeric'});}
+
+/* ============ SUBSCRIPTIONS ============ */
+function subStatus(sid){return (S.subsMeta&&S.subsMeta[sid])||'active';}
+function setSubStatus(sid,st){S.subsMeta=S.subsMeta||{};S.subsMeta[sid]=st;save();}
+const FREQ_WORD={month:'por mes',year:'por año',week:'por semana'};
+const FREQ_GROUP={month:'Mensuales',year:'Anuales',week:'Semanales'};
+function perYear(price,freq){return price*(freq==='month'?12:freq==='year'?1:52);}
+function perMonth(price,freq){return perYear(price,freq)/12;}
+function initials(name){const w=(name||'?').trim().split(/\s+/);return ((w[0]?.[0]||'')+(w[1]?.[0]||'')).toUpperCase()||'?';}
+// build one object per recurring series
+function getSubscriptions(){
+  const byS={};
+  S.tx.filter(t=>t.recur&&t.seriesId&&t.freq).forEach(t=>{(byS[t.seriesId]=byS[t.seriesId]||[]).push(t);});
+  const now=Date.now();
+  return Object.entries(byS).map(([sid,list])=>{
+    list.sort((a,b)=>a.date-b.date);
+    const anchor=list[0],latest=list[list.length-1];
+    const paid=list.filter(t=>t.date<=now);
+    const status=subStatus(sid);
+    return {sid,name:anchor.desc||CAT(anchor.cat).name,price:anchor.price??anchor.amount,freq:anchor.freq,
+      start:anchor.date,method:anchor.method,cat:anchor.cat,status,count:paid.length,
+      totalPaid:paid.reduce((a,t)=>a+t.amount,0),paid,
+      next:status==='active'?addPeriod(latest.date,anchor.freq):null};
+  }).sort((a,b)=>(a.next||Infinity)-(b.next||Infinity));
+}
+function subDurationStr(sub){
+  const n=Math.max(sub.count,0);
+  const unit=sub.freq==='year'?['año','años']:sub.freq==='week'?['semana','semanas']:['mes','meses'];
+  return `${n} ${n===1?unit[0]:unit[1]}`;
+}
 
 /* ============ RENDER: HOME ============ */
 function renderHome(){
@@ -550,9 +612,17 @@ function renderInsights(){
     months.push({label:m.toLocaleDateString('es-ES',{month:'short'}),v});}
   const maxM=Math.max(...months.map(m=>m.v),1);
   const dp=prev>0?Math.round((spent-prev)/prev*100):0;
+  const activeSubs=getSubscriptions().filter(s=>s.status==='active');
+  const subsMonthly=activeSubs.reduce((a,s)=>a+perMonth(s.price,s.freq),0);
 
   document.getElementById('s-insights').innerHTML=`
   <div class="head"><div><div class="h-greet">Entiende</div><div class="h-title">Análisis</div></div></div>
+
+  <button class="card pad tap" data-open="subs" style="display:flex;align-items:center;gap:13px;width:100%;text-align:left;border:1px solid var(--border)">
+    <div class="cat-ic">${I.subs}</div>
+    <div class="grow"><div class="tt">Suscripciones</div><div class="ts">${activeSubs.length?`${fmt0(subsMonthly)} por mes · ${activeSubs.length} activa${activeSubs.length===1?'':'s'}`:'Gestioná tus cuotas y suscripciones'}</div></div>
+    <span class="chev">${I.chev}</span>
+  </button>
 
   <div class="card pad">
     <div style="display:flex;justify-content:space-between;align-items:baseline">
@@ -604,6 +674,11 @@ function renderProfile(){
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px">
     <div class="card pad"><div class="label-xs">Ingresos totales</div><div class="money" style="color:var(--up);font-size:20px;margin-top:6px">+${fmt0(inc)}</div></div>
     <div class="card pad"><div class="label-xs">Gastos totales</div><div class="money" style="color:var(--down);font-size:20px;margin-top:6px">-${fmt0(exp)}</div></div>
+  </div>
+
+  <div class="blk-head"><h3>Tus cuentas</h3></div>
+  <div class="set-group">
+    <button class="set-row" data-open="subs"><div class="set-ic" style="background:#1B1712">${I.subs}</div><span class="grow tt">Cuotas / Suscripciones</span><span class="ts">${getSubscriptions().filter(s=>s.status==='active').length||''}</span><span class="chev">${I.chev}</span></button>
   </div>
 
   <div class="blk-head"><h3>Ajustes</h3></div>
@@ -771,6 +846,117 @@ function openDetail(txid){
   document.getElementById('detail').classList.add('on');
 }
 
+/* ============ SUBSCRIPTIONS: general screen ============ */
+function subRow(s){
+  const dim=s.status!=='active';
+  const chip=s.status==='paused'?'<span class="st-chip st-paused">Pausada</span>':s.status==='cancelled'?'<span class="st-chip st-cancelled">Cancelada</span>':'';
+  const nd=s.next?new Date(s.next).toLocaleDateString('es-ES',{day:'numeric',month:'short'}):'';
+  const meta=s.status==='active'&&s.next?`${fmt0(s.price)} ${FREQ_WORD[s.freq]} · Próximo: ${nd}`:`${fmt0(s.price)} ${FREQ_WORD[s.freq]}`;
+  return `<div class="sub-row tap ${dim?'dim':''}" data-sub="${s.sid}">
+    <div class="sub-monogram">${esc(initials(s.name))}</div>
+    <div class="grow"><div class="nm">${esc(s.name)}</div><div class="meta">${meta}</div></div>
+    <div style="display:flex;align-items:center;gap:9px">${chip}<span class="chev">${I.chev}</span></div>
+  </div>`;
+}
+function openSubs(){
+  const subs=getSubscriptions();
+  const active=subs.filter(s=>s.status==='active');
+  const monthlyTotal=active.reduce((a,s)=>a+perMonth(s.price,s.freq),0);
+  const annualEstimate=active.reduce((a,s)=>a+perYear(s.price,s.freq),0);
+  const nextSub=active.filter(s=>s.next).sort((a,b)=>a.next-b.next)[0];
+  const order=['month','year','week'];const groups={};subs.forEach(s=>{(groups[s.freq]=groups[s.freq]||[]).push(s);});
+  const groupsHTML=order.filter(f=>groups[f]&&groups[f].length).map(f=>`
+    <div class="blk-head"><h3>${FREQ_GROUP[f]}</h3><span class="label-xs">${groups[f].length}</span></div>
+    <div class="card pad">${groups[f].map(subRow).join('')}</div>`).join('');
+  document.getElementById('subsModal').innerHTML=`
+   <div class="head"><button class="iconbtn" id="subsBack">${I.back}</button>
+     <div class="h-title" style="font-size:19px;align-self:center">Suscripciones</div><div style="width:42px"></div></div>
+   <div class="card pad">
+     <div class="label-xs">Gasto mensual en suscripciones</div>
+     <div class="sum-hero">${fmt0(monthlyTotal)}</div>
+     <div class="sum-grid">
+       <div class="sum-cell"><div class="k">Estimado anual</div><div class="v">${fmt0(annualEstimate)}</div></div>
+       <div class="sum-cell"><div class="k">Activas</div><div class="v">${active.length}</div></div>
+     </div>
+     ${nextSub?`<div style="display:flex;align-items:center;justify-content:space-between;margin-top:14px;padding-top:14px;border-top:1px solid var(--border)">
+        <div><div class="label-xs">Próximo pago</div><div class="tt" style="margin-top:5px">${esc(nextSub.name)}</div></div>
+        <div style="text-align:right"><div class="sub-price">${fmt0(nextSub.price)}</div><div class="ts">${shortDate(nextSub.next)}</div></div></div>`:''}
+   </div>
+   ${active.length?`<div class="proj-phrase" style="margin-top:14px;background:var(--surface);border-color:var(--border)">Gastás <b>${fmt0(monthlyTotal)}</b> por mes en suscripciones${annualEstimate>0?`, o <b>${fmt0(annualEstimate)}</b> al año`:''}.</div>`:''}
+   ${subs.length?groupsHTML:`<div class="empty" style="margin-top:26px">Sin suscripciones todavía.<br>Marcá un gasto como <b>Cuotas / Suscripciones</b> al cargarlo y aparecerá acá.</div>`}`;
+  document.getElementById('subsBack').onclick=()=>document.getElementById('subsModal').classList.remove('on');
+  document.getElementById('subsModal').scrollTop=0;
+  document.getElementById('subsModal').classList.add('on');
+}
+
+/* ============ SUBSCRIPTIONS: detail + projection ============ */
+function openSubDetail(sid){
+  const s=getSubscriptions().find(x=>x.sid===sid);if(!s)return;
+  const py=perYear(s.price,s.freq);
+  const freqName=s.freq==='month'?'Mensual':s.freq==='year'?'Anual':'Semanal';
+  const st=s.status;
+  const paidSorted=[...s.paid].sort((a,b)=>b.date-a.date);
+  const byYear={};paidSorted.forEach(t=>{const y=new Date(t.date).getFullYear();(byYear[y]=byYear[y]||[]).push(t);});
+  const histHTML=Object.entries(byYear).sort((a,b)=>b[0]-a[0]).map(([y,items])=>`
+    <div class="blk-head"><h3>${y}</h3><span class="money" style="color:var(--muted);font-size:13px;font-weight:700">${fmt0(items.reduce((a,t)=>a+t.amount,0))}</span></div>
+    <div class="card pad">${items.map(t=>`<div class="list-row"><div class="grow"><div class="tt">${longDate(t.date)}</div></div><div class="amt">-${fmt(t.amount)}</div></div>`).join('')}</div>`).join('');
+  const stChip=st==='active'?'<span class="st-chip st-active">Activa</span>':st==='paused'?'<span class="st-chip st-paused">Pausada</span>':'<span class="st-chip st-cancelled">Cancelada</span>';
+  document.getElementById('subDetail').innerHTML=`
+    <div class="head"><button class="iconbtn" id="sdBack">${I.back}</button><div style="width:42px"></div><button class="iconbtn" id="sdDelete" style="color:var(--down)">${I.trash}</button></div>
+    <div style="display:flex;align-items:center;gap:14px;margin-top:2px">
+      <div class="sub-monogram" style="width:60px;height:60px;font-size:21px">${esc(initials(s.name))}</div>
+      <div class="grow"><div class="h-title" style="font-size:24px">${esc(s.name)}</div><div style="margin-top:7px">${stChip}</div></div>
+    </div>
+    <div class="card pad" style="margin-top:16px">
+      <div class="kv"><span class="k">Precio</span><span class="v money">${fmt(s.price)} <span style="color:var(--muted);font-weight:600">${FREQ_WORD[s.freq]}</span></span></div>
+      <div class="kv"><span class="k">Facturación</span><span class="v">${freqName}</span></div>
+      <div class="kv"><span class="k">Fecha de inicio</span><span class="v">${shortDate(s.start)}</span></div>
+      <div class="kv"><span class="k">Próxima renovación</span><span class="v">${s.next?shortDate(s.next):'—'}</span></div>
+      <div class="kv"><span class="k">Método de pago</span><span class="v">${I.card} ${esc(s.method||'—')}</span></div>
+    </div>
+
+    <div class="blk-head"><h3>Historial de gasto</h3></div>
+    <div class="card pad" style="text-align:center">
+      <div class="tt" style="font-size:20px">${subDurationStr(s)} de suscripción</div>
+      <div class="ts" style="margin-top:8px">Total pagado</div>
+      <div class="money" style="font-size:26px;margin-top:2px">${fmt0(s.totalPaid)}</div>
+    </div>
+    ${s.totalPaid>0?`<div class="proj-phrase" style="background:var(--surface);border-color:var(--border);margin-top:14px">Esta suscripción te costó <b>${fmt0(s.totalPaid)}</b> desde que empezaste a pagarla.</div>`:''}
+
+    <div class="blk-head"><h3>Proyección de costo</h3></div>
+    <div class="card pad">
+      <div class="label-xs" style="text-align:center">Si la mantenés <span id="pjYears">5</span> años</div>
+      <div class="proj-hero" id="pjHero" style="margin-top:6px">${fmt0(py*5)}</div>
+      <input type="range" class="proj-slider" id="pjSlider" min="1" max="10" value="5" step="1">
+      <div style="display:flex;justify-content:space-between;font-size:11px;font-weight:700;color:var(--muted)"><span>1 año</span><span>10 años</span></div>
+      <div class="proj-presets" id="pjPresets">${[1,3,5,10].map(y=>`<button data-y="${y}" class="${y===5?'on':''}">${y} ${y===1?'año':'años'}</button>`).join('')}</div>
+      <div class="proj-phrase" id="pjPhrase">Mantener esta suscripción durante <b>5 años</b> te costaría aproximadamente <b>${fmt0(py*5)}</b>.</div>
+    </div>
+    ${st!=='cancelled'?`<div class="proj-phrase" style="background:var(--surface);border-color:var(--border);margin-top:14px">Cancelarla te permitiría ahorrar <b>${fmt0(py)}</b> al año.</div>`:''}
+
+    ${s.paid.length?`<div class="blk-head"><h3>Pagos realizados</h3></div>${histHTML}`:''}
+
+    <div style="display:flex;gap:10px;margin-top:18px">
+      ${st==='active'?`<button class="btn ghost" id="sdPause" style="flex:1">Pausar</button><button class="btn ghost" id="sdCancel" style="flex:1;color:var(--down)">Cancelar</button>`
+       :st==='paused'?`<button class="btn ghost" id="sdResume" style="flex:1">Reanudar</button><button class="btn ghost" id="sdCancel" style="flex:1;color:var(--down)">Cancelar</button>`
+       :`<button class="btn ghost" id="sdResume" style="flex:1">Reactivar</button>`}
+    </div>`;
+  const modal=document.getElementById('subDetail');const close=()=>modal.classList.remove('on');
+  document.getElementById('sdBack').onclick=close;
+  const slider=document.getElementById('pjSlider');
+  const upd=y=>{document.getElementById('pjYears').textContent=y;document.getElementById('pjHero').textContent=fmt0(py*y);
+    document.getElementById('pjPhrase').innerHTML=`Mantener esta suscripción durante <b>${y} ${y===1?'año':'años'}</b> te costaría aproximadamente <b>${fmt0(py*y)}</b>.`;
+    document.querySelectorAll('#pjPresets button').forEach(b=>b.classList.toggle('on',Number(b.dataset.y)===y));};
+  slider.oninput=e=>upd(Number(e.target.value));
+  document.querySelectorAll('#pjPresets button').forEach(b=>b.onclick=()=>{slider.value=b.dataset.y;upd(Number(b.dataset.y));});
+  const setSt=(ns,msg)=>{setSubStatus(sid,ns);if(ns==='active')runRecurring();renderAll();close();openSubs();toast(msg);};
+  const pause=document.getElementById('sdPause');if(pause)pause.onclick=()=>setSt('paused','Suscripción pausada');
+  const resume=document.getElementById('sdResume');if(resume)resume.onclick=()=>setSt('active','Suscripción reactivada');
+  const cancel=document.getElementById('sdCancel');if(cancel)cancel.onclick=()=>{if(confirm('¿Cancelar esta suscripción? Dejará de registrarse. Los pagos ya hechos quedan en tu historial.'))setSt('cancelled','Suscripción cancelada');};
+  document.getElementById('sdDelete').onclick=()=>{if(confirm('¿Eliminar la suscripción y TODOS sus pagos del historial? No se puede deshacer.')){S.tx=S.tx.filter(t=>t.seriesId!==sid);if(S.subsMeta)delete S.subsMeta[sid];save();renderAll();close();openSubs();toast('Suscripción eliminada');}};
+  modal.scrollTop=0;modal.classList.add('on');
+}
+
 /* ============ CURRENCY PICKER (profile) ============ */
 function openCurrencyPicker(onPick){
   document.getElementById('curSheet').innerHTML=`
@@ -835,6 +1021,8 @@ enableSheetDrag('curSheet',closeCur);
 // delegate clicks: tx rows, "ver todo" links, settings
 document.getElementById('app').addEventListener('click',e=>{
   const row=e.target.closest('[data-tx]');if(row){openDetail(row.dataset.tx);return;}
+  const subEl=e.target.closest('[data-sub]');if(subEl){openSubDetail(subEl.dataset.sub);return;}
+  const openSubsEl=e.target.closest('[data-open="subs"]');if(openSubsEl){openSubs();return;}
   const catRow=e.target.closest('[data-cat]');if(catRow&&!catRow.classList.contains('ip')){openCatDetail(catRow.dataset.cat);return;}
   const sl=e.target.closest('#setLimitHome');if(sl){editSetting('limit');return;}
   const link=e.target.closest('[data-tab]');if(link&&!link.classList.contains('t')){go(link.dataset.tab);return;}
@@ -886,6 +1074,7 @@ function startOnboarding(){
 }
 
 /* ============ BOOT ============ */
+if(S&&!S.subsMeta)S.subsMeta={};
 if(!S){startOnboarding();}
 else{runRecurring();renderAll();go('home');}
 // re-check due recurring payments whenever the app comes back to the foreground
