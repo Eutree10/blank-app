@@ -328,7 +328,6 @@ const CATS=[
  {id:'food',name:'Comida',icon:'food',budget:600},
  {id:'transport',name:'Transporte',icon:'transport',budget:400},
  {id:'shop',name:'Compras',icon:'shop',budget:250},
- {id:'subs',name:'Suscripciones',icon:'subs',budget:90},
  {id:'fun',name:'Ocio',icon:'fun',budget:200},
  {id:'health',name:'Salud',icon:'health',budget:150},
  {id:'edu',name:'Educación',icon:'edu',budget:120},
@@ -661,7 +660,7 @@ function renderSheet(){
       <input type="date" id="dDateInput" value="${dateInputVal(draft.date)}" max="${dateInputVal(Date.now())}" style="position:absolute;inset:0;width:100%;height:100%;opacity:0;border:0;font-size:16px"></label>
     <button class="selpill" id="dMethod"><span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${I.card} ${esc(draft.method)}</span></button>
   </div>
-  <div class="recur"><span>${I.subs}</span><span class="tt" style="font-size:14px">Pago recurrente</span><span class="grow"></span><button class="toggle ${draft.recur?'on':''}" id="dRecur"></button></div>
+  <div class="recur"><span>${I.subs}</span><span class="tt" style="font-size:14px">Cuotas / Suscripciones</span><span class="grow"></span><button class="toggle ${draft.recur?'on':''}" id="dRecur"></button></div>
   ${draft.recur?`<div class="seg" id="freqSeg" style="margin-top:10px">
     <button class="${draft.freq==='week'?'on':''}" data-freq="week">Semanal</button>
     <button class="${draft.freq==='month'?'on':''}" data-freq="month">Mensual</button>
@@ -752,7 +751,7 @@ function openDetail(txid){
     <div class="kv"><span class="k">Categoría</span><span class="v">${catIcHTML(t.cat)} ${c.name}</span></div>
     <div class="kv"><span class="k">Método</span><span class="v">${I.card} ${esc(t.method||'—')}</span></div>
     <div class="kv"><span class="k">Tipo</span><span class="v">${t.type==='inc'?'Ingreso':'Gasto'}</span></div>
-    <div class="kv"><span class="k">Recurrente</span><span class="v" style="color:${t.recur?'var(--accent-ink)':'var(--muted)'}">${t.recur?'Sí · '+freqLabel(t.freq):'No'}</span></div>
+    <div class="kv"><span class="k">Cuotas / Susc.</span><span class="v" style="color:${t.recur?'var(--accent-ink)':'var(--muted)'}">${t.recur?'Sí · '+freqLabel(t.freq):'No'}</span></div>
     ${t.recur?`<div class="kv"><span class="k">Se repite</span><span class="v" style="white-space:normal;text-align:right;max-width:60%">${recurText(t.date,t.freq)}</span></div>`:''}
   </div>
   <button class="btn ghost" id="dDelete2" style="color:var(--down);margin-top:18px">Eliminar movimiento</button>`;
