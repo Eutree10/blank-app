@@ -77,6 +77,12 @@ button{font-family:inherit}
 .ts{color:var(--muted);font-size:12.5px;font-weight:500;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .amt{font-family:var(--mono);font-weight:700;font-size:15px;white-space:nowrap}
 .amt.pos{color:var(--up)}
+.tx-ic{width:46px;height:46px;border-radius:50%;flex:none;display:grid;place-items:center;border:1.5px solid var(--border-2);background:var(--surface);color:var(--text)}
+.tx-ic svg{width:22px;height:22px}
+.stat-card{background:var(--surface-2);border-radius:18px;padding:16px 17px}
+.stat-card .k{font-size:14px;font-weight:600;color:var(--muted)}
+.stat-card .v{font-size:23px;margin-top:7px}
+.stat-card .s{font-size:12.5px;color:var(--muted);margin-top:5px;font-weight:500}
 
 .insight{display:flex;gap:13px;align-items:flex-start;padding:16px;background:var(--accent-soft);border:1px solid #FFD9C6;border-radius:20px}
 .insight .spark{width:34px;height:34px;border-radius:11px;background:var(--accent);color:#fff;display:grid;place-items:center;flex:none}
@@ -444,6 +450,7 @@ function runRecurring(){
 const cur=()=>CC().sym;
 function fmt(n){const c=CC();return c.sym+Math.abs(n).toLocaleString(c.locale,{minimumFractionDigits:2,maximumFractionDigits:2});}
 function fmt0(n){const c=CC();return c.sym+Math.round(Math.abs(n)).toLocaleString(c.locale);}
+function fmtAmount(n){const c=CC();const cents=Math.abs(n%1)>0.001;return c.sym+Math.abs(n).toLocaleString(c.locale,{minimumFractionDigits:cents?2:0,maximumFractionDigits:2});}
 function sameMonth(t){const d=new Date(t),n=new Date();return d.getMonth()===n.getMonth()&&d.getFullYear()===n.getFullYear();}
 function prevMonth(t){const d=new Date(t),n=new Date();const p=new Date(n.getFullYear(),n.getMonth()-1,1);return d.getMonth()===p.getMonth()&&d.getFullYear()===p.getFullYear();}
 function monthExp(filter){return S.tx.filter(t=>t.type==='exp'&&filter(t.date)).reduce((a,t)=>a+t.amount,0);}
@@ -563,10 +570,12 @@ function makeInsight(by,spent,limit){
 }
 function txRow(t){
   const c=CAT(t.cat);
-  return `<div class="list-row" data-tx="${t.id}">${catIcHTML(t.cat,t.type==='inc')}
-    <div class="grow"><div class="tt">${esc(t.desc)||c.name}</div>
-    <div class="ts">${c.name} · ${timeLabel(t.date)}${t.method?' · '+esc(t.method):''}</div></div>
-    <div class="amt ${t.type==='inc'?'pos':''}">${t.type==='inc'?'+':'-'}${fmt(t.amount)}</div></div>`;
+  const sub=esc(t.desc)?c.name:(t.method?esc(t.method):c.name);
+  return `<div class="list-row tap" data-tx="${t.id}">
+    <div class="tx-ic">${I[c.icon]}</div>
+    <div class="grow"><div class="tt">${esc(t.desc)||c.name}</div><div class="ts">${sub}</div></div>
+    <div style="text-align:right;flex:none"><div class="amt ${t.type==='inc'?'pos':''}">${t.type==='inc'?'+':'-'}${fmtAmount(t.amount)}</div><div class="ts" style="margin-top:3px">${timeLabel(t.date)}</div></div>
+  </div>`;
 }
 
 /* ============ RENDER: TRANSACTIONS ============ */
@@ -580,9 +589,16 @@ function renderTx(){
   // group by day
   const groups={};list.forEach(t=>{const k=dayLabel(t.date);(groups[k]=groups[k]||[]).push(t);});
   const usedCats=[...new Set(S.tx.map(t=>t.cat))];
+  const mes=new Date().toLocaleDateString('es-ES',{month:'long'});
+  const salidas=S.tx.filter(t=>t.type==='exp'&&sameMonth(t.date)).reduce((a,t)=>a+t.amount,0);
+  const ingresos=S.tx.filter(t=>t.type==='inc'&&sameMonth(t.date)).reduce((a,t)=>a+t.amount,0);
 
   document.getElementById('s-tx').innerHTML=`
-  <div class="head"><div><div class="h-greet">Actividad</div><div class="h-title">Movimientos</div></div></div>
+  <div class="head" style="padding-bottom:14px"><div class="h-title">Actividad</div></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
+    <div class="stat-card"><div class="k">Salidas</div><div class="v money">${fmt0(salidas)}</div><div class="s">en ${mes}</div></div>
+    <div class="stat-card"><div class="k">Ingresos</div><div class="v money">${fmt0(ingresos)}</div><div class="s">en ${mes}</div></div>
+  </div>
   <div class="search">${I.search}<input id="txSearchInp" placeholder="Buscar comercio, nota o monto" value="${esc(txSearch)}"></div>
   <div class="chips" id="txChips">
     <button class="chip-f ${txFilter==='all'?'on':''}" data-f="all">Todos</button>
