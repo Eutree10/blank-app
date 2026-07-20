@@ -202,9 +202,10 @@ body.hide-notes .note{display:none}
 .foot .contact a:hover{color:var(--neon)}
 .foot .fine{margin-top:20px;font-size:12px;color:rgba(243,238,226,.5);max-width:64ch;line-height:1.6}
 
-.reveal{opacity:0;transform:translateY(16px);transition:opacity .7s ease,transform .7s ease}
-.reveal.in{opacity:1;transform:none}
-@media(prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}html{scroll-behavior:auto}}
+/* reveal se activa solo con JS; sin JS todo queda visible */
+html.js .reveal{opacity:0;transform:translateY(16px);transition:opacity .7s ease,transform .7s ease}
+html.js .reveal.in{opacity:1;transform:none}
+@media(prefers-reduced-motion:reduce){html.js .reveal{opacity:1;transform:none;transition:none}html{scroll-behavior:auto}}
 :focus-visible{outline:2px solid var(--red);outline-offset:3px}
 </style>
 </head>
@@ -317,7 +318,7 @@ body.hide-notes .note{display:none}
       <p>Toda la carta actual, mismos precios — mejor contada. Los <span class="star">★</span> son los <em>destacados de la casa</em> (los "Tótem" y los de mayor margen). Las notas explican la estrategia; podés ocultarlas con el interruptor de arriba.</p>
     </div>
 
-    <div class="sheet reveal">
+    <div class="sheet">
       <div class="menu-wrap">
 
         <!-- PARA EMPEZAR -->
@@ -684,7 +685,9 @@ body.hide-notes .note{display:none}
 </footer>
 
 <script>
-(function(){var els=document.querySelectorAll('.reveal');if(!('IntersectionObserver' in window)){els.forEach(function(e){e.classList.add('in');});return;}var io=new IntersectionObserver(function(en){en.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});},{threshold:.1});els.forEach(function(e){io.observe(e);});})();
+(function(){var els=document.querySelectorAll('.reveal');if(!('IntersectionObserver' in window)){els.forEach(function(e){e.classList.add('in');});return;}document.documentElement.classList.add('js');var io=new IntersectionObserver(function(en){en.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});},{threshold:0,rootMargin:'0px 0px -8% 0px'});els.forEach(function(e){io.observe(e);});
+/* respaldo: si algo quedó sin activar tras cargar, mostralo igual */
+window.addEventListener('load',function(){setTimeout(function(){els.forEach(function(e){var r=e.getBoundingClientRect();if(r.top<window.innerHeight&&r.bottom>0)e.classList.add('in');});},400);});})();
 (function(){var btn=document.getElementById('toggleNotes');if(!btn)return;btn.addEventListener('click',function(){var hidden=document.body.classList.toggle('hide-notes');btn.setAttribute('aria-pressed',String(!hidden));});})();
 </script>
 </body>
