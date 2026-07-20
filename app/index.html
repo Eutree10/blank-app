@@ -719,7 +719,13 @@ function closeSheet(){
 }
 function renderSheet(){
   const amtNum=parseFloat(draft.amount)||0;
-  const [intp,decp]=Number(draft.amount).toString().includes('.')?draft.amount.split('.'):[draft.amount,null];
+  // format the live amount with the currency's thousands + decimal separators
+  const loc=CC().locale;
+  const decSep=(1.1).toLocaleString(loc).replace(/[0-9]/g,'')||'.';
+  const hasDot=draft.amount.includes('.');
+  const rawInt=hasDot?draft.amount.slice(0,draft.amount.indexOf('.')):draft.amount;
+  const rawDec=hasDot?draft.amount.slice(draft.amount.indexOf('.')+1):null;
+  const intp=(rawInt===''?0:Number(rawInt)).toLocaleString(loc), decp=rawDec;
   const showCats=CATS.filter(c=>draft.type==='inc'?c.id==='income':(c.id!=='income'&&c.id!=='subs'));
   if(draft.type==='inc')draft.cat='income'; else if(draft.cat==='income')draft.cat='food';
   document.getElementById('sheet').innerHTML=`
@@ -729,7 +735,7 @@ function renderSheet(){
     <button class="${draft.type==='exp'?'on-exp':''}" data-type="exp">Gasto</button>
     <button class="${draft.type==='inc'?'on-inc':''}" data-type="inc">Ingreso</button>
   </div>
-  <div class="amount-display"><span class="money"><span class="cur">${cur()}</span>${esc(intp||'0')}${decp!==null?'.'+esc(decp):'<span class="z">.00</span>'}</span></div>
+  <div class="amount-display"><span class="money"><span class="cur">${cur()}</span>${esc(intp||'0')}${decp!==null?esc(decSep+decp):`<span class="z">${decSep}00</span>`}</span></div>
 
   <div class="recur"><span>${I.subs}</span><span class="tt" style="font-size:14px">Cuotas / Suscripciones</span><span class="grow"></span><button class="toggle ${draft.recur?'on':''}" id="dRecur"></button></div>
   ${draft.recur?`<div class="seg" id="freqSeg" style="margin-top:10px">
