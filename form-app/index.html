@@ -169,7 +169,7 @@ svg{stroke-width:1.9}
   width:100%;height:196px;border-radius:24px;margin:22px 0;position:relative;overflow:hidden;
   background:linear-gradient(155deg,#1b1a1f 0%, #2a2830 100%);display:flex;align-items:flex-end;padding:20px
 }
-.hero-mark .fig{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
+.hero-mark .fig{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;opacity:.5}
 .hero-mark .lbl{position:relative;color:#fff}
 .hero-mark .lbl .t{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.6)}
 .hero-mark .lbl .b{font-size:19px;font-weight:800;letter-spacing:-.02em;margin-top:3px}
@@ -235,7 +235,7 @@ svg{stroke-width:1.9}
 .session-card{border-radius:var(--r-lg);overflow:hidden;background:#1b1a1f;color:#fff;position:relative;margin-bottom:16px;box-shadow:var(--shadow-md)}
 .session-card .visual{height:150px;position:relative;overflow:hidden;
   background:linear-gradient(150deg,#232128 0%,#141318 100%)}
-.session-card .visual .fig{position:absolute;right:-6px;bottom:-10px;opacity:.9}
+.session-card .visual .fig{position:absolute;right:-14px;bottom:-18px;opacity:.14}
 .session-card .visual .top{position:absolute;top:16px;left:18px;right:18px;display:flex;justify-content:space-between;align-items:flex-start}
 .session-card .body{padding:16px 18px 18px}
 .session-card h2{color:#fff;font-size:22px}
@@ -304,7 +304,7 @@ svg{stroke-width:1.9}
 /* ============ SKILL DETAIL ============ */
 .detail-hero{height:230px;position:relative;overflow:hidden;background:linear-gradient(160deg,#232128,#131217);
   display:flex;flex-direction:column;justify-content:flex-end;padding:22px;color:#fff}
-.detail-hero .fig{position:absolute;right:-20px;top:8px;opacity:.85}
+.detail-hero .fig{position:absolute;right:-18px;top:70px;opacity:.14}
 .detail-hero .back{position:absolute;top:56px;left:18px}
 .detail-hero h1{color:#fff;font-size:32px}
 .detail-hero .meta{display:flex;gap:8px;margin-top:12px}
@@ -489,7 +489,7 @@ svg{stroke-width:1.9}
 .plan-strip .pi .pbar{margin-top:9px}
 
 .plan-hero{background:#1b1a1f;color:#fff;border-radius:var(--r-lg);padding:18px;margin-bottom:16px;position:relative;overflow:hidden}
-.plan-hero .fig{position:absolute;right:-16px;top:-8px;opacity:.42}
+.plan-hero .fig{position:absolute;right:-14px;top:-6px;opacity:.15}
 .plan-hero .eyebrow{color:rgba(255,255,255,.55)}
 .plan-hero h2{color:#fff;font-size:21px;margin-top:6px;position:relative}
 .plan-hero .goalx{color:rgba(255,255,255,.6);font-size:13px;margin-top:6px;position:relative;max-width:78%}
@@ -722,11 +722,11 @@ body{padding:0;align-items:stretch;background:var(--bg)}
 <script>
 /* ==================== DATA ==================== */
 const ICON = {
-  push:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="5" r="2"/><path d="M12 7v5m0 0l-4 2m4-2l4 2M6 20l2-6m10 6l-2-6" stroke-linecap="round"/></svg>',
-  pull:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 4h14" stroke-linecap="round"/><circle cx="12" cy="8" r="2"/><path d="M9 5l3 3 3-3M12 10v5m-3 5l3-5 3 5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-  balance:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="18" r="2"/><path d="M12 16V9m0 0l-4-3m4 3l4-3M6 20h12" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-  core:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="8" cy="7" r="2"/><path d="M8 9v3l7 1m-7-1l-2 6m9-5l2 4" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 12h4" stroke-linecap="round"/></svg>',
-  legs:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="5" r="2"/><path d="M12 7v4l-3 3v6m3-9l3 3-1 6" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  push:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 9v6M7 7v10M17 7v10M20 9v6M7 12h10" stroke-linecap="round"/></svg>',
+  pull:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 5h14M12 8v9M8 12l4-4 4 4M8 17l4-4 4 4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  balance:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 4l8 13H4z" stroke-linejoin="round"/><path d="M4 20h16" stroke-linecap="round"/></svg>',
+  core:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 3l7 4v10l-7 4-7-4V7z" stroke-linejoin="round"/><circle cx="12" cy="12" r="2.6"/></svg>',
+  legs:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 20l6-15 6 15M8.5 14h7" stroke-linecap="round" stroke-linejoin="round"/></svg>',
   flag:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 4v16" stroke-linecap="round"/><path d="M6 6h11l-2.5 3L17 12H6" stroke-linejoin="round"/></svg>',
   bolt:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M13 3l-8 10h6l-1 8 8-10h-6l1-8z" stroke-linejoin="round"/></svg>',
   lock:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/></svg>',
@@ -736,23 +736,21 @@ const ICON = {
   arrow:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M15 6l-6 6 6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>'
 };
 
-// human figure silhouettes (minimalist line poses) per skill
+// clean abstract category marks (no human figures) — used as large watermarks
 function fig(pose, color, size){
-  color = color||'rgba(255,255,255,.9)'; size = size||170;
-  const s = `stroke="${color}" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" fill="none"`;
-  const poses = {
-    handstand:`<circle cx="60" cy="120" r="9" ${s}/><path d="M60 111V70M60 70l-16 -6M60 70l16 -6M42 30h36M60 40v-6" ${s}/><path d="M50 40l-8 -6m26 6l8 -6" ${s}/><path d="M44 64l-2 -24m34 24l2 -24" ${s}/>`,
-    pushup:`<circle cx="30" cy="70" r="8" ${s}/><path d="M37 74L118 92M118 92l-4 26M52 78l-2 24m60-6l0 22" ${s}/>`,
-    pullup:`<path d="M20 26h100" ${s}/><circle cx="70" cy="52" r="8" ${s}/><path d="M56 30l14 14 14-14M70 60v36m-12 14l12-14 12 14M70 96l-10 8m10-8l10 8" ${s}/>`,
-    lsit:`<circle cx="52" cy="52" r="8" ${s}/><path d="M52 60v22M52 82h56M40 74l24 6M40 74v22m56-14v20" ${s}/>`,
-    lever:`<circle cx="34" cy="70" r="8" ${s}/><path d="M42 70h74M42 62l-4 24m78-16l4 24M60 70v-10m0 0l-8-6m8 6l8-6" ${s}/>`,
-    planche:`<circle cx="30" cy="86" r="8" ${s}/><path d="M38 84h78M38 76l-4 22m82-14l4 22M56 84v-8m0 0l-8 6" ${s}/>`,
-    muscleup:`<path d="M20 24h100" ${s}/><circle cx="70" cy="46" r="8" ${s}/><path d="M60 30l10 8 10-8M70 54v30m-12 20l12-20 12 20" ${s}/>`,
-    flag:`<path d="M118 20v92" ${s}/><circle cx="86" cy="60" r="8" ${s}/><path d="M94 58l24 -6M94 62l24 6M78 60H30m0 0l-6-8m6 8l-6 8" ${s}/>`,
-    dip:`<path d="M28 30v70M112 30v70" ${s}/><circle cx="70" cy="50" r="8" ${s}/><path d="M62 44l-34 -8m50 8l34-8M70 58v34m-10 18l10-18 10 18" ${s}/>`,
-    pistol:`<circle cx="60" cy="30" r="8" ${s}/><path d="M60 38v34M60 72l-2 26M60 72l30 4M50 50l-16 6m26-6l16 6" ${s}/>`
+  color = color||'rgba(255,255,255,.85)'; size = size||160;
+  const map={handstand:'balance',pushup:'push',dip:'push',pullup:'pull',muscleup:'pull',
+    lsit:'core',lever:'flag',planche:'balance',flag:'flag',pistol:'legs'};
+  const P={
+    push:'<path d="M8 18v12M14 13v22M34 13v22M40 18v12M14 24h20"/>',
+    pull:'<path d="M10 10h28M24 16v22M16 26l8-8 8 8M16 36l8-8 8 8"/>',
+    balance:'<path d="M24 8l17 29H7z"/><path d="M6 42h36"/>',
+    core:'<path d="M24 5l16 9v20l-16 9-16-9V14z"/><circle cx="24" cy="24" r="6"/>',
+    legs:'<path d="M9 40L24 6l15 34M14 28h20"/>',
+    flag:'<path d="M13 6v36M13 10h22l-6 7 6 7H13"/>'
   };
-  return `<svg width="${size}" height="${size*.82}" viewBox="0 0 148 130">${poses[pose]||poses.pushup}</svg>`;
+  const key=map[pose]||'balance';
+  return `<svg width="${size}" height="${size}" viewBox="0 0 48 48" fill="none" stroke="${color}" stroke-linecap="round" stroke-linejoin="round" style="stroke-width:1.1">${P[key]}</svg>`;
 }
 
 const SKILLS = [
@@ -852,7 +850,7 @@ function renderOnboarding(){
       <div style="flex:1;display:flex;flex-direction:column;justify-content:center">
         <div class="ob-logo">Form<span class="dot"></span></div>
         <div class="hero-mark">
-          <div class="fig">${fig('handstand','rgba(255,255,255,.9)',210)}</div>
+          <div class="fig">${fig('handstand','rgba(255,255,255,.9)',150)}</div>
           <div class="lbl"><div class="t">Habilidad destacada</div><div class="b">Handstand · 6 progresiones</div></div>
         </div>
         <h1 style="font-size:32px">Aprendé calistenia<br>por progresiones.</h1>
@@ -1111,7 +1109,7 @@ function renderPath(path){
     let detail='';
     if(p.current){
       detail = `<div class="detail">
-        <div class="vid">${fig('handstand','rgba(255,255,255,.55)',150)}<div class="play" style="position:absolute">${ICON.play}</div></div>
+        <div class="vid"><div class="play">${ICON.play}</div></div>
         <div class="dsec"><div class="h">Qué es</div><p>${p.desc}</p></div>
         <div class="dsec"><div class="h">Series recomendadas</div>
           <div class="setgrid">${['a','b','c'].map((x,j)=>`<div class="sg"><div class="v">${p.sets[x]}</div><div class="k">${p.setk[j]}</div></div>`).join('')}</div>
@@ -1155,7 +1153,7 @@ function renderSession(){
     <div class="sess-body">
       <div class="ex-visual">
         <span class="tag">Demostración</span>
-        ${fig(sessIdx>=2&&sessIdx<=4?'handstand':'pushup','rgba(255,255,255,.75)',200)}
+        <div style="width:66px;height:66px;border-radius:50%;background:rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;color:#fff">${ICON.play}</div>
       </div>
       <div class="ex-name">${step.name}</div>
       <div class="ex-hint">${step.hint}</div>
