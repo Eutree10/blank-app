@@ -38,6 +38,39 @@ navegable con clics.
 7. **Perfil** — nivel general, habilidades favoritas, objetivos activos, equipamiento y ajustes
    (plan, recordatorios, Apple Health, modo sin conexión).
 
+## Planes de entrenamiento personalizados
+
+La app arma un plan estructurado según nivel, objetivos, días disponibles, duración de sesión
+y equipamiento. Se accede desde la tira **"Plan Handstand · Semana 2 de 4"** en *Hoy* o desde
+*Perfil → Configuración del plan*.
+
+- **Creación del plan** (`Crear plan`) — wizard de 6 pasos: objetivos (primera pull-up,
+  handstand 10s, muscle-up, más push-ups, L-sit, fuerza general), duración (4 / 8 / 12 semanas
+  o a medida), días de entrenamiento, duración de sesión y enfoque (fuerza / técnica / movilidad
+  / equilibrado). Termina con un resumen del plan generado.
+- **Vista mensual** — las semanas del plan como una línea de tiempo con fase y hito de cada una
+  (evaluación → volumen → progresiones exigentes → descarga y test), semana actual destacada.
+- **Vista semanal** — días de entrenamiento, descanso y recuperación, cada uno con objetivo,
+  duración y estado (completado / hoy / próximo).
+- **Vista diaria** — la sesión concreta dividida en bloques (calentamiento, movilidad específica,
+  progresión principal, fuerza, complementario, vuelta a la calma) con series, reps y descansos,
+  más un resumen (duración, ejercicios, intensidad, habilidad) y el botón **"Comenzar
+  entrenamiento"**.
+- **Adaptación post-sesión** — al terminar, un registro rápido (dificultad, series completadas,
+  técnica, dolor, y si querés avanzar / repetir / reducir) que ajusta la próxima sesión
+  (repeticiones, descansos, repetir progresión, sesión de recuperación o avanzar de nivel).
+- **Gestión del plan** (menu `···`) — mover una sesión, cambiar la duración, marcar un día como
+  descanso, reemplazar ejercicios por equipamiento, agregar un objetivo secundario, reiniciar la
+  semana, finalizar y ver la evaluación, o pausar el plan.
+- **Evaluación final de ciclo** — comparativa nivel inicial vs actual, progresiones
+  desbloqueadas, mejoras de reps/segundos, sesiones y constancia, fortalezas y aspectos por
+  mejorar, y recomendaciones para el siguiente plan (nivel superior, combinar objetivos, nueva
+  habilidad o repetir semanas).
+
+El plan siempre muestra el entrenamiento del día con su lugar en el ciclo (*Plan Handstand —
+Semana 2 de 4 · Sesión 3 de 4*), para que el usuario entienda qué hace hoy, por qué, cuánto
+falta y cuál es el próximo objetivo.
+
 ## Sistema de diseño
 
 Interfaz clara, atlética, minimalista y premium — sin degradados excesivos, colores neón ni

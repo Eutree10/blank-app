@@ -479,6 +479,152 @@ svg{stroke-width:1.9}
 .celebrate p{color:rgba(255,255,255,.6);font-size:15px;margin-bottom:34px;max-width:260px;line-height:1.5}
 .celebrate .btn{width:auto;padding:0 40px}
 
+/* ============ PLAN ============ */
+.plan-strip{display:flex;align-items:center;gap:13px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);padding:14px 15px;cursor:pointer;margin-bottom:4px;transition:transform .14s}
+.plan-strip:active{transform:scale(.99)}
+.plan-strip .pk{width:44px;height:44px;flex:none;border-radius:13px;background:var(--ink);color:#fff;display:flex;align-items:center;justify-content:center}
+.plan-strip .pi{flex:1;min-width:0}
+.plan-strip .pi b{font-size:14.5px;font-weight:700;display:block}
+.plan-strip .pi .nx{font-size:12px;color:var(--muted);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.plan-strip .pi .pbar{margin-top:9px}
+
+.plan-hero{background:#1b1a1f;color:#fff;border-radius:var(--r-lg);padding:18px;margin-bottom:16px;position:relative;overflow:hidden}
+.plan-hero .fig{position:absolute;right:-16px;top:-8px;opacity:.42}
+.plan-hero .eyebrow{color:rgba(255,255,255,.55)}
+.plan-hero h2{color:#fff;font-size:21px;margin-top:6px;position:relative}
+.plan-hero .goalx{color:rgba(255,255,255,.6);font-size:13px;margin-top:6px;position:relative;max-width:78%}
+.plan-hero .pmeta{display:flex;gap:22px;margin-top:16px;position:relative}
+.plan-hero .pmeta .pm .v{font-family:var(--mono);font-size:17px;font-weight:700}
+.plan-hero .pmeta .pm .k{font-size:10px;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.09em;margin-top:2px}
+.plan-hero .pbar2{height:6px;background:rgba(255,255,255,.16);border-radius:99px;margin-top:16px;overflow:hidden;position:relative}
+.plan-hero .pbar2 i{display:block;height:100%;background:var(--red);border-radius:99px;transition:width .9s cubic-bezier(.4,0,.1,1)}
+
+.seg.full{width:100%;margin-bottom:18px}
+
+/* monthly weeks timeline */
+.wk{display:flex;gap:14px}
+.wk .rail{display:flex;flex-direction:column;align-items:center;flex:none;width:30px}
+.wk .rail .bub{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-weight:700;font-size:13px;background:var(--surface);border:2px solid var(--line-strong);color:var(--muted);z-index:2}
+.wk .rail .conn{flex:1;width:2px;background:var(--line-strong);margin:3px 0;min-height:14px}
+.wk:last-child .rail .conn{display:none}
+.wk.done .bub{background:var(--green);border-color:var(--green);color:#fff}
+.wk.done .conn{background:var(--green)}
+.wk.current .bub{background:var(--red);border-color:var(--red);color:#fff;box-shadow:0 0 0 5px var(--red-tint)}
+.wk .wkcard{flex:1;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px 15px;margin-bottom:14px}
+.wk.current .wkcard{border-color:var(--red);box-shadow:0 6px 16px rgba(214,43,43,.08)}
+.wk.locked .wkcard{background:transparent;border-style:dashed}
+.wk .wkcard .wn{font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.wk .wkcard b{font-size:15.5px;font-weight:700;letter-spacing:-.01em;display:block;margin-top:3px}
+.wk.locked .wkcard b{color:var(--ink-soft)}
+.wk .wkcard .mil{font-size:12.5px;color:var(--ink-soft);margin-top:8px;display:flex;gap:7px;align-items:flex-start}
+.wk .wkcard .mil svg{flex:none;margin-top:2px;color:var(--muted)}
+
+/* weekly day rows */
+.day-row{display:flex;align-items:center;gap:14px;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:13px 15px;margin-bottom:9px}
+.day-row.rest{background:transparent;border-style:dashed}
+.day-row.today{border-color:var(--red);box-shadow:0 6px 16px rgba(214,43,43,.08);cursor:pointer}
+.day-row .dd{width:38px;flex:none;text-align:center}
+.day-row .dd .dn{font-family:var(--mono);font-size:15px;font-weight:700}
+.day-row .dd .dl{font-size:9.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-top:1px}
+.day-row.today .dd .dn,.day-row.today .dd .dl{color:var(--red)}
+.day-row .di{flex:1;min-width:0}
+.day-row .di b{font-size:14.5px;font-weight:700;display:block}
+.day-row.rest .di b{color:var(--ink-soft);font-weight:600}
+.day-row .di span{font-size:12px;color:var(--muted)}
+.day-row .ds{flex:none;display:flex;flex-direction:column;align-items:flex-end;gap:5px}
+.day-row .ds .dur{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--ink-soft)}
+.stdot{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex:none}
+.stdot.done{background:var(--green);color:#fff}
+.stdot.next{border:2px solid var(--line-strong)}
+.stdot.today{background:var(--red);color:#fff}
+
+/* daily session blocks */
+.day-summary{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);padding:16px;margin-bottom:16px}
+.day-summary .dsg{display:flex;gap:0;margin-top:2px}
+.day-summary .dsg .c{flex:1;text-align:center;border-right:1px solid var(--line);padding:6px 0}
+.day-summary .dsg .c:last-child{border-right:none}
+.day-summary .dsg .c .v{font-family:var(--mono);font-size:17px;font-weight:700}
+.day-summary .dsg .c .k{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-top:2px}
+.block{border:1px solid var(--line);border-radius:16px;margin-bottom:10px;overflow:hidden;background:var(--surface)}
+.block.main{border-color:var(--red);box-shadow:0 6px 16px rgba(214,43,43,.07)}
+.block .bh{display:flex;align-items:center;gap:12px;padding:13px 15px;cursor:pointer}
+.block .bh .bn{width:30px;height:30px;border-radius:9px;background:var(--surface-alt);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-weight:700;font-size:12px;flex:none;color:var(--ink-soft)}
+.block.main .bh .bn{background:var(--red);color:#fff}
+.block .bh .bt{flex:1;min-width:0}
+.block .bh .bt b{font-size:14px;font-weight:700;display:block}
+.block .bh .bt span{font-size:11.5px;color:var(--muted)}
+.block .bh .chev{color:var(--muted);transition:transform .3s;flex:none}
+.block.open .bh .chev{transform:rotate(90deg)}
+.block .bx{max-height:0;overflow:hidden;transition:max-height .35s ease}
+.block.open .bx{max-height:360px}
+.block .bxin{padding:0 15px 6px}
+.block .exr{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-top:1px solid var(--line);gap:12px}
+.block .exr .en{font-size:13.5px;font-weight:600}
+.block .exr .em{font-size:11px;color:var(--muted);margin-top:1px}
+.block .exr .es{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--ink-soft);flex:none;text-align:right}
+
+/* sticky start bar — floats above the tab bar */
+.start-bar{position:absolute;left:12px;right:12px;bottom:92px;z-index:45;background:linear-gradient(180deg,transparent,var(--bg) 34%);padding:26px 6px 4px}
+
+/* bottom sheet */
+.sheet-backdrop{position:absolute;inset:0;z-index:85;background:rgba(10,9,13,.42);opacity:0;visibility:hidden;transition:opacity .28s}
+.sheet-backdrop.show{opacity:1;visibility:visible}
+.sheet{position:absolute;left:0;right:0;bottom:0;z-index:86;background:var(--surface);border-radius:26px 26px 0 0;padding:8px 14px 26px;transform:translateY(102%);transition:transform .34s cubic-bezier(.3,1,.35,1);max-height:82%;overflow-y:auto;scrollbar-width:none}
+.sheet::-webkit-scrollbar{display:none}
+.sheet.show{transform:none}
+.sheet .grip{width:38px;height:5px;border-radius:99px;background:var(--line-strong);margin:8px auto 14px}
+.sheet .sh-title{font-size:18px;font-weight:800;letter-spacing:-.02em;margin:0 6px 4px}
+.sheet .sh-sub{font-size:13px;color:var(--muted);margin:0 6px 14px}
+.sheet-li{display:flex;align-items:center;gap:14px;padding:14px 8px;border-top:1px solid var(--line);cursor:pointer}
+.sheet-li:active{background:var(--surface-alt);border-radius:12px}
+.sheet-li .ic{width:36px;height:36px;border-radius:11px;background:var(--surface-alt);display:flex;align-items:center;justify-content:center;flex:none;color:var(--ink)}
+.sheet-li.danger .ic{background:var(--red-tint);color:var(--red-deep)}
+.sheet-li b{font-size:14.5px;font-weight:600;display:block}
+.sheet-li span{font-size:12px;color:var(--muted)}
+
+/* survey (dark, over session) */
+.survey{position:absolute;inset:0;z-index:78;background:#111015;display:flex;flex-direction:column;color:#fff;padding:64px 24px 26px;opacity:0;visibility:hidden;transition:opacity .3s;overflow-y:auto;scrollbar-width:none}
+.survey::-webkit-scrollbar{display:none}
+.survey.show{opacity:1;visibility:visible}
+.survey .sq-num{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--red)}
+.survey h2{color:#fff;font-size:23px;margin-top:8px;letter-spacing:-.02em}
+.sv-opt{display:flex;flex-direction:column;gap:10px;margin-top:22px}
+.sv-opt.wrap{flex-direction:row;flex-wrap:wrap}
+.sv-opt button{padding:15px 16px;border-radius:14px;border:1.5px solid rgba(255,255,255,.14);background:rgba(255,255,255,.05);color:#fff;font-family:var(--font);font-size:15px;font-weight:600;cursor:pointer;text-align:left;transition:all .14s;display:flex;align-items:center;justify-content:space-between}
+.sv-opt.wrap button{flex:1;min-width:44%;text-align:center;justify-content:center}
+.sv-opt button:active{transform:scale(.98)}
+.sv-opt button.on{background:var(--red);border-color:var(--red)}
+.survey .foot{margin-top:auto;padding-top:20px}
+.adapt-item{display:flex;gap:12px;padding:14px 0;border-bottom:1px solid rgba(255,255,255,.1)}
+.adapt-item svg{flex:none;color:var(--green);margin-top:1px}
+.adapt-item b{font-size:14.5px;font-weight:700;display:block}
+.adapt-item span{font-size:12.5px;color:rgba(255,255,255,.6)}
+
+/* plan wizard */
+#crearplan{background:var(--bg)}
+.dur-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.dur{background:var(--surface);border:1.5px solid var(--line);border-radius:16px;padding:18px 15px;cursor:pointer;text-align:center;transition:all .15s;position:relative}
+.dur.sel{border-color:var(--red);background:var(--red-tint)}
+.dur .big{font-family:var(--mono);font-size:26px;font-weight:700}
+.dur .sm{font-size:12px;color:var(--muted);margin-top:2px}
+.dur.sel .sm{color:var(--red-deep)}
+
+/* final evaluation */
+.cmp{display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px 16px;margin-bottom:10px}
+.cmp .lab{flex:1;font-size:13.5px;font-weight:600}
+.cmp .ba{font-family:var(--mono);font-size:15px;font-weight:700;color:var(--muted)}
+.cmp .arw{color:var(--muted)}
+.cmp .bb{font-family:var(--mono);font-size:17px;font-weight:700}
+.cmp .up{font-size:11px;font-weight:700;color:var(--green);margin-left:2px}
+.reco{display:flex;align-items:center;gap:13px;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:15px;margin-bottom:10px;cursor:pointer;transition:transform .14s}
+.reco:active{transform:scale(.99)}
+.reco.hi{border-color:var(--red);background:var(--red-tint)}
+.reco .ic{width:40px;height:40px;border-radius:12px;background:var(--surface-alt);display:flex;align-items:center;justify-content:center;flex:none}
+.reco.hi .ic{background:var(--red);color:#fff}
+.reco .tx{flex:1}
+.reco .tx b{font-size:14.5px;font-weight:700;display:block}
+.reco .tx span{font-size:12px;color:var(--muted)}
+
 @keyframes pop{0%{transform:scale(.7)}60%{transform:scale(1.15)}100%{transform:scale(1)}}
 .pop{animation:pop .4s ease}
 @keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
@@ -512,9 +658,15 @@ svg{stroke-width:1.9}
       <div class="view" id="detalle"></div>
       <div class="view" id="progreso"></div>
       <div class="view" id="perfil"></div>
+      <div class="view" id="plan"></div>
+      <div class="view" id="crearplan"></div>
+      <div class="view" id="resumen"></div>
 
       <!-- ============ SESSION ============ -->
       <div class="view" id="session"></div>
+
+      <!-- ============ BOTTOM SHEET HOST ============ -->
+      <div id="sheetHost"></div>
 
       <!-- rest / celebrate overlays injected into session -->
 
@@ -795,21 +947,31 @@ function renderHoy(){
       <div class="visual">
         <div class="fig">${fig('handstand','rgba(255,255,255,.85)',190)}</div>
         <div class="top">
-          <span class="pill" style="background:rgba(255,255,255,.16);color:#fff">Sesión de hoy</span>
-          <span class="pill" style="background:rgba(255,255,255,.16);color:#fff">Nivel 2 · 8</span>
+          <span class="pill" style="background:rgba(255,255,255,.16);color:#fff">Plan Handstand · Sem 2/4</span>
+          <span class="pill" style="background:rgba(255,255,255,.16);color:#fff">Sesión 3 de 4</span>
         </div>
       </div>
       <div class="body">
-        <div class="eyebrow" style="color:rgba(255,255,255,.55)">Habilidad principal</div>
-        <h2 style="margin-top:6px">Handstand · Wall walk</h2>
-        <div class="goal">Objetivo: construir fuerza de hombros y control invertido contra la pared.</div>
+        <div class="eyebrow" style="color:rgba(255,255,255,.55)">Hoy · Técnica de handstand</div>
+        <h2 style="margin-top:6px">Control contra la pared</h2>
+        <div class="goal">${PLAN.today.objective}. Estás desarrollando el aguante invertido en pared.</div>
         <div class="metrics">
           <div class="m"><div class="v">35</div><div class="k">min</div></div>
-          <div class="m"><div class="v">7</div><div class="k">ejercicios</div></div>
-          <div class="m"><div class="v">Fuerza</div><div class="k">enfoque</div></div>
+          <div class="m"><div class="v">${exCount()}</div><div class="k">ejercicios</div></div>
+          <div class="m"><div class="v">Media</div><div class="k">intensidad</div></div>
         </div>
-        <button class="btn primary" onclick="startSession()">${ICON.play} Comenzar sesión</button>
+        <button class="btn primary" onclick="openPlan('dia')">${ICON.play} Comenzar entrenamiento</button>
       </div>
+    </div>
+
+    <div class="plan-strip rise" style="animation-delay:.06s" onclick="openPlan('mes')">
+      <div class="pk">${ICON.balance}</div>
+      <div class="pi">
+        <b>Plan Handstand · Semana 2 de 4</b>
+        <div class="nx">Próximo objetivo: ${PLAN.nextObjective}</div>
+        <div class="pbar"><i style="width:${PLAN.progressPct}%"></i></div>
+      </div>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" style="flex:none"><path d="M9 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </div>
 
     <div class="sec-head"><span class="eyebrow">Tu semana</span><span class="mono dim" style="font-size:13px">3 de 4</span></div>
@@ -1004,6 +1166,8 @@ function renderSession(){
 
     <div class="toast" id="toast"><div class="rz">${ICON.check}</div> Serie registrada</div>
 
+    <div class="survey" id="survey"></div>
+
     <div class="celebrate" id="celebrate">
       <div class="badge">${ICON.check.replace('width="14" height="14"','width="54" height="54"')}</div>
       <div class="et">Progresión desbloqueada</div>
@@ -1032,7 +1196,7 @@ function addRest(s){ restLeft+=s; document.getElementById('restNum').textContent
 function skipRest(){ clearInterval(restTimer); document.getElementById('rest').classList.remove('show'); nextStep(); }
 function nextStep(skip){
   if(sessIdx<SESSION_STEPS.length-1){ sessIdx++; renderSession(); document.querySelector('#session .sess-body').classList.add('rise'); }
-  else { document.getElementById('celebrate').classList.add('show'); }
+  else { openSurvey(); }
 }
 function quitSession(){
   clearInterval(restTimer);
@@ -1156,8 +1320,8 @@ function renderPerfil(){
 
     <div class="section-title">Ajustes</div>
     <div class="list-group">
-      ${[['Configuración del plan','3 días · 35 min','cfg'],['Preferencias de entrenamiento','Parque · sin música','pref'],['Recordatorios','Lun, Mié, Vie · 18:00','bell'],['Apple Health','Sincronizado','health'],['Modo sin conexión','2 sesiones guardadas','off']].map(x=>`
-        <div class="li"><div class="ic">${liIcon(x[2])}</div><div class="tx"><b>${x[0]}</b><span>${x[1]}</span></div>
+      ${[['Configuración del plan','Plan Handstand · Semana 2 de 4','cfg',"openPlan('mes')"],['Preferencias de entrenamiento','Parque · sin música','pref',''],['Recordatorios','Lun, Mié, Vie · 18:00','bell',''],['Apple Health','Sincronizado','health',''],['Modo sin conexión','2 sesiones guardadas','off','']].map(x=>`
+        <div class="li" ${x[3]?`onclick="${x[3]}"`:''}><div class="ic">${liIcon(x[2])}</div><div class="tx"><b>${x[0]}</b><span>${x[1]}</span></div>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--muted)"><path d="M9 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>`).join('')}
     </div>
     <div style="height:8px"></div>
@@ -1175,13 +1339,15 @@ function liIcon(t){
 }
 
 /* ==================== ROUTER ==================== */
-const RENDER={hoy:renderHoy,habilidades:renderHabilidades,progreso:renderProgreso,perfil:renderPerfil};
-function go(id,hideTab){
+const RENDER={hoy:renderHoy,habilidades:renderHabilidades,progreso:renderProgreso,perfil:renderPerfil,plan:renderPlan,crearplan:renderCrearPlan,resumen:renderResumen};
+function go(id,arg){
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
-  if(RENDER[id]) RENDER[id]();
+  if(RENDER[id]) RENDER[id](arg);
   const v=document.getElementById(id); v.classList.add('active');
   const tb=document.getElementById('tabbar');
-  if(id==='session'||id==='onboarding'){ tb.style.display='none'; }
+  const noTab = id==='session'||id==='onboarding'||id==='crearplan';
+  if(noTab){ tb.style.display='none'; }
+  else if(id==='plan'||id==='resumen'){ tb.style.display='flex'; setActiveTab('hoy'); }
   else if(id==='detalle'){ tb.style.display='flex'; }
   else { tb.style.display='flex'; setActiveTab(id); }
   const sc=v.querySelector('.scroll,.sess-body,.ob-scroll'); if(sc) sc.scrollTop=0;
@@ -1192,6 +1358,332 @@ function setActiveTab(id){
 document.querySelectorAll('.tabbar button').forEach(b=>{
   b.addEventListener('click',()=>go(b.dataset.tab));
 });
+
+/* ==================== PLAN DATA ==================== */
+const PLAN = {
+  name:'Plan Handstand', skill:'handstand',
+  goal:'Mantener un handstand contra la pared 20s y preparar el hold libre.',
+  weeks:4, currentWeek:2, sessionsWeek:4, progressPct:38,
+  nextObjective:'Handstand contra la pared 20s', focus:'Equilibrado',
+  months:[
+    {n:1,phase:'Evaluación y adaptación',mil:'Test inicial + base de wall plank',st:'done'},
+    {n:2,phase:'Aumento del volumen',mil:'Consolidar wall walk y control en pared',st:'current'},
+    {n:3,phase:'Progresiones más exigentes',mil:'Chest-to-wall y patadas de entrada',st:'locked'},
+    {n:4,phase:'Descarga y test de progreso',mil:'Semana ligera + test de aguante',st:'locked'},
+  ],
+  week:[
+    {d:'Lun',dn:'19',type:'Fuerza de empuje',obj:'Wall plank + pike push-up',dur:35,st:'done'},
+    {d:'Mar',dn:'20',type:'Movilidad y core',obj:'Hombros, muñecas y hollow',dur:20,st:'done'},
+    {d:'Mié',dn:'21',type:'Técnica de handstand',obj:'Control contra la pared',dur:35,st:'today',sess:'Sesión 3 de 4'},
+    {d:'Jue',dn:'22',type:'Descanso',rest:true},
+    {d:'Vie',dn:'23',type:'Sesión completa de habilidades',obj:'Empuje + equilibrio',dur:40,st:'next',sess:'Sesión 4 de 4'},
+    {d:'Sáb',dn:'24',type:'Movilidad opcional',obj:'Recuperación activa',dur:15,st:'next',optional:true},
+    {d:'Dom',dn:'25',type:'Recuperación',rest:true},
+  ],
+  today:{
+    title:'Control contra la pared', skill:'Handstand', intensity:'Media', dur:35,
+    objective:'Ganar confianza invertido y aguante en pared',
+    blocks:[
+      {phase:'Calentamiento', ex:[{n:'Movilidad de muñeca y hombro',m:'Círculos y presiones suaves',s:'2 × 10'}]},
+      {phase:'Movilidad específica', ex:[{n:'Apertura de hombros en pared',m:'Rango sin dolor',s:'2 × 30s'}]},
+      {phase:'Progresión principal', main:true, ex:[{n:'Chest-to-wall handstand',m:'Pecho pegado, línea larga',s:'4 × 20s',r:'90s desc.'}]},
+      {phase:'Fuerza', ex:[{n:'Pike push-up',m:'Cadera alta, cabeza entre manos',s:'3 × 8',r:'75s desc.'}]},
+      {phase:'Complementario', ex:[{n:'Hollow body hold',m:'Lumbar pegada al suelo',s:'3 × 30s',r:'45s desc.'}]},
+      {phase:'Vuelta a la calma', ex:[{n:'Estiramiento de hombros y muñecas',m:'Respiración lenta',s:'2 min'}]},
+    ]
+  }
+};
+function exCount(){ return PLAN.today.blocks.reduce((a,b)=>a+b.ex.length,0); }
+
+/* ==================== PLAN VIEW ==================== */
+let planView='mes';
+function openPlan(view){ planView=view||'mes'; go('plan',planView); }
+function setPlanView(v){ planView=v; renderPlan(v); }
+function renderPlan(view){
+  view = view||planView; planView=view;
+  const el=document.getElementById('plan');
+  const done=PLAN.months.filter(m=>m.st==='done').length;
+  el.innerHTML=`<div class="scroll" style="padding-bottom:${view==='dia'?'188':'118'}px">
+    <div class="row between rise" style="margin-bottom:14px">
+      <button class="icon-btn" onclick="go('hoy')">${ICON.arrow}</button>
+      <button class="icon-btn" onclick="openPlanMenu()"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="19" cy="12" r="1.8"/></svg></button>
+    </div>
+
+    <div class="plan-hero rise">
+      <div class="fig">${fig('handstand','rgba(255,255,255,.9)',150)}</div>
+      <div class="eyebrow">Plan activo · ${PLAN.focus}</div>
+      <h2>${PLAN.name}</h2>
+      <div class="goalx">Objetivo: ${PLAN.goal}</div>
+      <div class="pmeta">
+        <div class="pm"><div class="v">${PLAN.currentWeek} / ${PLAN.weeks}</div><div class="k">Semana</div></div>
+        <div class="pm"><div class="v">${PLAN.sessionsWeek}</div><div class="k">Sesiones/sem</div></div>
+        <div class="pm"><div class="v">${PLAN.progressPct}%</div><div class="k">Completado</div></div>
+      </div>
+      <div class="pbar2"><i style="width:${PLAN.progressPct}%"></i></div>
+    </div>
+
+    <div class="seg full rise">
+      <button class="${view==='mes'?'on':''}" onclick="setPlanView('mes')">Mes</button>
+      <button class="${view==='semana'?'on':''}" onclick="setPlanView('semana')">Semana</button>
+      <button class="${view==='dia'?'on':''}" onclick="setPlanView('dia')">Día</button>
+    </div>
+
+    <div class="rise" style="animation-delay:.05s">${view==='mes'?planMes():view==='semana'?planSemana():planDia()}</div>
+  </div>
+  ${view==='dia'?`<div class="start-bar"><button class="btn primary" onclick="startSession()">${ICON.play} Comenzar entrenamiento</button></div>`:''}`;
+}
+function planMes(){
+  return `<div class="sec-head" style="margin:2px 4px 14px"><span class="eyebrow">Vista mensual · ${PLAN.weeks} semanas</span></div>
+  ${PLAN.months.map(m=>`
+    <div class="wk ${m.st}">
+      <div class="rail"><div class="bub">${m.st==='done'?ICON.check:m.n}</div><div class="conn"></div></div>
+      <div class="wkcard">
+        <div class="wn">Semana ${m.n}${m.st==='current'?' · en curso':m.st==='done'?' · completada':''}</div>
+        <b>${m.phase}</b>
+        <div class="mil"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2" stroke-linecap="round"/></svg>${m.mil}</div>
+      </div>
+    </div>`).join('')}`;
+}
+function planSemana(){
+  return `<div class="sec-head" style="margin:2px 4px 14px"><span class="eyebrow">Semana ${PLAN.currentWeek} · esta semana</span><span class="dim mono" style="font-size:12px">19–25 jul</span></div>
+  ${PLAN.week.map(d=>{
+    if(d.rest) return `<div class="day-row rest"><div class="dd"><div class="dn">${d.dn}</div><div class="dl">${d.d}</div></div>
+      <div class="di"><b>${d.type}</b><span>Sin entrenamiento programado</span></div>
+      <div class="ds"><span class="tag dim">Libre</span></div></div>`;
+    const dot = d.st==='done'?`<div class="stdot done">${ICON.check}</div>`:d.st==='today'?`<div class="stdot today">${ICON.check}</div>`:`<div class="stdot next"></div>`;
+    return `<div class="day-row ${d.st==='today'?'today':''}" ${d.st==='today'?`onclick="setPlanView('dia')"`:''}>
+      <div class="dd"><div class="dn">${d.dn}</div><div class="dl">${d.d}</div></div>
+      <div class="di"><b>${d.type}</b><span>${d.obj}${d.optional?' · opcional':''}</span></div>
+      <div class="ds"><span class="dur">${d.dur} min</span>${dot}</div>
+    </div>`;
+  }).join('')}`;
+}
+function planDia(){
+  const t=PLAN.today;
+  return `<div class="sec-head" style="margin:2px 4px 12px"><span class="eyebrow">Miércoles 21 · Sesión 3 de 4</span><span class="pill red">${t.intensity}</span></div>
+  <div class="day-summary">
+    <div class="row between" style="margin-bottom:10px"><div><b style="font-size:16px;letter-spacing:-.01em">${t.title}</b><div class="dim" style="font-size:12.5px;margin-top:3px">Habilidad: ${t.skill}</div></div></div>
+    <p class="sub" style="font-size:13px;margin-bottom:12px">Objetivo: ${t.objective}.</p>
+    <div class="dsg">
+      <div class="c"><div class="v">${t.dur}</div><div class="k">min</div></div>
+      <div class="c"><div class="v">${exCount()}</div><div class="k">ejercicios</div></div>
+      <div class="c"><div class="v">6</div><div class="k">bloques</div></div>
+      <div class="c"><div class="v">${t.intensity}</div><div class="k">intensidad</div></div>
+    </div>
+  </div>
+  ${t.blocks.map((b,i)=>`
+    <div class="block ${b.main?'main':''} ${b.main?'open':''}">
+      <div class="bh" onclick="this.parentElement.classList.toggle('open')">
+        <div class="bn">${i+1}</div>
+        <div class="bt"><b>${b.phase}</b><span>${b.ex.length} ejercicio${b.ex.length>1?'s':''}${b.main?' · progresión principal':''}</span></div>
+        <svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="bx"><div class="bxin">${b.ex.map(e=>`
+        <div class="exr"><div><div class="en">${e.n}</div><div class="em">${e.m}${e.r?' · '+e.r:''}</div></div><div class="es">${e.s}</div></div>`).join('')}</div></div>
+    </div>`).join('')}`;
+}
+
+/* ==================== PLAN MENU (bottom sheet) ==================== */
+function openSheet(html){
+  const host=document.getElementById('sheetHost');
+  host.innerHTML=`<div class="sheet-backdrop" onclick="closeSheet()"></div><div class="sheet">${html}</div>`;
+  requestAnimationFrame(()=>{host.querySelector('.sheet-backdrop').classList.add('show');host.querySelector('.sheet').classList.add('show');});
+}
+function closeSheet(){
+  const host=document.getElementById('sheetHost');const s=host.querySelector('.sheet'),b=host.querySelector('.sheet-backdrop');
+  if(!s)return; s.classList.remove('show');b.classList.remove('show');setTimeout(()=>host.innerHTML='',320);
+}
+function openPlanMenu(){
+  const items=[
+    ['move','Mover sesión a otro día','Reorganizá la semana sin acumular'],
+    ['clock','Cambiar duración disponible','Sesiones de 20 a 70 min'],
+    ['rest','Marcar un día como descanso','Reprograma automáticamente'],
+    ['swap','Reemplazar ejercicios','Según tu equipamiento disponible'],
+    ['target','Agregar objetivo secundario','Combiná dos habilidades'],
+    ['restart','Reiniciar la semana','Volvé al inicio de la semana 2'],
+    ['finish','Finalizar y ver evaluación','Comparativa inicial vs actual'],
+  ];
+  const menuIc={
+    move:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 9l-3 3 3 3M2 12h9M19 9l3 3-3 3M22 12h-9" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    clock:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2" stroke-linecap="round"/></svg>',
+    rest:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 15a8 8 0 0016 0M12 3v6m0 0l3-3m-3 3L9 6" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    swap:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 8h11l-3-3m3 3l-3 3M20 16H9l3 3m-3-3l3-3" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    target:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3.5"/></svg>',
+    restart:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 12a8 8 0 108-8 8 8 0 00-6 2.7M4 4v3.7h3.7" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    finish:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 4v16M5 5h11l-2 3 2 3H5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  };
+  openSheet(`<div class="grip"></div>
+    <div class="sh-title">Gestionar plan</div>
+    <div class="sh-sub">El plan se adapta a tu rendimiento. Ajustá lo que necesites.</div>
+    ${items.map(x=>`<div class="sheet-li" onclick="planAction('${x[0]}')"><div class="ic">${menuIc[x[0]]}</div><div><b>${x[1]}</b><span>${x[2]}</span></div></div>`).join('')}
+    <div class="sheet-li danger" onclick="planAction('pause')"><div class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="7" y="6" width="3.5" height="12" rx="1"/><rect x="14" y="6" width="3.5" height="12" rx="1"/></svg></div><div><b>Pausar plan</b><span>Retomá cuando quieras sin perder progreso</span></div></div>`);
+}
+function planAction(a){
+  closeSheet();
+  if(a==='finish'){ setTimeout(()=>go('resumen'),260); return; }
+  const msg={move:'Sesión movida — semana reorganizada',clock:'Duración actualizada',rest:'Día marcado como descanso',swap:'Ejercicios adaptados a tu equipo',target:'Objetivo secundario agregado',restart:'Semana 2 reiniciada',pause:'Plan pausado'};
+  setTimeout(()=>showToast(msg[a]||'Plan actualizado'),300);
+}
+function showToast(msg){
+  const s=document.querySelector('.screen');let t=document.getElementById('gToast');
+  if(!t){t=document.createElement('div');t.id='gToast';t.className='toast';s.appendChild(t);}
+  t.innerHTML=`<div class="rz">${ICON.check}</div> ${msg}`;
+  t.classList.add('show');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('show'),1700);
+}
+
+/* ==================== POST-SESSION SURVEY ==================== */
+const SURVEY_Q=[
+  {k:'dif',q:'¿Qué tan difícil fue?',o:['Fácil','Justo','Difícil','Muy difícil'],wrap:true},
+  {k:'series',q:'¿Completaste todas las series?',o:['Todas','Casi todas','No pude']},
+  {k:'tec',q:'¿Cómo estuvo tu técnica?',o:['Sólida','Mejorable','Inconsistente']},
+  {k:'dolor',q:'¿Sentiste dolor o molestias?',o:['Ninguna','Molestia leve','Sí, dolor']},
+  {k:'quiero',q:'¿Qué querés para la próxima?',o:['Avanzar','Repetir','Reducir dificultad']},
+];
+let svStep=0; const svAns={};
+function openSurvey(){ svStep=0; Object.keys(svAns).forEach(k=>delete svAns[k]); renderSurvey(); document.getElementById('survey').classList.add('show'); }
+function renderSurvey(){
+  const el=document.getElementById('survey');
+  if(svStep<SURVEY_Q.length){
+    const q=SURVEY_Q[svStep];
+    el.innerHTML=`<div class="sq-num">Registro · ${svStep+1} de ${SURVEY_Q.length}</div>
+      <h2>${q.q}</h2>
+      <div class="sv-opt ${q.wrap?'wrap':''}">${q.o.map(o=>`<button class="${svAns[q.k]===o?'on':''}" onclick="svPick('${q.k}','${o}')">${o}${q.wrap?'':`<span>${svAns[q.k]===o?ICON.check:''}</span>`}</button>`).join('')}</div>
+      <div class="foot"><button class="btn primary" style="${svAns[q.k]?'':'opacity:.4;pointer-events:none'}" onclick="svNext()">${svStep===SURVEY_Q.length-1?'Ver ajustes del plan':'Continuar'}</button></div>`;
+  } else {
+    const items=computeAdapt();
+    el.innerHTML=`<div class="sq-num" style="color:var(--green)">Plan adaptado</div>
+      <h2>Ajustamos tu plan</h2>
+      <p class="sub" style="color:rgba(255,255,255,.6);margin-top:8px">Form actualizó la próxima sesión según tu registro de hoy.</p>
+      <div style="margin-top:18px">${items.map(i=>`<div class="adapt-item">${ICON.check.replace('width="14" height="14"','width="18" height="18"')}<div><b>${i.t}</b><span>${i.s}</span></div></div>`).join('')}</div>
+      <div class="foot"><button class="btn primary" onclick="finishSurvey()">Continuar</button></div>`;
+  }
+}
+function svPick(k,v){ svAns[k]=v; renderSurvey(); }
+function svNext(){ svStep++; renderSurvey(); }
+function computeAdapt(){
+  const a=[];
+  if(svAns.dolor==='Sí, dolor'){ a.push({t:'Sesión de recuperación agregada',s:'Bajamos el volumen de hombro esta semana'}); }
+  if(svAns.quiero==='Avanzar'&&svAns.series==='Todas'&&svAns.dif!=='Muy difícil'){
+    a.push({t:'Avanzás a la próxima progresión',s:'Chest-to-wall → kick-up asistido'});
+    a.push({t:'Objetivo de aguante +5s',s:'De 20s a 25s en el control de pared'});
+  } else if(svAns.dif==='Muy difícil'||svAns.series==='No pude'||svAns.quiero==='Reducir dificultad'){
+    a.push({t:'Repetimos la progresión actual',s:'Consolidás antes de avanzar'});
+    a.push({t:'Descanso +15s entre series',s:'Más recuperación para mantener la técnica'});
+    if(svAns.series==='No pude') a.push({t:'−1 repetición por serie',s:'Ajuste de volumen para completar todo'});
+  } else {
+    a.push({t:'Mantenemos la progresión',s:'Vas en buen camino: +1 rep la próxima'});
+    if(svAns.tec!=='Sólida') a.push({t:'Foco en técnica',s:'Sumamos 1 serie de práctica lenta'});
+  }
+  if(!a.length) a.push({t:'Plan sin cambios',s:'Seguí con la sesión 4 de 4 el viernes'});
+  return a;
+}
+function finishSurvey(){
+  document.getElementById('survey').classList.remove('show');
+  if(svAns.quiero==='Avanzar'&&svAns.series==='Todas'&&svAns.dif!=='Muy difícil'){
+    document.getElementById('celebrate').classList.add('show');
+  } else { quitSession(); }
+}
+
+/* ==================== CREATE PLAN WIZARD ==================== */
+let cpStep=0; const cpAns={obj:['handstand10'],weeks:'8',days:['Lun','Mié','Vie'],dur:'35',focus:'equilibrado'};
+const CP_OBJ=[
+  {v:'pullup1',t:'Conseguir la primera pull-up'},
+  {v:'handstand10',t:'Handstand de 10 segundos'},
+  {v:'muscleup',t:'Aprender el muscle-up'},
+  {v:'pushups',t:'Aumentar las push-ups'},
+  {v:'lsit',t:'Desbloquear el L-sit'},
+  {v:'fuerza',t:'Fuerza general de calistenia'},
+];
+const CP_STEPS=[
+  {type:'obj'},{type:'weeks'},{type:'days'},{type:'dur'},{type:'focus'},{type:'ready'}
+];
+function startCreatePlan(){ cpStep=0; go('crearplan'); }
+function renderCrearPlan(){
+  const el=document.getElementById('crearplan');
+  const s=CP_STEPS[cpStep]; let body='',title='',num=`Paso ${cpStep+1} de ${CP_STEPS.length}`,sub='';
+  if(s.type==='obj'){
+    title='¿Qué querés lograr?'; sub='Elegí uno o más objetivos. Form los combina sin sobrecargar los mismos músculos.';
+    body=`<div class="opt-grid">${CP_OBJ.map(o=>{const on=cpAns.obj.includes(o.v);return `<button class="opt ${on?'sel':''}" onclick="cpMulti('obj','${o.v}')"><div class="ot"><b>${o.t}</b></div><div class="chk">${ICON.check}</div></button>`;}).join('')}</div>`;
+  } else if(s.type==='weeks'){
+    title='¿Cuántas semanas?'; sub='Podés extender o acortar el plan cuando quieras.';
+    body=`<div class="dur-grid">${[['4','semanas'],['8','semanas'],['12','semanas'],['custom','a medida']].map(w=>`<button class="dur ${cpAns.weeks===w[0]?'sel':''}" onclick="cpSet('weeks','${w[0]}')"><div class="big">${w[0]==='custom'?'∿':w[0]}</div><div class="sm">${w[1]}</div></button>`).join('')}</div>`;
+  } else if(s.type==='days'){
+    title='¿Qué días entrenás?'; sub='Los demás días quedan como descanso o recuperación.';
+    body=`<div style="display:flex;gap:8px;flex-wrap:wrap">${['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'].map(d=>`<button class="chip ${cpAns.days.includes(d)?'on':''}" onclick="cpMulti('days','${d}')" style="height:46px;padding:0 20px;font-size:14px">${d}</button>`).join('')}</div>`;
+  } else if(s.type==='dur'){
+    title='¿Cuánto dura cada sesión?'; sub='';
+    body=`<div class="opt-grid two">${[['20','Express'],['35','Equilibrado'],['50','Completo'],['70','Sin apuro']].map(o=>`<button class="opt ${cpAns.dur===o[0]?'sel':''}" onclick="cpSet('dur','${o[0]}')"><div class="ot"><b>${o[0]} min</b><span>${o[1]}</span></div><div class="chk">${ICON.check}</div></button>`).join('')}</div>`;
+  } else if(s.type==='focus'){
+    title='¿Qué priorizás?'; sub='Ajusta el balance de cada sesión.';
+    body=`<div class="opt-grid">${[['fuerza','Fuerza','Más volumen de fuerza'],['tecnica','Técnica','Más práctica de la habilidad'],['movilidad','Movilidad','Prevención y rango'],['equilibrado','Equilibrado','Mezcla recomendada']].map(o=>`<button class="opt ${cpAns.focus===o[0]?'sel':''}" onclick="cpSet('focus','${o[0]}')"><div class="ot"><b>${o[1]}</b><span>${o[2]}</span></div><div class="chk">${ICON.check}</div></button>`).join('')}</div>`;
+  } else if(s.type==='ready'){
+    const objName=(CP_OBJ.find(o=>o.v===cpAns.obj[0])||CP_OBJ[1]).t;
+    el.innerHTML=`<div class="ob-scroll rise" style="justify-content:center">
+      <div style="flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center">
+        <div style="width:90px;height:90px;border-radius:26px;background:var(--red);display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 10px var(--red-tint);color:#fff;margin-bottom:24px">${ICON.check.replace('width="14" height="14"','width="38" height="38"')}</div>
+        <div class="q-num">Plan generado</div>
+        <h1 style="margin-top:12px;font-size:26px">Tu plan está listo</h1>
+        <p class="sub" style="margin-top:12px;max-width:290px">Plan de <b style="color:var(--ink)">${cpAns.weeks==='custom'?'8':cpAns.weeks} semanas</b> para <b style="color:var(--ink)">${objName}</b>, ${cpAns.days.length} días por semana, sesiones de ${cpAns.dur} min con enfoque ${cpAns.focus}.</p>
+        <div class="card" style="margin-top:22px;padding:16px;width:100%;text-align:left">
+          <div class="row between"><span class="dim" style="font-size:13px">Semana 1</span><b style="font-size:13px">Evaluación y adaptación</b></div>
+          <div class="row between" style="margin-top:9px"><span class="dim" style="font-size:13px">Primer hito</span><b style="font-size:13px">Test de nivel inicial</b></div>
+          <div class="row between" style="margin-top:9px"><span class="dim" style="font-size:13px">Sesiones/semana</span><b class="mono" style="font-size:13px">${cpAns.days.length}</b></div>
+        </div>
+      </div></div>
+    <div class="ob-foot"><button class="btn primary" onclick="showToast('Plan activado');openPlan('mes')">Activar plan</button></div>`;
+    return;
+  }
+  const canNext = s.type==='obj'?cpAns.obj.length>0:s.type==='days'?cpAns.days.length>0:true;
+  el.innerHTML=`<div class="ob-scroll">
+    <div class="q-head rise"><div class="q-num">${num}</div><div class="q-title">${title}</div>${sub?`<p class="sub" style="margin-top:8px">${sub}</p>`:''}</div>
+    <div class="rise" style="animation-delay:.05s">${body}</div>
+  </div>
+  <div class="ob-foot">
+    <button class="btn ghost back" onclick="cpPrev()">${ICON.arrow}</button>
+    <button class="btn primary" onclick="cpNext()" style="${canNext?'':'opacity:.4;pointer-events:none'}">Continuar</button>
+  </div>`;
+}
+function cpSet(k,v){ cpAns[k]=v; renderCrearPlan(); }
+function cpMulti(k,v){ const i=cpAns[k].indexOf(v); i>=0?cpAns[k].splice(i,1):cpAns[k].push(v); renderCrearPlan(); }
+function cpNext(){ if(cpStep<CP_STEPS.length-1){cpStep++;renderCrearPlan();} }
+function cpPrev(){ if(cpStep>0){cpStep--;renderCrearPlan();} else go('plan'); }
+
+/* ==================== FINAL EVALUATION ==================== */
+function renderResumen(){
+  const el=document.getElementById('resumen');
+  el.innerHTML=`<div class="scroll">
+    <div class="row between rise" style="margin-bottom:6px">
+      <button class="icon-btn" onclick="go('plan')">${ICON.arrow}</button>
+      <span class="pill green">Plan completado</span>
+    </div>
+    <h1 class="rise" style="margin:6px 0 4px">Evaluación final</h1>
+    <p class="sub rise" style="margin-bottom:18px">Plan Handstand · 4 semanas · comparativa de tu punto de partida contra hoy.</p>
+
+    <div class="eyebrow" style="margin:4px 4px 12px">Nivel inicial vs actual</div>
+    ${[['Nivel de Handstand','Nivel 1','Nivel 3','+2'],['Aguante en pared','8s','24s','+16s'],['Pike push-up','5 reps','9 reps','+4'],['Hollow hold','20s','40s','+20s']].map(c=>`
+      <div class="cmp"><div class="lab">${c[0]}</div><div class="ba">${c[1]}</div><span class="arw">${ICON.arrow.replace('M15 6l-6 6 6 6','M9 6l6 6-6 6').replace('width="20" height="20"','width="16" height="16"')}</span><div><span class="bb">${c[2]}</span><span class="up">${c[3]}</span></div></div>`).join('')}
+
+    <div class="stat-grid" style="margin-top:18px">
+      <div class="stat-tile"><div class="k">Progresiones desbloqueadas</div><div class="v">2</div></div>
+      <div class="stat-tile"><div class="k">Sesiones completadas</div><div class="v">14<small>/16</small></div></div>
+      <div class="stat-tile"><div class="k">Constancia</div><div class="v">88<small>%</small></div></div>
+      <div class="stat-tile"><div class="k">Tiempo entrenado</div><div class="v">8.2<small>h</small></div></div>
+    </div>
+
+    <div class="card" style="padding:16px;margin-top:14px">
+      <div class="row" style="gap:9px;margin-bottom:10px"><span class="pill green">Fortaleza</span><span style="font-size:13.5px;font-weight:600">Fuerza de empuje y constancia</span></div>
+      <div class="row" style="gap:9px"><span class="pill gray">A mejorar</span><span style="font-size:13.5px;font-weight:600">Movilidad de hombro y equilibrio</span></div>
+    </div>
+
+    <div class="eyebrow" style="margin:24px 4px 12px">¿Qué sigue?</div>
+    <div class="reco hi" onclick="startCreatePlan()"><div class="ic">${ICON.bolt}</div><div class="tx"><b>Continuar con un nivel superior</b><span>Handstand libre · 8 semanas</span></div>${chev()}</div>
+    <div class="reco" onclick="startCreatePlan()"><div class="ic">${ICON.pull}</div><div class="tx"><b>Combinar dos objetivos</b><span>Handstand + primer muscle-up</span></div>${chev()}</div>
+    <div class="reco" onclick="startCreatePlan()"><div class="ic">${ICON.balance}</div><div class="tx"><b>Comenzar una nueva habilidad</b><span>Explorá la biblioteca</span></div>${chev()}</div>
+    <div class="reco" onclick="showToast('Semanas 3–4 reprogramadas')"><div class="ic">${ICON.arrow.replace('M15 6l-6 6 6 6','M4 12a8 8 0 108-8 8 8 0 00-6 2.7M4 4v3.7h3.7')}</div><div class="tx"><b>Repetir algunas semanas</b><span>Consolidá antes de avanzar</span></div>${chev()}</div>
+    <div style="height:8px"></div>
+  </div>`;
+}
+function chev(){return `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" style="flex:none"><path d="M9 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;}
 
 renderOnboarding();
 </script>
