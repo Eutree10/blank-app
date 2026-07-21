@@ -1685,6 +1685,13 @@ function renderResumen(){
 }
 function chev(){return `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" style="flex:none"><path d="M9 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;}
 
+/* Expose handlers globally so inline onclick works even when the host runs
+   this script in an isolated/module scope (e.g. embedded/hosted contexts). */
+Object.assign(window,{addRest,closeSheet,cnt,completeSet,cpMulti,cpNext,cpPrev,cpSet,
+  finishOnboarding,finishSurvey,go,nextStep,obNext,obPrev,openPlan,openPlanMenu,openSkill,
+  pick,planAction,quitSession,setFilter,setPlanView,showToast,skipRest,startCreatePlan,
+  startSession,svNext,svPick,toggleSkill,setPlanView,openSheet});
+
 renderOnboarding();
 </script>
 </body>
