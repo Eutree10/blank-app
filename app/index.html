@@ -122,38 +122,42 @@ button{font-family:inherit}
 .scrim.on{opacity:1;pointer-events:auto}
 .sheet{position:absolute;left:0;right:0;bottom:0;z-index:90;background:var(--surface);border-radius:28px 28px 0 0;padding:0 20px calc(20px + var(--safe-b));box-shadow:0 -20px 50px -20px rgba(27,23,18,.4);transform:translateY(100%);transition:transform .32s cubic-bezier(.32,.72,0,1);max-height:94%;overflow-y:auto}
 .sheet.on{transform:translateY(0)}
-.grab{width:40px;height:5px;border-radius:3px;background:var(--border-2);margin:12px auto 8px}
+.grab{width:40px;height:5px;border-radius:3px;background:var(--border-2);margin:10px auto 6px}
 .sheet-handle{touch-action:none;cursor:grab;padding-bottom:4px}
 .sheet-handle:active{cursor:grabbing}
 .sheet-handle .grab{transition:width .15s ease}
 .sheet-handle:active .grab{width:52px;background:var(--faint)}
-.type-toggle{display:flex;background:var(--surface-2);border-radius:14px;padding:4px;gap:4px;margin:8px 0 12px}
+.type-toggle{display:flex;background:var(--surface-2);border-radius:14px;padding:4px;gap:4px;margin:4px 0 10px}
 .type-toggle button{flex:1;border:0;background:transparent;font-weight:750;font-size:15px;color:var(--muted);padding:12px;border-radius:11px}
 .type-toggle button.on-exp{background:var(--surface);color:var(--down);box-shadow:var(--shadow)}
 .type-toggle button.on-inc{background:var(--surface);color:var(--up);box-shadow:var(--shadow)}
-.amount-display{text-align:center;margin:8px 0}
-.amount-display .money{font-size:27px;letter-spacing:-.03em}
-.amount-display .cur{color:var(--muted)}
+.amount-display{text-align:center;margin:6px 0 2px}
+.amount-display .money{font-size:33px;font-weight:800;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.amount-display .cur{color:var(--muted);font-size:.56em;font-weight:700;margin-right:3px}
+.amount-display .dec{font-size:.56em;font-weight:700}
 .amount-display .z{color:var(--faint)}
 .icon-picker{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:4px 0 4px}
 .icon-picker::-webkit-scrollbar{display:none}
-.ip{width:56px;flex:none;display:flex;flex-direction:column;align-items:center;gap:4px;background:none;border:0}
+.ip{min-width:52px;flex:none;display:flex;flex-direction:column;align-items:center;gap:4px;padding:0 4px;background:none;border:0}
 .ip .cat-ic{width:50px;height:50px}
 .ip small{font-size:12px;font-weight:600;color:var(--muted);white-space:nowrap}
 .ip.on .cat-ic{border-color:var(--accent);background:var(--accent-soft);color:var(--accent-ink)}
 .ip.on small{color:var(--accent-ink);font-weight:800}
-.field-row{display:flex;gap:8px;margin-top:12px}
+.ip.more .cat-ic{background:var(--surface-2);border:1.5px dashed var(--border-2);color:var(--muted)}
+.ip.more svg{width:22px;height:22px}
+.field-row{display:flex;gap:8px;margin-top:10px}
 .inp{flex:1;background:var(--surface);border:1.5px solid var(--border-2);border-radius:14px;padding:12px 16px;font-family:inherit;font-size:15px;font-weight:600;color:var(--text);outline:none;min-width:0}
 .inp::placeholder{color:var(--faint);font-weight:500}
 .selpill{flex:1;display:flex;align-items:center;justify-content:space-between;gap:8px;background:var(--surface);border:1.5px solid var(--border-2);border-radius:14px;padding:12px 16px;font-size:15px;font-weight:700;color:var(--text)}
 .selpill svg{width:17px;height:17px;color:var(--muted)}
-.recur{display:flex;align-items:center;gap:12px;margin-top:12px;padding:4px 4px}
-.recur svg{width:20px;height:20px;color:var(--muted)}
+.recur{display:flex;align-items:center;gap:12px;margin-top:10px;padding:2px 0}
+.recur svg{width:20px;height:20px;color:var(--muted);display:block}
+.recur .ic{display:flex;align-items:center}
 .toggle{width:46px;height:27px;border-radius:999px;background:var(--border-2);position:relative;flex:none;border:0;transition:background .2s}
 .toggle::after{content:"";position:absolute;top:3px;left:3px;width:21px;height:21px;border-radius:50%;background:#fff;box-shadow:var(--shadow);transition:left .2s}
 .toggle.on{background:var(--accent)}
 .toggle.on::after{left:22px}
-.keypad{display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(4,minmax(0,1fr));gap:8px;margin-top:12px}
+.keypad{display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(4,minmax(0,1fr));gap:8px;margin-top:10px}
 .keypad button{background:transparent;border:0;font-size:19px;font-weight:700;color:var(--text);padding:0;border-radius:14px;display:grid;place-items:center}
 .keypad button:active{background:var(--surface-2)}
 
@@ -163,7 +167,7 @@ button{font-family:inherit}
   max-height:calc(100% - env(safe-area-inset-top,0px) - 8px)}
 #sheet>*{flex:none}
 #sheet>.keypad{flex:1 1 auto;min-height:0}
-#sheet>.btn{margin-top:12px}
+#sheet>.btn{margin-top:10px}
 /* the keypad is the only flexible child: it absorbs slack (button pinned) and
    compresses on short screens (minmax(0,1fr) rows so it never overflows the button) */
 @media (max-height:740px){
@@ -192,7 +196,7 @@ button{font-family:inherit}
   #sheet .inp,#sheet .selpill{padding:10px 14px}
   #sheet .btn{padding:11px}
 }
-.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;background:var(--accent);color:#fff;border:0;border-radius:17px;padding:16px;font-weight:750;font-size:15px;letter-spacing:-.01em;box-shadow:0 10px 22px -8px rgba(255,77,20,.6);margin-top:12px}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;background:var(--accent);color:#fff;border:0;border-radius:17px;padding:16px;font-weight:750;font-size:15px;letter-spacing:-.01em;box-shadow:0 10px 22px -8px rgba(255,77,20,.6);margin-top:10px}
 .btn:active{transform:scale(.99)}
 .btn.ghost{background:var(--surface);color:var(--text);border:1px solid var(--border-2);box-shadow:var(--shadow)}
 .btn:disabled{opacity:.45;box-shadow:none}
@@ -387,6 +391,12 @@ home2:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="
 subs:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12a8 8 0 0 1 13.7-5.6L20 8M20 4v4h-4"/><path d="M20 12a8 8 0 0 1-13.7 5.6L4 16M4 20v-4h4"/></svg>',
 travel:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 5.5 4 9l2 4M14 4l6 8-2.5 6.5-3-6L9 15l-1 3-2-1 1-4Z"/></svg>',
 other:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="5" cy="12" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="19" cy="12" r="1.4"/></svg>',
+service:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 3 5 13h6l-1 8 8-10h-6l1-8Z"/></svg>',
+sport:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8v8M7 6v12M17 6v12M20 8v8M7 12h10"/></svg>',
+gift:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="9" rx="1"/><path d="M2.5 7.5h19V11h-19zM12 7.5V20M12 7.5C11 5 9.5 4 8.3 4.6 6.8 5.4 8.5 7.5 12 7.5ZM12 7.5C13 5 14.5 4 15.7 4.6 17.2 5.4 15.5 7.5 12 7.5Z"/></svg>',
+pet:'<svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><ellipse cx="6.4" cy="11.5" rx="1.7" ry="2.3"/><ellipse cx="10" cy="8.4" rx="1.7" ry="2.4"/><ellipse cx="14" cy="8.4" rx="1.7" ry="2.4"/><ellipse cx="17.6" cy="11.5" rx="1.7" ry="2.3"/><path d="M12 13c-2.6 0-4.6 2-4.6 4.1 0 1.5 1.2 2.1 2.5 2.1.9 0 1.4-.4 2.1-.4s1.2.4 2.1.4c1.3 0 2.5-.6 2.5-2.1 0-2.1-2-4.1-4.6-4.1Z"/></svg>',
+tax:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10 12 4l8 6M5 10v8M19 10v8M9 10v8M15 10v8M3 20h18"/></svg>',
+work:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7.5" width="18" height="12.5" rx="2"/><path d="M8 7.5V5.5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 13h18"/></svg>',
 income:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M6 11l6-6 6 6"/></svg>',
 card:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="12" rx="2.5"/><path d="M3 10h18"/></svg>',
 calendar:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="16" rx="2.5"/><path d="M4 9h16M8 3v4M16 3v4"/></svg>',
@@ -400,18 +410,26 @@ info:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1
 
 /* ============ CATEGORIES ============ */
 const CATS=[
- {id:'food',name:'Comida',icon:'food',budget:600},
- {id:'transport',name:'Transporte',icon:'transport',budget:400},
- {id:'shop',name:'Compras',icon:'shop',budget:250},
- {id:'fun',name:'Ocio',icon:'fun',budget:200},
- {id:'health',name:'Salud',icon:'health',budget:150},
- {id:'edu',name:'Educación',icon:'edu',budget:120},
- {id:'home2',name:'Hogar',icon:'home2',budget:300},
- {id:'tech',name:'Tecnología',icon:'tech',budget:150},
- {id:'travel',name:'Viajes',icon:'travel',budget:200},
- {id:'other',name:'Otros',icon:'other',budget:150},
- {id:'subs',name:'Suscripciones',icon:'subs',budget:0},
+ // primary — shown first
+ {id:'food',name:'Comida',icon:'food',budget:600,tier:1},
+ {id:'transport',name:'Transporte',icon:'transport',budget:400,tier:1},
+ {id:'shop',name:'Compras',icon:'shop',budget:250,tier:1},
+ {id:'home2',name:'Hogar',icon:'home2',budget:300,tier:1},
+ {id:'fun',name:'Ocio',icon:'fun',budget:200,tier:1},
+ {id:'health',name:'Salud',icon:'health',budget:150,tier:1},
+ {id:'edu',name:'Educación',icon:'edu',budget:120,tier:1},
+ // secondary — behind "Más"
+ {id:'service',name:'Servicios',icon:'service',budget:200,tier:2},
+ {id:'travel',name:'Viajes',icon:'travel',budget:200,tier:2},
+ {id:'sport',name:'Deporte',icon:'sport',budget:150,tier:2},
+ {id:'gift',name:'Regalos',icon:'gift',budget:100,tier:2},
+ {id:'pet',name:'Mascotas',icon:'pet',budget:100,tier:2},
+ {id:'tax',name:'Impuestos',icon:'tax',budget:150,tier:2},
+ {id:'work',name:'Trabajo',icon:'work',budget:100,tier:2},
+ {id:'other',name:'Otros',icon:'other',budget:150,tier:2},
+ // special / legacy (not shown in the picker)
  {id:'income',name:'Ingreso',icon:'income',budget:0},
+ {id:'subs',name:'Suscripciones',icon:'subs',budget:0},
 ];
 const CAT=id=>CATS.find(c=>c.id===id)||CATS.find(c=>c.id==='other');
 const PIE=['#FF5A1F','#FFB020','#3B7DD8','#1E9E5A','#8A6FE8','#E8639C','#C9BEAE','#5B667A'];
@@ -760,7 +778,7 @@ function renderProfile(){
 /* ============ ADD SHEET ============ */
 let draft=null;
 function openSheet(){
-  draft={type:'exp',amount:'0',cat:'food',desc:'',method:METHODS[0],date:Date.now(),recur:false,freq:'month'};
+  draft={type:'exp',amount:'0',cat:'food',desc:'',method:METHODS[0],date:Date.now(),recur:false,freq:'month',moreCats:false};
   renderSheet();
   document.getElementById('scrim').classList.add('on');
   document.getElementById('sheet').classList.add('on');
@@ -778,35 +796,39 @@ function renderSheet(){
   const rawInt=hasDot?draft.amount.slice(0,draft.amount.indexOf('.')):draft.amount;
   const rawDec=hasDot?draft.amount.slice(draft.amount.indexOf('.')+1):null;
   const intp=(rawInt===''?0:Number(rawInt)).toLocaleString(loc), decp=rawDec;
-  const showCats=CATS.filter(c=>draft.type==='inc'?c.id==='income':(c.id!=='income'&&c.id!=='subs'));
-  if(draft.type==='inc')draft.cat='income'; else if(draft.cat==='income')draft.cat='food';
+  const isInc=draft.type==='inc';
+  const selInMore=CATS.some(c=>c.tier===2&&c.id===draft.cat);
+  const expanded=draft.moreCats||selInMore;
+  const pickCats=isInc?CATS.filter(c=>c.id==='income'):CATS.filter(c=>c.tier===1||(expanded&&c.tier===2));
+  if(isInc)draft.cat='income'; else if(draft.cat==='income')draft.cat='food';
+  const moreIc=expanded
+    ?'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5 12h14"/></svg>'
+    :I.plus;
   document.getElementById('sheet').innerHTML=`
   <div class="sheet-handle"><div class="grab"></div>
-  <div style="text-align:center;margin:4px 0 8px"><div class="label-xs">Nuevo movimiento</div></div></div>
+  <div style="text-align:center;margin:2px 0 6px"><div class="label-xs">Nuevo movimiento</div></div></div>
   <div class="type-toggle" id="typeTog">
     <button class="${draft.type==='exp'?'on-exp':''}" data-type="exp">Gasto</button>
     <button class="${draft.type==='inc'?'on-inc':''}" data-type="inc">Ingreso</button>
   </div>
-  <div class="amount-display"><span class="money"><span class="cur">${cur()}</span>${esc(intp||'0')}${decp!==null?esc(decSep+decp):`<span class="z">${decSep}00</span>`}</span></div>
+  <div class="amount-display"><span class="money"><span class="cur">${cur()}</span>${esc(intp||'0')}${decp!==null?`<span class="dec">${esc(decSep+decp)}</span>`:`<span class="dec z">${decSep}00</span>`}</span></div>
 
-  <div class="recur"><span>${I.subs}</span><span class="tt" style="font-size:15px">Cuotas / Suscripciones</span><span class="grow"></span><button class="toggle ${draft.recur?'on':''}" id="dRecur"></button></div>
-  ${draft.recur?`<div class="seg" id="freqSeg" style="margin-top:12px">
+  <div class="recur"><span class="ic">${I.subs}</span><span class="tt grow" style="font-size:15px">Cuotas / Suscripciones</span><button class="toggle ${draft.recur?'on':''}" id="dRecur"></button></div>
+  ${draft.recur?`<div class="seg" id="freqSeg" style="margin-top:10px">
     <button class="${draft.freq==='week'?'on':''}" data-freq="week">Semanal</button>
     <button class="${draft.freq==='month'?'on':''}" data-freq="month">Mensual</button>
     <button class="${draft.freq==='year'?'on':''}" data-freq="year">Anual</button>
   </div>
-  <div class="ts" style="margin:8px 4px 0;white-space:normal">Se registrará solo, ${recurText(draft.date,draft.freq)}.</div>`:''}
+  <div class="ts" style="margin:6px 4px 0;white-space:normal">Se registra solo, ${recurText(draft.date,draft.freq)}.</div>`:''}
 
-  ${draft.recur&&draft.type==='exp'?`
-  <div class="label-xs" style="margin:16px 4px 8px">Categoría</div>
-  <div class="selpill" style="justify-content:flex-start;gap:12px;margin-top:4px;color:var(--accent-ink);border-color:#FFD9C6;background:var(--accent-soft)">${I.subs}<span style="font-weight:700">Suscripciones</span></div>`:`
-  <div class="label-xs" style="margin:16px 4px 8px">${draft.type==='inc'?'Fuente':'Categoría'}</div>
+  <div class="label-xs" style="margin:12px 4px 6px">${isInc?'Fuente':'Categoría'}</div>
   <div class="icon-picker" id="catPick">
-    ${showCats.map(c=>`<button class="ip ${draft.cat===c.id?'on':''}" data-cat="${c.id}">${catIcHTML(c.id,draft.cat===c.id)}<small>${c.name}</small></button>`).join('')}
-  </div>`}
+    ${pickCats.map(c=>`<button class="ip ${draft.cat===c.id?'on':''}" data-cat="${c.id}">${catIcHTML(c.id,draft.cat===c.id)}<small>${c.name}</small></button>`).join('')}
+    ${isInc?'':`<button class="ip more" id="moreCats"><div class="cat-ic">${moreIc}</div><small>${expanded?'Menos':'Más'}</small></button>`}
+  </div>
 
   <div class="field-row">
-    <input class="inp" id="dDesc" placeholder="Descripción (ej. ${draft.type==='inc'?'Nómina':'Chipotle'})" value="${esc(draft.desc)}" autocomplete="off">
+    <input class="inp" id="dDesc" placeholder="${draft.type==='inc'?'¿De dónde vino?':'¿En qué gastaste?'}" value="${esc(draft.desc)}" autocomplete="off">
   </div>
   <div class="field-row">
     <label class="selpill" id="dDate" style="position:relative"><span>${I.calendar} ${dayLabel(draft.date)}</span><span style="color:var(--faint)">${I.chev}</span>
@@ -823,7 +845,8 @@ function renderSheet(){
 }
 function wireSheet(){
   document.getElementById('typeTog').querySelectorAll('button').forEach(b=>b.onclick=()=>{draft.type=b.dataset.type;renderSheet();});
-  const cp=document.getElementById('catPick');if(cp)cp.querySelectorAll('.ip').forEach(b=>b.onclick=()=>{draft.cat=b.dataset.cat;renderSheet();});
+  const cp=document.getElementById('catPick');if(cp)cp.querySelectorAll('.ip[data-cat]').forEach(b=>b.onclick=()=>{draft.cat=b.dataset.cat;renderSheet();});
+  const mc=document.getElementById('moreCats');if(mc)mc.onclick=()=>{draft.moreCats=!draft.moreCats;renderSheet();};
   document.getElementById('dDesc').oninput=e=>draft.desc=e.target.value;
   document.getElementById('dRecur').onclick=()=>{draft.recur=!draft.recur;renderSheet();};
   const fs=document.getElementById('freqSeg');if(fs)fs.querySelectorAll('button').forEach(b=>b.onclick=()=>{draft.freq=b.dataset.freq;renderSheet();});
@@ -844,8 +867,8 @@ function key(k){
 }
 function commit(){
   const amt=parseFloat(draft.amount)||0;if(amt<=0)return;
-  // a recurring expense is a subscription -> auto category "Suscripciones" (no manual pick)
-  const catForSave=draft.type==='inc'?'income':(draft.recur?'subs':draft.cat);
+  // recurring is just a flag now; the expense keeps its real category (e.g. Netflix -> Ocio)
+  const catForSave=draft.type==='inc'?'income':draft.cat;
   const t={id:id(),type:draft.type,amount:Math.round(amt*100)/100,cat:catForSave,desc:draft.desc.trim(),method:draft.method,date:draft.date,recur:draft.recur};
   if(draft.recur){t.freq=draft.freq;t.seriesId=id();t.createdAt=Date.now();
     const sot=new Date();sot.setHours(0,0,0,0);
@@ -926,7 +949,8 @@ function subRow(s){
   const dim=s.status!=='active';
   const chip=s.status==='paused'?'<span class="st-chip st-paused">Pausada</span>':s.status==='cancelled'?'<span class="st-chip st-cancelled">Cancelada</span>':'';
   const nd=s.next?new Date(s.next).toLocaleDateString('es-ES',{day:'numeric',month:'short'}):'';
-  const meta=s.status==='active'&&s.next?`${fmt0(s.price)} ${FREQ_WORD[s.freq]} · Próximo: ${nd}`:`${fmt0(s.price)} ${FREQ_WORD[s.freq]}`;
+  const catTag=s.cat&&s.cat!=='subs'?`${CAT(s.cat).name} · `:'';
+  const meta=s.status==='active'&&s.next?`${catTag}${fmt0(s.price)} ${FREQ_WORD[s.freq]} · Próximo: ${nd}`:`${catTag}${fmt0(s.price)} ${FREQ_WORD[s.freq]}`;
   return `<div class="sub-row tap ${dim?'dim':''}" data-sub="${s.sid}">
     <div class="sub-monogram">${esc(initials(s.name))}</div>
     <div class="grow"><div class="nm">${esc(s.name)}</div><div class="meta">${meta}</div></div>
@@ -984,6 +1008,7 @@ function openSubDetail(sid){
     </div>
     <div class="card pad" style="margin-top:16px">
       <div class="kv"><span class="k">Precio</span><span class="v money">${fmt(s.price)} <span style="color:var(--muted);font-weight:600">${FREQ_WORD[s.freq]}</span></span></div>
+      ${s.cat&&s.cat!=='subs'?`<div class="kv"><span class="k">Categoría</span><span class="v">${catIcHTML(s.cat)} ${CAT(s.cat).name}</span></div>`:''}
       <div class="kv"><span class="k">Facturación</span><span class="v">${freqName}</span></div>
       <div class="kv"><span class="k">Fecha de inicio</span><span class="v">${shortDate(s.start)}</span></div>
       <div class="kv"><span class="k">Próxima renovación</span><span class="v">${s.next?shortDate(s.next):'—'}</span></div>
