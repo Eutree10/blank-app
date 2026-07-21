@@ -153,9 +153,45 @@ button{font-family:inherit}
 .toggle::after{content:"";position:absolute;top:3px;left:3px;width:21px;height:21px;border-radius:50%;background:#fff;box-shadow:var(--shadow);transition:left .2s}
 .toggle.on{background:var(--accent)}
 .toggle.on::after{left:22px}
-.keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
-.keypad button{background:transparent;border:0;font-size:19px;font-weight:700;color:var(--text);padding:12px;border-radius:14px}
+.keypad{display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(4,minmax(0,1fr));gap:8px;margin-top:12px}
+.keypad button{background:transparent;border:0;font-size:19px;font-weight:700;color:var(--text);padding:0;border-radius:14px;display:grid;place-items:center}
 .keypad button:active{background:var(--surface-2)}
+
+/* Add-movement sheet: a fixed panel — no internal scroll, keypad flexes, save button pinned */
+#sheet{display:flex;flex-direction:column;overflow:hidden;
+  height:calc(100% - env(safe-area-inset-top,0px) - 8px);
+  max-height:calc(100% - env(safe-area-inset-top,0px) - 8px)}
+#sheet>*{flex:none}
+#sheet>.keypad{flex:1 1 auto;min-height:0}
+#sheet>.btn{margin-top:12px}
+/* the keypad is the only flexible child: it absorbs slack (button pinned) and
+   compresses on short screens (minmax(0,1fr) rows so it never overflows the button) */
+@media (max-height:740px){
+  #sheet .grab{margin:8px auto 4px}
+  #sheet .type-toggle{margin:4px 0 8px}
+  #sheet .amount-display{margin:4px 0}
+  #sheet .icon-picker{padding:0}
+  #sheet .ip .cat-ic{width:44px;height:44px}
+  #sheet .recur,#sheet .field-row,#sheet>.keypad,#sheet>.btn{margin-top:8px}
+  #sheet .btn{padding:12px}
+  #sheet #freqSeg{margin-top:8px!important}
+  #sheet .ts{margin:6px 4px 0!important}
+  #sheet .label-xs{margin:8px 4px 4px!important}
+}
+@media (max-height:640px){
+  #sheet .ip .cat-ic{width:40px;height:40px}
+  #sheet .field-row,#sheet .recur{margin-top:4px}
+  #sheet .keypad{gap:4px;margin-top:6px}
+  #sheet .keypad button{font-size:17px}
+  #sheet .amount-display .money{font-size:23px}
+  #sheet .seg button{padding:8px}
+  #sheet #freqSeg{margin-top:6px!important}
+  #sheet .ts{margin:4px 4px 0!important;font-size:11px}
+  #sheet .label-xs{margin:4px 4px 2px!important}
+  #sheet .type-toggle button{padding:9px}
+  #sheet .inp,#sheet .selpill{padding:10px 14px}
+  #sheet .btn{padding:11px}
+}
 .btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;background:var(--accent);color:#fff;border:0;border-radius:17px;padding:16px;font-weight:750;font-size:15px;letter-spacing:-.01em;box-shadow:0 10px 22px -8px rgba(255,77,20,.6);margin-top:12px}
 .btn:active{transform:scale(.99)}
 .btn.ghost{background:var(--surface);color:var(--text);border:1px solid var(--border-2);box-shadow:var(--shadow)}
