@@ -590,7 +590,7 @@ const svg = (name,cls='')=>`<svg class="${cls}" viewBox="0 0 24 24" fill="none">
 
 /* ---------- persistence ---------- */
 const KEY='booknotes.v1';
-function blank(){return {books:[],notes:[],quotes:[],characters:[],prefs:{sessions:false,ai:false,cloud:false,haptics:true,name:'',lang:''},recent:[]};}
+function blank(){return {books:[],notes:[],quotes:[],characters:[],prefs:{sessions:false,ai:false,cloud:false,haptics:true,name:'',lang:'',fabUsed:false},recent:[]};}
 function load(){try{const r=localStorage.getItem(KEY);if(r)return Object.assign(blank(),JSON.parse(r));}catch(e){}return blank();}
 let store=load();
 function save(){try{localStorage.setItem(KEY,JSON.stringify(store));}catch(e){}}
@@ -665,6 +665,7 @@ const ES={
 "New Character":"Nuevo personaje","Add a person":"Agregar una persona","New Book":"Nuevo libro","Add to library":"Agregar a la biblioteca",
 "Which book is this for?":"¿Para qué libro es?","Add a book first":"Primero agrega un libro",
 "Tap + to add your first book":"Toca + para agregar tu primer libro","Tap + to add a book":"Toca + para agregar un libro","Tap + to add a note":"Toca + para agregar una nota","Tap + to add":"Toca + para agregar","New entry in":"Nueva entrada en",
+"Use the + button to add your first book.":"Usá el botón + para agregar tu primer libro.","Add your first book to start taking notes.":"Agregá tu primer libro para comenzar a tomar notas.","Open a book and create your first note.":"Abrí un libro y creá tu primera nota.",
 "just now":"justo ahora","yesterday":"ayer"
 };
 function t(s){return store.prefs.lang==='es'?(ES[s]!==undefined?ES[s]:s):s;}
@@ -728,8 +729,10 @@ function selectTab(k){state.tab=k;stack=[];ctxBook=null;setChrome(false);haptic(
 
 /* ---------- shared bits ---------- */
 function emptyInline(ic,msg){return `<div class="card" style="padding:24px 20px;text-align:center"><div class="ic24" style="color:var(--faint);margin-bottom:10px">${svg(ic)}</div><div style="font-size:13.5px;color:var(--muted);line-height:1.5">${msg}</div></div>`;}
-function fabHint(msg){return `<div style="display:inline-flex;align-items:center;gap:9px;margin-top:2px;color:var(--muted);font-size:13.5px;font-weight:550"><span style="width:30px;height:30px;border-radius:999px;background:var(--indigo);color:#fff;display:grid;place-items:center;box-shadow:0 5px 14px rgba(63,81,245,.4);flex:none">${svg('plus')}</span>${esc(msg)}</div>`;}
-function emptyBlock(ic,copy){return `<div class="empty"><div class="e-ill">${svg(ic)}</div><h3>${t('Nothing here yet')}</h3><p>${copy}</p>${fabHint(t('Tap + to add'))}</div>`;}
+function firstUse(){return !store.prefs.fabUsed;}
+/* thin, subtle gray guide arrow pointing toward the floating + button — visual only, first use only */
+function fabArrow(){return '<div aria-hidden="true" style="pointer-events:none;margin-top:12px;display:flex;justify-content:center;color:var(--faint);opacity:.75"><svg width="52" height="52" viewBox="0 0 64 64" fill="none"><path d="M16 12 C 27 38, 35 49, 50 50" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><path d="M39 48.5 L 51 51 L 47.5 39.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></div>';}
+function emptyBlock(ic,copy){return `<div class="empty"><div class="e-ill">${svg(ic)}</div><h3>${t('Nothing here yet')}</h3><p>${copy}</p>${firstUse()?fabArrow():''}</div>`;}
 function sectionShell(title,inner){return `<div class="detail-head"><button class="back-btn" onclick="back()">${svg('chevL')} ${t('Back')}</button><div class="dh-title">${esc(title)}</div><div class="dh-r"></div></div><div class="pad" style="padding-top:6px">${inner}</div>`;}
 
 function noteRow(n){
@@ -776,8 +779,8 @@ function viewHome(){
       <div class="pad"><div class="empty" style="padding-top:30px">
         <div class="e-ill">${svg('book')}</div>
         <h3>${t('Welcome to BookNotes')}</h3>
-        <p>${t("Your library is empty. Add the first book you're reading and start capturing notes, quotes and characters.")}</p>
-        ${fabHint(t('Tap + to add your first book'))}
+        <p>${t('Use the + button to add your first book.')}</p>
+        ${firstUse()?fabArrow():''}
       </div></div>`);
     return;
   }
@@ -824,7 +827,7 @@ function viewLibrary(){
     ${bks.length?`<div class="filter-row">${FILTERS.map(f=>`<button class="f-chip ${state.libFilter===f?'on':''}" onclick="setFilter('${f}')">${t(f)}</button>`).join('')}</div>`:''}
     <div class="pad" style="padding-top:8px">
       ${bks.length?`<div class="book-grid ${state.libView==='list'?'list-mode':''}">${libraryBooks().map(gbook).join('')||`<div class="empty" style="grid-column:1/-1"><div class="e-ill">${svg('library')}</div><h3>${t('Nothing here')}</h3><p>${t('No books in this collection yet.')}</p></div>`}</div>`
-      :`<div class="empty"><div class="e-ill">${svg('library')}</div><h3>${t('No books yet')}</h3><p>${t("Add the books you're reading to start building your notes.")}</p>${fabHint(t('Tap + to add a book'))}</div>`}
+      :`<div class="empty"><div class="e-ill">${svg('library')}</div><h3>${t('No books yet')}</h3><p>${t('Use the + button to add your first book.')}</p>${firstUse()?fabArrow():''}</div>`}
     </div>`);
 }
 function libraryBooks(){const f=state.libFilter;return store.books.filter(b=>{if(f==='All')return true;if(f==='Favorites')return b.fav;return b.status===f.toLowerCase();});}
@@ -1076,7 +1079,7 @@ function toggleQuoteFav(id){const q=store.quotes.find(x=>x.id===id);q.fav=!q.fav
 function viewNotes(){
   if(!store.notes.length&&!store.quotes.length){
     render(`<div class="lt-head"><div class="lt-row"><h1 class="lt-title">${t('Notes')}</h1></div></div>
-      <div class="pad"><div class="empty" style="padding-top:30px"><div class="e-ill">${svg('notes')}</div><h3>${t('No notes yet')}</h3><p>${t('Your notes and quotes from every book collect here. Add your first from any book.')}</p>${fabHint(t(store.books.length?'Tap + to add a note':'Tap + to add a book'))}</div></div>`);
+      <div class="pad"><div class="empty" style="padding-top:30px"><div class="e-ill">${svg('notes')}</div><h3>${t('No notes yet')}</h3><p>${t(store.books.length?'Open a book and create your first note.':'Add your first book to start taking notes.')}</p>${firstUse()?fabArrow():''}</div></div>`);
     return;
   }
   const notes=[...store.notes].sort((a,b)=>b.ts-a.ts);
@@ -1198,7 +1201,7 @@ const captureItems=[
 function renderCapture(){document.getElementById('captureGrid').innerHTML=captureItems.map(c=>`<div class="cap-item" onclick="${c.fn}"><div class="ci" style="background:${c.c}">${svg(c.ic)}</div><div><div class="cl">${t(c.l)}</div><div class="cs">${t(c.s)}</div></div></div>`).join('');}
 let sheetOpen=false;
 function toggleCapture(){sheetOpen?closeSheets():openCapture();}
-function openCapture(){haptic();sheetOpen=true;document.getElementById('fab').classList.add('open');const sub=document.getElementById('cap-sub');if(sub){const b=ctxBook?bookById(ctxBook):null;sub.textContent=b?(t('New entry in')+' «'+b.title+'»'):t("Start a new entry. It saves when you're done.");}renderCapture();openSheet('captureSheet');}
+function openCapture(){haptic();if(!store.prefs.fabUsed){store.prefs.fabUsed=true;save();}sheetOpen=true;document.getElementById('fab').classList.add('open');const sub=document.getElementById('cap-sub');if(sub){const b=ctxBook?bookById(ctxBook):null;sub.textContent=b?(t('New entry in')+' «'+b.title+'»'):t("Start a new entry. It saves when you're done.");}renderCapture();openSheet('captureSheet');}
 
 /* ============================================================ UTILITIES */
 let toastTimer;
@@ -1214,6 +1217,7 @@ function setDevice(d){state.device=d;document.getElementById('device').classList
   ['English &amp; Español','Switch the whole app language any time from Preferences.'],
 ].map(x=>`<div class="lg"><b>${x[0]}</b><p>${x[1]}</p></div>`).join('');})();
 if(!store.prefs.lang){store.prefs.lang=(navigator.language||'en').toLowerCase().indexOf('es')===0?'es':'en';save();}
+if(store.prefs.fabUsed===undefined){store.prefs.fabUsed=(store.books.length||store.notes.length||store.quotes.length||store.characters.length)>0;save();}
 i18nStatic();
 renderCapture();
 renderTabs();
