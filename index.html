@@ -420,6 +420,20 @@ body{
 .empty h3{font-size:18px;font-weight:680;letter-spacing:-.02em;margin:0 0 8px;}
 .empty p{font-size:14px;color:var(--muted);line-height:1.5;margin:0 auto 20px;max-width:240px;}
 
+/* ---------- forms ---------- */
+.form-field{margin-top:16px;}
+.form-field label{display:block;font-size:11.5px;font-weight:640;letter-spacing:.03em;text-transform:uppercase;color:var(--faint);margin:0 2px 8px;}
+.form-input{width:100%;border:1px solid var(--hair);background:var(--surface);border-radius:13px;padding:13px 15px;font:inherit;font-size:16px;color:var(--text);outline:0;transition:border .2s;-webkit-appearance:none;}
+.form-input:focus{border-color:var(--indigo);}
+textarea.form-input{min-height:112px;resize:none;line-height:1.5;}
+.swatch-row{display:flex;gap:10px;flex-wrap:wrap;}
+.swatch{width:42px;height:42px;border-radius:11px;cursor:pointer;border:2px solid transparent;box-shadow:0 2px 6px rgba(20,20,40,.15);transition:transform .15s var(--ease);}
+.swatch.on{border-color:var(--text);transform:scale(1.08);}
+.swatch:active{transform:scale(.92);}
+.cover-ini{position:absolute;left:9px;bottom:8px;color:rgba(255,255,255,.92);font-weight:700;letter-spacing:.01em;font-size:15px;text-shadow:0 1px 5px rgba(0,0,0,.4);}
+.ed-content{white-space:pre-wrap;word-break:break-word;}
+.ed-content:empty:before{content:attr(data-ph);color:var(--faint);}
+
 /* view transitions */
 .view{animation:fadeUp .34s var(--ease);}
 @keyframes fadeUp{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
@@ -468,7 +482,7 @@ body{
     </span>
     BookNotes
   </div>
-  <p class="stage-sub">A calm, premium companion for everything you learn while reading — notes, quotes, characters, chapters and ideas, organized your way. Interactive prototype below; tap around.</p>
+  <p class="stage-sub">A calm, premium companion for everything you learn while reading — your books, notes, quotes and characters, organized your way. It starts empty: add your own. Everything is saved privately on your device.</p>
   <div class="device-toggle">
     <button id="tg-phone" class="on" onclick="setDevice('phone')">iPhone</button>
     <button id="tg-pad" onclick="setDevice('ipad')">iPad</button>
@@ -501,8 +515,16 @@ body{
       <div class="sheet" id="captureSheet">
         <div class="grab"></div>
         <h3>Quick Capture</h3>
-        <p class="s-sub">Saved instantly to your library. Add details later.</p>
+        <p class="s-sub">Start a new entry. It saves when you're done.</p>
         <div class="capture-grid" id="captureGrid"></div>
+      </div>
+
+      <!-- book picker sheet -->
+      <div class="sheet" id="pickSheet">
+        <div class="grab"></div>
+        <h3>Choose book</h3>
+        <p class="s-sub">Which book is this for?</p>
+        <div id="pickList" style="display:flex;flex-direction:column;gap:10px"></div>
       </div>
 
       <div class="toast" id="toast"><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg><span id="toastMsg">Saved</span></div>
@@ -511,7 +533,7 @@ body{
 </div>
 
 <div class="legend" id="legend"></div>
-<p class="hint">Prototype only — a design reference for a native SwiftUI iOS &amp; iPadOS build. Font renders as SF Pro on Apple devices. Try: switch tabs, open a book, tap the ✦ quick-capture button, open a note in the editor.</p>
+<p class="hint">A working, local-first app — your library starts empty. Add a book, then capture notes, quotes and characters. Data is stored in your browser on this device. Font renders as SF Pro on Apple devices.</p>
 
 <script>
 /* ============================================================
@@ -562,708 +584,569 @@ const I = {
 const svg = (name,cls='')=>`<svg class="${cls}" viewBox="0 0 24 24" fill="none">${I[name]||''}</svg>`;
 
 /* ============================================================
-   Seed data
+   BookNotes — local-first app logic
+   Your books & notes are stored on THIS device (localStorage).
+   Empty by default — you add your own content.
    ============================================================ */
-const COVERS = {
-  gatsby:'linear-gradient(150deg,#1c2b4a,#3a5a8c 60%,#c8a96a)',
-  dune:'linear-gradient(160deg,#b45f22,#e0913f 55%,#3a2410)',
-  atomic:'linear-gradient(150deg,#e8563f,#f0913f)',
-  circe:'linear-gradient(160deg,#7a2f3a,#c25a52 60%,#e0a86a)',
-  sapiens:'linear-gradient(150deg,#2b2b30,#5a5a63)',
-  wind:'linear-gradient(160deg,#2f5a4a,#4f8a6a 60%,#c8a96a)',
-  klara:'linear-gradient(150deg,#e2a63f,#f0d08a)',
-  road:'linear-gradient(160deg,#3a3a40,#6a6a70)',
-};
-function coverEl(key,cls){return `<div class="cover ${cls||''}" style="background:${COVERS[key]||'#ccc'}"></div>`;}
 
-const AVA=['#3F51F5','#D8A94A','#54B37A','#7b5cf0','#c25a52','#3a8ac2','#c47a2a'];
-const av=(i)=>AVA[i%AVA.length];
+/* ---------- persistence ---------- */
+const KEY='booknotes.v1';
+function blank(){return {books:[],notes:[],quotes:[],characters:[],prefs:{sessions:false,ai:false,cloud:false,haptics:true,name:''},recent:[]};}
+function load(){try{const r=localStorage.getItem(KEY);if(r)return Object.assign(blank(),JSON.parse(r));}catch(e){}return blank();}
+let store=load();
+function save(){try{localStorage.setItem(KEY,JSON.stringify(store));}catch(e){}}
+let _c=0;
+function uid(){return 'b'+Date.now().toString(36)+(_c++).toString(36)+Math.floor(Math.random()*46656).toString(36);}
 
-const books=[
-  {id:'gatsby',title:'The Great Gatsby',author:'F. Scott Fitzgerald',cover:'gatsby',progress:68,chapter:'Chapter 6',notes:34,fav:true,status:'reading',tint:'#eef0ff'},
-  {id:'dune',title:'Dune',author:'Frank Herbert',cover:'dune',progress:41,chapter:'Book II · Muad\'Dib',notes:52,fav:true,status:'reading',tint:'#fbeee1'},
-  {id:'atomic',title:'Atomic Habits',author:'James Clear',cover:'atomic',progress:100,chapter:'Finished',notes:28,fav:false,status:'finished',tint:'#fdeae4'},
-  {id:'circe',title:'Circe',author:'Madeline Miller',cover:'circe',progress:23,chapter:'Chapter 3',notes:12,fav:false,status:'reading',tint:'#f7e9ea'},
-  {id:'sapiens',title:'Sapiens',author:'Yuval Noah Harari',cover:'sapiens',progress:0,chapter:'Not started',notes:0,fav:false,status:'wishlist',tint:'#efeff1'},
-  {id:'wind',title:'The Name of the Wind',author:'Patrick Rothfuss',cover:'wind',progress:55,chapter:'Chapter 21',notes:41,fav:true,status:'reading',tint:'#e9f2ee'},
-  {id:'klara',title:'Klara and the Sun',author:'Kazuo Ishiguro',cover:'klara',progress:100,chapter:'Finished',notes:19,fav:false,status:'finished',tint:'#fcf3e2'},
-  {id:'road',title:'The Road',author:'Cormac McCarthy',cover:'road',progress:0,chapter:'Not started',notes:0,fav:false,status:'wishlist',tint:'#f0f0f2'},
+/* ---------- helpers ---------- */
+function esc(s){return (s==null?'':String(s)).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function initials(t){return (t||'?').trim().split(/\s+/).slice(0,2).map(w=>w[0]?w[0].toUpperCase():'').join('')||'?';}
+function shortTitle(t){t=t||'';const w=t.split(/\s+/);return w.length>2?w[w.length-1]:t;}
+function statusLabel(s){return {reading:'Reading',finished:'Finished',wishlist:'Wishlist'}[s]||'';}
+function greet(){const h=new Date().getHours();return h<5?'Good night':h<12?'Good morning':h<18?'Good afternoon':'Good evening';}
+function todayStr(){try{return new Date().toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'});}catch(e){return '';}}
+function ago(ts){if(!ts)return '';const s=Math.floor((Date.now()-ts)/1000);if(s<60)return 'just now';const m=Math.floor(s/60);if(m<60)return m+'m ago';const h=Math.floor(m/60);if(h<24)return h+'h ago';const d=Math.floor(h/24);if(d===1)return 'yesterday';if(d<7)return d+'d ago';try{return new Date(ts).toLocaleDateString(undefined,{month:'short',day:'numeric'});}catch(e){return d+'d ago';}}
+function colorVar(k){return {indigo:'var(--indigo)',gold:'var(--gold)',green:'var(--green)',rose:'var(--red)'}[k]||'var(--indigo)';}
+function av(i){const p=['#3F51F5','#D8A94A','#54B37A','#7b5cf0','#c25a52','#3a8ac2','#c47a2a'];return p[(((i||0)%7)+7)%7];}
+function tintOf(color){if(color==='var(--indigo)')return 'var(--indigo-tint)';if(color==='var(--gold)')return 'var(--gold-tint)';const h=(color||'').replace('#','');if(h.length<6)return 'var(--surface-2)';const r=parseInt(h.slice(0,2),16),g=parseInt(h.slice(2,4),16),b=parseInt(h.slice(4,6),16);return `rgba(${r},${g},${b},.13)`;}
+
+const COVER_GRADS=[
+  'linear-gradient(150deg,#3a4a8c,#5a72c8 60%,#c8a96a)',
+  'linear-gradient(160deg,#b45f22,#e0913f 55%,#3a2410)',
+  'linear-gradient(150deg,#7a2f3a,#c25a52 60%,#e0a86a)',
+  'linear-gradient(160deg,#2f5a4a,#4f8a6a 60%,#c8a96a)',
+  'linear-gradient(150deg,#2b2b30,#5a5a63)',
+  'linear-gradient(150deg,#e2a63f,#f0d08a)',
+  'linear-gradient(155deg,#3F51F5,#7b87ff)',
+  'linear-gradient(160deg,#5b3a8c,#9b7bd8)',
 ];
-const bookById=(id)=>books.find(b=>b.id===id);
-
-const notes=[
-  {id:'n1',title:'The green light as unreachable desire',book:'The Great Gatsby',bookId:'gatsby',excerpt:'Gatsby reaching toward the light on Daisy\'s dock — the whole novel in one gesture. Hope oriented toward a past that can\'t be recovered.',color:'indigo',tags:['symbol','theme'],chapter:'Ch. 1',page:'21',when:'2h ago'},
-  {id:'n2',title:'"So we beat on…"',book:'The Great Gatsby',bookId:'gatsby',excerpt:'The closing line. Currents of time carrying us backward even as we row forward. Need to sit with this one.',color:'gold',tags:['quote'],chapter:'Ch. 9',page:'180',when:'Yesterday'},
-  {id:'n3',title:'Spice = attention economy?',book:'Dune',bookId:'dune',excerpt:'Melange as the resource that everything bends around. Feels like a lens on any scarce, addictive resource — oil, data, attention.',color:'indigo',tags:['idea','theme'],chapter:'Book I',page:'44',when:'Yesterday'},
-  {id:'n4',title:'Habit stacking works',book:'Atomic Habits',bookId:'atomic',excerpt:'After [current habit], I will [new habit]. Anchoring to something already automatic. Tried it with reading after coffee.',color:'green',tags:['idea','practice'],chapter:'Ch. 5',page:'74',when:'2 days ago'},
-  {id:'n5',title:'Circe\'s exile as self-authorship',book:'Circe',bookId:'circe',excerpt:'Being cast out becomes the space where she finally becomes herself. Punishment reframed as freedom.',color:'rose',tags:['character','theme'],chapter:'Ch. 3',page:'58',when:'3 days ago'},
-];
-
-const characters=[
-  {id:'c1',name:'Jay Gatsby',nick:'"Great Gatsby"',book:'gatsby',i:0,desc:'A mysterious millionaire who throws lavish parties, all in pursuit of rekindling a love from his past. Self-made and self-invented.',tags:['Protagonist','Idealist','Tragic'],rels:[{n:'Daisy Buchanan',t:'Loves',i:1},{n:'Nick Carraway',t:'Confidant',i:2},{n:'Tom Buchanan',t:'Rival',i:3}]},
-  {id:'c2',name:'Daisy Buchanan',nick:'"golden girl"',book:'gatsby',i:1,desc:'Charming and elusive, her voice "full of money." The object of Gatsby\'s longing and the source of the novel\'s central tragedy.',tags:['Love interest','Ambiguous'],rels:[{n:'Jay Gatsby',t:'Loved by',i:0},{n:'Tom Buchanan',t:'Married to',i:3}]},
-  {id:'c3',name:'Paul Atreides',nick:'"Muad\'Dib"',book:'dune',i:2,desc:'Heir to House Atreides, gifted with prescience. His journey from noble son to messianic leader anchors the epic.',tags:['Protagonist','Chosen one'],rels:[{n:'Lady Jessica',t:'Mother',i:4},{n:'Chani',t:'Beloved',i:5}]},
-];
-const charById=(id)=>characters.find(c=>c.id===id);
-
-const quotes=[
-  {id:'q1',text:'So we beat on, boats against the current, borne back ceaselessly into the past.',book:'The Great Gatsby',page:180,ch:'Chapter 9',color:'var(--gold)',fav:true,reflect:'The whole American Dream deflated in one sentence — striving forward while being pulled back.'},
-  {id:'q2',text:'I must not fear. Fear is the mind-killer. Fear is the little-death that brings total obliteration.',book:'Dune',page:19,ch:'Book I',color:'var(--indigo)',fav:true,reflect:''},
-  {id:'q3',text:'You do not rise to the level of your goals. You fall to the level of your systems.',book:'Atomic Habits',page:27,ch:'Chapter 1',color:'var(--green)',fav:false,reflect:'Reframed how I think about resolutions. Design the system, not the goal.'},
-];
-
-const modules=[
-  {name:'Overview',ic:'book',c:'Summary & progress',color:'var(--indigo)'},
-  {name:'Notes',ic:'notes',c:'34 notes',color:'#7b5cf0'},
-  {name:'Characters',ic:'character',c:'9 characters',color:'#c25a52'},
-  {name:'Quotes',ic:'quote',c:'16 saved',color:'var(--gold)'},
-  {name:'Chapters',ic:'chapter',c:'9 chapters',color:'#3a8ac2'},
-  {name:'Themes',ic:'theme',c:'5 themes',color:'#54B37A'},
-  {name:'Timeline',ic:'timeline',c:'12 events',color:'#c47a2a'},
-  {name:'Questions',ic:'question',c:'7 open',color:'#3F51F5'},
-];
-
-/* ============================================================
-   App state + router
-   ============================================================ */
-let state={tab:'home',device:'phone',libView:'grid',libFilter:'All',statRange:'Week'};
-let stack=[]; // drill-in stack of {render}
-
-const vp=()=>document.getElementById('viewport');
-function render(html,slide){
-  const v=vp();
-  v.innerHTML=html;
-  v.scrollTop=0;
-  v.firstElementChild && v.firstElementChild.classList.add(slide?'slide-in':'view');
+function coverEl(b,cls,ini){
+  if(ini===undefined)ini=true;
+  const g=(b&&typeof b==='object')?(b.cover||COVER_GRADS[0]):b;
+  const t=(b&&typeof b==='object')?b.title:'';
+  return `<div class="cover ${cls||''}" style="background:${g};position:relative;overflow:hidden">${ini&&t?`<span class="cover-ini">${esc(initials(t))}</span>`:''}</div>`;
 }
+const bookById=id=>store.books.find(b=>b.id===id);
+const charById=id=>store.characters.find(c=>c.id===id);
+function bookProgress(b){if(b.totalPages&&b.page)return Math.max(0,Math.min(100,Math.round(b.page/b.totalPages*100)));return b.progress||0;}
+function nOf(id){return store.notes.filter(n=>n.bookId===id).length;}
+function qOf(id){return store.quotes.filter(q=>q.bookId===id).length;}
+function cOf(id){return store.characters.filter(c=>c.bookId===id).length;}
+
+/* ---------- router ---------- */
+let state={tab:'home',device:'phone',libView:'grid',libFilter:'All'};
+let stack=[];
+const vp=()=>document.getElementById('viewport');
+function render(html,slide){const v=vp();v.innerHTML=html;v.scrollTop=0;if(v.firstElementChild)v.firstElementChild.classList.add(slide?'slide-in':'view');}
 function go(view){stack.push(view);view();}
 function back(){setChrome(false);stack.pop();const prev=stack[stack.length-1];if(prev)prev();else selectTab(state.tab);}
-function setChrome(hidden){
-  document.getElementById('tabbar').classList.toggle('hide',hidden);
-  document.getElementById('fab').classList.toggle('hide',hidden);
-}
+function setChrome(hidden){document.getElementById('tabbar').classList.toggle('hide',hidden);document.getElementById('fab').classList.toggle('hide',hidden);}
+function currentTabView(){return ({home:viewHome,library:viewLibrary,notes:viewNotes,search:viewSearch,profile:viewProfile})[state.tab];}
+function refresh(){(stack[stack.length-1]||currentTabView())();}
 
-/* ---------- Tab bar ---------- */
 const TABS=[{k:'home',l:'Home',i:'home'},{k:'library',l:'Library',i:'library'},{k:'notes',l:'Notes',i:'notes'},{k:'search',l:'Search',i:'search'},{k:'profile',l:'Profile',i:'profile'}];
-function renderTabs(){
-  document.getElementById('tabbar').innerHTML=TABS.map(t=>
-    `<button class="tab ${state.tab===t.k?'on':''}" onclick="selectTab('${t.k}')">${svg(t.i)}<span class="tl">${t.l}</span></button>`
-  ).join('');
-}
-function selectTab(k){
-  state.tab=k;stack=[];
-  setChrome(false);
-  haptic();
-  renderTabs();
-  ({home:viewHome,library:viewLibrary,notes:viewNotes,search:viewSearch,profile:viewProfile}[k])();
-}
+function renderTabs(){document.getElementById('tabbar').innerHTML=TABS.map(t=>`<button class="tab ${state.tab===t.k?'on':''}" onclick="selectTab('${t.k}')">${svg(t.i)}<span class="tl">${t.l}</span></button>`).join('');}
+function selectTab(k){state.tab=k;stack=[];setChrome(false);haptic();renderTabs();currentTabView()();}
 
-/* ============================================================
-   HOME
-   ============================================================ */
-function viewHome(){
-  const g=bookById('gatsby');
-  const reading=books.filter(b=>b.status==='reading');
-  render(`
-    <div class="lt-head">
-      <div class="lt-eyebrow">Wednesday, July 22</div>
-      <div class="lt-row">
-        <h1 class="lt-title">Good evening</h1>
-        <div class="lt-actions">
-          <button class="round-btn" onclick="toast('Personalize your dashboard')">${svg('slider')}</button>
-        </div>
+/* ---------- shared bits ---------- */
+function emptyInline(ic,msg){return `<div class="card" style="padding:26px 20px;text-align:center"><div style="color:var(--faint);margin-bottom:10px">${svg(ic)}</div><div style="font-size:13.5px;color:var(--muted);line-height:1.5">${msg}</div></div>`;}
+function emptyBlock(ic,copy,addFn,label){return `<div class="empty"><div class="e-ill">${svg(ic)}</div><h3>Nothing here yet</h3><p>${copy}</p><button class="btn btn-primary" style="flex:none;margin:0 auto" onclick="${addFn}">${svg('plus')} ${label}</button></div>`;}
+function sectionShell(title,inner,addFn){return `<div class="detail-head"><button class="back-btn" onclick="back()">${svg('chevL')} Back</button><div class="dh-title">${esc(title)}</div><div class="dh-r">${addFn?`<button class="round-btn" style="width:34px;height:34px" onclick="${addFn}">${svg('plus')}</button>`:''}</div></div><div class="pad" style="padding-top:6px">${inner}</div>`;}
+
+function noteRow(n){
+  const b=bookById(n.bookId);
+  const excerpt=(n.content||'').replace(/\s+/g,' ').trim();
+  return `<div class="note-row" onclick="openNote('${n.id}')">
+    <div class="note-swatch ${n.color||'indigo'}"></div>
+    <div class="note-body">
+      <div class="note-title">${esc(n.title||excerpt.slice(0,44)||'Untitled note')}</div>
+      ${excerpt?`<div class="note-excerpt">${esc(excerpt)}</div>`:''}
+      <div class="note-meta">
+        ${b?`<span class="chip book">${svg('book')} ${esc(shortTitle(b.title))}</span>`:''}
+        ${(n.tags||[]).slice(0,2).map(t=>`<span class="chip">#${esc(t)}</span>`).join('')}
+        ${n.page?`<span class="chip">p.${esc(n.page)}</span>`:''}
+        <span class="chip" style="background:transparent;color:var(--faint);padding-left:2px">${ago(n.ts)}</span>
       </div>
     </div>
+  </div>`;
+}
+function quoteCard(q){
+  const b=bookById(q.bookId);
+  return `<div class="card quote-card">
+    <div class="accent-edge" style="background:${colorVar(q.color)}"></div>
+    <div class="qmark">&ldquo;</div>
+    <div class="q-text">${esc(q.text)}</div>
+    ${q.reflect?`<div class="q-reflect"><div class="rl">Reflection</div>${esc(q.reflect)}</div>`:''}
+    <div class="q-foot">
+      <div class="q-src">${b?`<b>${esc(b.title)}</b>`:''}${q.chapter?' · '+esc(q.chapter):''}${q.page?' · p.'+esc(q.page):''}</div>
+      <div class="q-acts">
+        <button class="icon-btn ${q.fav?'on':''}" onclick="event.stopPropagation();toggleQuoteFav('${q.id}')">${svg(q.fav?'star':'starO')}</button>
+        <button class="icon-btn" onclick="event.stopPropagation();openQuote('${q.id}')">${svg('slider')}</button>
+      </div>
+    </div>
+  </div>`;
+}
+function miniBook(b){return `<div class="mini-book" onclick="openBook('${b.id}')">${coverEl(b)}<div class="mb-title">${esc(b.title)}</div><div class="mb-prog">${bookProgress(b)}% · ${nOf(b.id)} notes</div></div>`;}
+function miniChar(c){const b=bookById(c.bookId);return `<div class="mini-char" onclick="openCharacter('${c.id}')"><div class="av" style="background:${av(c.i)}">${esc((c.name||'?')[0]||'?')}</div><div class="mc-name">${esc((c.name||'').split(/\s+/)[0])}</div><div class="mc-book">${b?esc(shortTitle(b.title)):''}</div></div>`;}
+
+/* ============================================================ HOME */
+function viewHome(){
+  const bks=store.books;
+  if(!bks.length){
+    render(`<div class="lt-head"><div class="lt-eyebrow">${todayStr()}</div><div class="lt-row"><h1 class="lt-title">${greet()}</h1></div></div>
+      <div class="pad"><div class="empty" style="padding-top:30px">
+        <div class="e-ill">${svg('book')}</div>
+        <h3>Welcome to BookNotes</h3>
+        <p>Your library is empty. Add the first book you're reading and start capturing notes, quotes and characters.</p>
+        <button class="btn btn-primary" style="flex:none;margin:0 auto" onclick="openAddBook()">${svg('plus')} Add your first book</button>
+      </div></div>`);
+    return;
+  }
+  const reading=bks.filter(b=>b.status==='reading').sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0));
+  const cont=reading[0]||[...bks].sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0))[0];
+  const recent=[...store.notes].sort((a,b)=>b.ts-a.ts).slice(0,3);
+  render(`
+    <div class="lt-head"><div class="lt-eyebrow">${todayStr()}</div>
+      <div class="lt-row"><h1 class="lt-title">${greet()}</h1>
+        <div class="lt-actions"><button class="round-btn" onclick="openAddBook()">${svg('plus')}</button></div></div></div>
     <div class="pad">
       <div class="section-label"><h2>Continue reading</h2></div>
-      <div class="card hero press" onclick="openBook('gatsby')" style="--book-tint:${g.tint}">
-        ${coverEl(g.cover)}
+      <div class="card hero press" onclick="openBook('${cont.id}')">
+        ${coverEl(cont)}
         <div class="h-body">
-          <div class="h-kick">${g.chapter}</div>
-          <div class="h-title">${g.title}</div>
-          <div class="h-auth">${g.author}</div>
-          <div class="progress">
-            <div class="bar"><i style="width:${g.progress}%"></i></div>
-            <div class="meta"><span>${g.progress}% · p.238 of 350</span><span>${g.notes} notes</span></div>
-          </div>
+          <div class="h-kick">${esc(cont.chapter||statusLabel(cont.status))}</div>
+          <div class="h-title">${esc(cont.title)}</div>
+          <div class="h-auth">${esc(cont.author||'Unknown author')}</div>
+          <div class="progress"><div class="bar"><i style="width:${bookProgress(cont)}%"></i></div><div class="meta"><span>${bookProgress(cont)}%${cont.totalPages?` · p.${cont.page||0} of ${cont.totalPages}`:''}</span><span>${nOf(cont.id)} notes</span></div></div>
         </div>
       </div>
 
       <div class="section-label" style="margin-top:22px"><h2>Today</h2></div>
       <div class="mini-grid">
-        <div class="stat card gold press" onclick="toast('12-day streak — keep it going!')">
-          <div class="s-top">${svg('flame')} Reading streak</div>
-          <div class="s-val">12 <small>days</small></div>
-          <div class="streak-days">
-            ${['M','T','W','T','F','S','S'].map((d,i)=>`<span class="${i<2?'hit':i===2?'today':''}">${d}</span>`).join('')}
-          </div>
-        </div>
-        <div class="stat card press" onclick="selectTab('profile');setTimeout(()=>toast('Opening statistics'),100)">
-          <div class="s-top">${svg('clock')} This week</div>
-          <div class="s-val">4<small>h</small> 12<small>m</small></div>
-          <div class="streak-days" style="align-items:flex-end;height:26px">
-            ${[40,70,30,90,55,20,60].map(h=>`<span style="height:${h}%;background:var(--indigo-tint)"></span>`).join('')}
-          </div>
-        </div>
+        <div class="stat card"><div class="s-top">${svg('library')} Library</div><div class="s-val">${bks.length}<small> book${bks.length>1?'s':''}</small></div></div>
+        <div class="stat card"><div class="s-top">${svg('notes')} Notes</div><div class="s-val">${store.notes.length}</div></div>
       </div>
 
-      <div class="section-label" style="margin-top:22px"><h2>Recent notes</h2><a onclick="selectTab('notes')">See all</a></div>
-      <div class="card note-list">
-        ${notes.slice(0,3).map(noteRow).join('')}
-      </div>
+      <div class="section-label" style="margin-top:22px"><h2>Recent notes</h2>${store.notes.length>3?'<a onclick="selectTab(\'notes\')">See all</a>':''}</div>
+      ${recent.length?`<div class="card note-list">${recent.map(noteRow).join('')}</div>`:emptyInline('notes','No notes yet. Open a book and add your first thought.')}
 
-      <div class="section-label" style="margin-top:24px"><h2>Currently reading</h2><a onclick="selectTab('library')">Library</a></div>
-      <div class="hscroll">
-        ${reading.map(b=>`
-          <div class="mini-book" onclick="openBook('${b.id}')">
-            ${coverEl(b.cover)}
-            <div class="mb-title">${b.title}</div>
-            <div class="mb-prog">${b.progress}% · ${b.notes} notes</div>
-          </div>`).join('')}
-      </div>
-
-      <div class="section-label" style="margin-top:24px"><h2>Recently viewed characters</h2></div>
-      <div class="hscroll">
-        ${characters.map(c=>`
-          <div class="mini-char" onclick="openCharacter('${c.id}')">
-            <div class="av" style="background:${av(c.i)}">${c.name[0]}</div>
-            <div class="mc-name">${c.name.split(' ')[0]}</div>
-            <div class="mc-book">${bookById(c.book).title.split(' ').slice(-1)}</div>
-          </div>`).join('')}
-      </div>
+      ${reading.length?`<div class="section-label" style="margin-top:24px"><h2>Currently reading</h2><a onclick="selectTab('library')">Library</a></div><div class="hscroll">${reading.map(miniBook).join('')}</div>`:''}
+      ${store.characters.length?`<div class="section-label" style="margin-top:24px"><h2>Characters</h2></div><div class="hscroll">${[...store.characters].slice(-8).reverse().map(miniChar).join('')}</div>`:''}
 
       <div class="section-label" style="margin-top:24px"><h2>Quick add</h2></div>
       <div class="quick-strip">
-        <div class="quick-tile" onclick="openEditor('note')"><div class="qi">${svg('notes')}</div><div class="ql">Note</div></div>
-        <div class="quick-tile" onclick="openEditor('quote')"><div class="qi">${svg('quote')}</div><div class="ql">Quote</div></div>
-        <div class="quick-tile" onclick="toast('New character')"><div class="qi">${svg('character')}</div><div class="ql">Character</div></div>
-        <div class="quick-tile" onclick="toast('Bookmark saved')"><div class="qi">${svg('bookmark')}</div><div class="ql">Mark</div></div>
+        <div class="quick-tile" onclick="startNote('note')"><div class="qi">${svg('notes')}</div><div class="ql">Note</div></div>
+        <div class="quick-tile" onclick="startNote('quote')"><div class="qi">${svg('quote')}</div><div class="ql">Quote</div></div>
+        <div class="quick-tile" onclick="startCharacter()"><div class="qi">${svg('character')}</div><div class="ql">Person</div></div>
+        <div class="quick-tile" onclick="openAddBook()"><div class="qi">${svg('book')}</div><div class="ql">Book</div></div>
       </div>
-    </div>
-  `);
+    </div>`);
 }
 
-function noteRow(n){
-  return `<div class="note-row" onclick="openEditor('note','${n.id}')">
-    <div class="note-swatch ${n.color}"></div>
-    <div class="note-body">
-      <div class="note-title">${n.title}</div>
-      <div class="note-excerpt">${n.excerpt}</div>
-      <div class="note-meta">
-        <span class="chip book">${svg('book','')} ${n.book.split(' ').slice(-1)}</span>
-        ${n.tags.slice(0,2).map(t=>`<span class="chip">#${t}</span>`).join('')}
-        <span class="chip" style="background:transparent;color:var(--faint);padding-left:2px">${n.when}</span>
-      </div>
-    </div>
-  </div>`;
-}
-
-/* ============================================================
-   LIBRARY
-   ============================================================ */
-const FILTERS=['All','Reading','Finished','Favorites','Wishlist','Fiction'];
+/* ============================================================ LIBRARY */
+const FILTERS=['All','Reading','Finished','Favorites','Wishlist'];
 function viewLibrary(){
+  const bks=store.books;
   render(`
-    <div class="lt-head">
-      <div class="lt-row">
-        <h1 class="lt-title">Library</h1>
-        <div class="lt-actions">
-          <button class="round-btn" onclick="toggleLibView()">${svg(state.libView==='grid'?'list':'grid')}</button>
-          <button class="round-btn" onclick="toast('Sort & filter')">${svg('slider')}</button>
-        </div>
-      </div>
-    </div>
-    <div class="filter-row">
-      ${FILTERS.map(f=>`<button class="f-chip ${state.libFilter===f?'on':''}" onclick="setFilter('${f}')">${f}</button>`).join('')}
-    </div>
+    <div class="lt-head"><div class="lt-row"><h1 class="lt-title">Library</h1>
+      <div class="lt-actions">
+        ${bks.length?`<button class="round-btn" onclick="toggleLibView()">${svg(state.libView==='grid'?'list':'grid')}</button>`:''}
+        <button class="round-btn" onclick="openAddBook()">${svg('plus')}</button>
+      </div></div></div>
+    ${bks.length?`<div class="filter-row">${FILTERS.map(f=>`<button class="f-chip ${state.libFilter===f?'on':''}" onclick="setFilter('${f}')">${f}</button>`).join('')}</div>`:''}
     <div class="pad" style="padding-top:8px">
-      <div class="book-grid ${state.libView==='list'?'list-mode':''}" id="bookGrid">
-        ${libraryBooks().map(gbook).join('')}
-      </div>
-    </div>
-  `);
+      ${bks.length?`<div class="book-grid ${state.libView==='list'?'list-mode':''}">${libraryBooks().map(gbook).join('')||`<div class="empty" style="grid-column:1/-1"><div class="e-ill">${svg('library')}</div><h3>Nothing here</h3><p>No books in this collection yet.</p></div>`}</div>`
+      :`<div class="empty"><div class="e-ill">${svg('library')}</div><h3>No books yet</h3><p>Add the books you're reading to start building your notes.</p><button class="btn btn-primary" style="flex:none;margin:0 auto" onclick="openAddBook()">${svg('plus')} Add a book</button></div>`}
+    </div>`);
 }
-function libraryBooks(){
-  const f=state.libFilter;
-  return books.filter(b=>{
-    if(f==='All')return true;
-    if(f==='Favorites')return b.fav;
-    if(f==='Fiction')return !['atomic','sapiens'].includes(b.id);
-    return b.status===f.toLowerCase();
-  });
-}
+function libraryBooks(){const f=state.libFilter;return store.books.filter(b=>{if(f==='All')return true;if(f==='Favorites')return b.fav;return b.status===f.toLowerCase();});}
 function gbook(b){
+  const p=bookProgress(b);
   if(state.libView==='list'){
-    return `<div class="gbook" onclick="openBook('${b.id}')">
-      <div class="cover-wrap">${coverEl(b.cover)}${b.fav?`<div class="fav">${svg('star')}</div>`:''}</div>
-      <div class="g-info">
-        <div class="g-title">${b.title}</div>
-        <div class="g-auth">${b.author}</div>
-        <div class="g-meta">${b.chapter} · ${b.notes} notes${b.progress?` · ${b.progress}%`:''}</div>
-      </div>
-      <span style="color:var(--faint)">${svg('chevR')}</span>
-    </div>`;
+    return `<div class="gbook" onclick="openBook('${b.id}')"><div class="cover-wrap">${coverEl(b,'',false)}${b.fav?`<div class="fav">${svg('star')}</div>`:''}</div><div class="g-info"><div class="g-title">${esc(b.title)}</div><div class="g-auth">${esc(b.author||'')}</div><div class="g-meta">${esc(statusLabel(b.status))} · ${nOf(b.id)} notes${p?` · ${p}%`:''}</div></div><span style="color:var(--faint)">${svg('chevR')}</span></div>`;
   }
-  return `<div class="gbook" onclick="openBook('${b.id}')">
-    <div class="cover-wrap">
-      ${coverEl(b.cover)}
-      ${b.fav?`<div class="fav">${svg('star')}</div>`:''}
-    </div>
-    <div class="g-title">${b.title}</div>
-    <div class="g-auth">${b.author}</div>
-    <div class="g-prog"><div class="bar"><i style="width:${b.progress}%"></i></div><span class="pct">${b.progress}%</span></div>
-  </div>`;
+  return `<div class="gbook" onclick="openBook('${b.id}')"><div class="cover-wrap">${coverEl(b)}${b.fav?`<div class="fav">${svg('star')}</div>`:''}</div><div class="g-title">${esc(b.title)}</div><div class="g-auth">${esc(b.author||'')}</div><div class="g-prog"><div class="bar"><i style="width:${p}%"></i></div><span class="pct">${p}%</span></div></div>`;
 }
 function toggleLibView(){state.libView=state.libView==='grid'?'list':'grid';haptic();viewLibrary();}
 function setFilter(f){state.libFilter=f;haptic();viewLibrary();}
 
-/* ============================================================
-   BOOK WORKSPACE
-   ============================================================ */
-function openBook(id){
-  const b=bookById(id);
-  haptic();
-  go(()=>render(`
-    <div class="book-hero" style="--book-tint:${b.tint}">
+/* ============================================================ ADD / EDIT BOOK */
+let bookForm={cover:0,status:'reading',id:null};
+function openAddBook(editId){
+  setChrome(true);haptic();
+  const b=editId?bookById(editId):null;
+  let ci=b?COVER_GRADS.indexOf(b.cover):(store.books.length%COVER_GRADS.length);
+  bookForm={cover:ci<0?0:ci,status:b?b.status:'reading',id:editId||null};
+  go(()=>{
+    render(`
+      <div class="ed-top">
+        <button class="back-btn" onclick="back()">${svg('chevL')} ${b?'Book':'Cancel'}</button>
+        <span style="font-weight:640;font-size:16px">${b?'Edit book':'New book'}</span>
+        <button class="btn btn-primary" style="flex:none;padding:9px 16px;font-size:13.5px" onclick="saveBook()">Save</button>
+      </div>
+      <div class="ed-body">
+        <div class="form-field"><label>Title</label><input id="f-title" class="form-input" placeholder="Book title" value="${b?esc(b.title):''}"></div>
+        <div class="form-field"><label>Author</label><input id="f-author" class="form-input" placeholder="Author" value="${b?esc(b.author||''):''}"></div>
+        <div class="form-field"><label>Status</label><div class="seg">${['reading','wishlist','finished'].map(s=>`<button class="${bookForm.status===s?'on':''}" onclick="bookForm.status='${s}';[...this.parentNode.children].forEach(x=>x.classList.remove('on'));this.classList.add('on');haptic()">${statusLabel(s)}</button>`).join('')}</div></div>
+        <div class="form-field" style="display:flex;gap:14px">
+          <div style="flex:1"><label>Current page</label><input id="f-page" class="form-input" inputmode="numeric" placeholder="0" value="${b&&b.page?b.page:''}"></div>
+          <div style="flex:1"><label>Total pages</label><input id="f-total" class="form-input" inputmode="numeric" placeholder="—" value="${b&&b.totalPages?b.totalPages:''}"></div>
+        </div>
+        <div class="form-field"><label>Cover</label><div class="swatch-row">${COVER_GRADS.map((g,i)=>`<div class="swatch ${bookForm.cover===i?'on':''}" style="background:${g}" onclick="bookForm.cover=${i};[...this.parentNode.children].forEach(x=>x.classList.remove('on'));this.classList.add('on');haptic()"></div>`).join('')}</div></div>
+        ${b?`<button class="btn" style="width:100%;margin-top:24px;background:var(--surface);color:var(--red);box-shadow:var(--shadow-card)" onclick="deleteBook('${b.id}')">Delete book</button>`:''}
+      </div>`,true);
+    setTimeout(()=>{const t=document.getElementById('f-title');if(t&&!b)t.focus();},260);
+  });
+}
+function saveBook(){
+  const title=(document.getElementById('f-title').value||'').trim();
+  if(!title){toast('Add a title first');return;}
+  const author=(document.getElementById('f-author').value||'').trim();
+  const page=parseInt(document.getElementById('f-page').value)||0;
+  const total=parseInt(document.getElementById('f-total').value)||0;
+  if(bookForm.id){Object.assign(bookById(bookForm.id),{title,author,status:bookForm.status,page,totalPages:total,cover:COVER_GRADS[bookForm.cover]});}
+  else{store.books.push({id:uid(),title,author,status:bookForm.status,page,totalPages:total,cover:COVER_GRADS[bookForm.cover],fav:false,chapter:'',summary:'',updatedAt:Date.now(),createdAt:Date.now()});}
+  save();haptic();toast(bookForm.id?'Book updated':'Book added');back();
+}
+function deleteBook(id){
+  if(!confirm('Delete this book and all its notes, quotes and characters?'))return;
+  store.books=store.books.filter(b=>b.id!==id);
+  store.notes=store.notes.filter(n=>n.bookId!==id);
+  store.quotes=store.quotes.filter(q=>q.bookId!==id);
+  store.characters=store.characters.filter(c=>c.bookId!==id);
+  save();haptic();toast('Book deleted');stack=[];setChrome(false);selectTab('library');
+}
+
+/* ============================================================ BOOK WORKSPACE */
+function openBook(id){const b=bookById(id);if(!b)return selectTab('library');b.updatedAt=Date.now();save();haptic();go(()=>renderBook(b));}
+function renderBook(b){
+  const notesN=nOf(b.id),quotesN=qOf(b.id),charsN=cOf(b.id),p=bookProgress(b);
+  const mods=[
+    {name:'Overview',ic:'book',color:'var(--indigo)',c:'Summary & progress',fn:`openOverview('${b.id}')`},
+    {name:'Notes',ic:'notes',color:'#7b5cf0',c:`${notesN} note${notesN!==1?'s':''}`,fn:`openNotesSection('${b.id}')`},
+    {name:'Quotes',ic:'quote',color:'var(--gold)',c:`${quotesN} saved`,fn:`openQuotesSection('${b.id}')`},
+    {name:'Characters',ic:'character',color:'#c25a52',c:`${charsN} character${charsN!==1?'s':''}`,fn:`openCharactersSection('${b.id}')`},
+  ];
+  render(`
+    <div class="book-hero">
       <div class="detail-head" style="padding:0;position:absolute;top:calc(env(safe-area-inset-top,0px) + 10px);left:8px;right:8px;z-index:5">
-        <button class="back-btn" onclick="back()">${svg('chevL')} Library</button>
-        <div style="flex:1"></div>
-        <button class="round-btn" onclick="toast('Book options')">${svg('slider')}</button>
+        <button class="back-btn" onclick="back()">${svg('chevL')} Library</button><div style="flex:1"></div>
+        <button class="round-btn" onclick="openAddBook('${b.id}')">${svg('slider')}</button>
       </div>
       <div class="bh-top" style="margin-top:34px">
-        ${coverEl(b.cover)}
+        ${coverEl(b)}
         <div class="bh-info">
-          <div class="bh-title">${b.title}</div>
-          <div class="bh-auth">${b.author}</div>
-          <div class="bh-stat">
-            <div><b>${b.progress}%</b>read</div>
-            <div><b>${b.notes}</b>notes</div>
-            <div><b>${b.fav?'★':'—'}</b>favorite</div>
-          </div>
+          <div class="bh-title">${esc(b.title)}</div>
+          <div class="bh-auth">${esc(b.author||'Unknown author')}</div>
+          <div class="bh-stat"><div><b>${p}%</b>read</div><div><b>${notesN}</b>notes</div><div><b>${quotesN}</b>quotes</div></div>
         </div>
       </div>
       <div class="bh-actions">
-        <button class="btn btn-primary" onclick="openEditor('note')">${svg('plus')} Add note</button>
-        <button class="btn btn-ghost" onclick="toast('Reading session started')">${svg('reading')}</button>
+        <button class="btn btn-primary" onclick="startNote('note','${b.id}')">${svg('plus')} Add note</button>
+        <button class="btn btn-ghost" onclick="startNote('quote','${b.id}')">${svg('quote')}</button>
         <button class="btn btn-ghost" onclick="toggleFav('${b.id}')">${svg(b.fav?'star':'starO')}</button>
       </div>
     </div>
     <div class="pad">
-      <div class="sec-manage">
-        <h3>Sections</h3>
-        <span onclick="toast('Reorder, rename, hide sections')">${svg('slider')} Customize</span>
-      </div>
-      <div class="mod-grid">
-        ${modules.map(m=>`
-          <div class="card mod press" onclick="openSection('${m.name}','${b.id}')">
-            <span class="drag">⠿</span>
-            <div class="m-ic" style="background:${hexTint(m.color)};color:${m.color}">${svg(m.ic)}</div>
-            <div class="m-name">${m.name}</div>
-            <div class="m-count">${m.c}</div>
-          </div>`).join('')}
-        <div class="card mod mod-add press" onclick="toast('Create a custom section')">
-          ${svg('plus')}<span>Custom section</span>
-        </div>
-      </div>
-    </div>
-  `,true));
+      <div class="sec-manage"><h3>Sections</h3></div>
+      <div class="mod-grid">${mods.map(m=>`<div class="card mod press" onclick="${m.fn}"><div class="m-ic" style="background:${tintOf(m.color)};color:${m.color}">${svg(m.ic)}</div><div class="m-name">${m.name}</div><div class="m-count">${m.c}</div></div>`).join('')}</div>
+    </div>`,true);
 }
-function toggleFav(id){const b=bookById(id);b.fav=!b.fav;haptic();toast(b.fav?'Added to favorites':'Removed from favorites');openBookRefresh(id);}
-function openBookRefresh(id){stack.pop();openBook(id);}
-
-function openSection(name,bookId){
-  haptic();
-  if(name==='Notes')return openNotesSection(bookId);
-  if(name==='Characters')return openCharactersSection(bookId);
-  if(name==='Quotes')return openQuotesSection(bookId);
-  if(name==='Chapters')return openChaptersSection(bookId);
-  // generic
-  go(()=>render(sectionShell(name,`
-    <div class="empty">
-      <div class="e-ill">${svg(iconFor(name))}</div>
-      <h3>Nothing here yet</h3>
-      <p>${emptyCopy(name)}</p>
-      <button class="btn btn-primary" style="flex:none;margin:0 auto" onclick="openEditor('note')">${svg('plus')} Add ${name.toLowerCase()}</button>
+function toggleFav(id){const b=bookById(id);b.fav=!b.fav;save();haptic();toast(b.fav?'Added to favorites':'Removed from favorites');renderBook(b);}
+function openOverview(bookId){
+  const b=bookById(bookId),p=bookProgress(b);
+  go(()=>render(sectionShell('Overview',`
+    <div class="card" style="padding:18px"><div class="progress"><div class="bar"><i style="width:${p}%"></i></div><div class="meta"><span>${p}% read${b.totalPages?` · p.${b.page||0}/${b.totalPages}`:''}</span><span>${statusLabel(b.status)}</span></div></div></div>
+    <div class="field"><div class="f-label">My summary</div><div class="f-val" style="white-space:pre-wrap">${b.summary?esc(b.summary):'<span style="color:var(--faint)">No summary yet.</span>'}</div><button class="btn" style="margin-top:12px;background:var(--surface-2);color:var(--indigo);padding:9px 14px" onclick="editSummary('${b.id}')">${svg('plus')} ${b.summary?'Edit':'Write'} summary</button></div>
+    <div class="mini-grid" style="margin-top:12px">
+      <div class="stat card"><div class="s-top">${svg('notes')} Notes</div><div class="s-val">${nOf(b.id)}</div></div>
+      <div class="stat card"><div class="s-top">${svg('quote')} Quotes</div><div class="s-val">${qOf(b.id)}</div></div>
     </div>`),true));
 }
-function iconFor(name){const m=modules.find(x=>x.name===name);return m?m.ic:'notes';}
-function emptyCopy(name){
-  const c={Themes:'Track recurring ideas as you notice them across chapters.',Timeline:'Build a timeline of events — tap a moment to link notes and characters.',Questions:'Capture the questions a book raises. Answer them as you read on.',Overview:'Write a personal summary and set your reading goal.'};
-  return c[name]||'Start by adding your first thought.';
-}
-function sectionShell(title,inner){
-  return `<div class="detail-head"><button class="back-btn" onclick="back()">${svg('chevL')} Back</button><div class="dh-title">${title}</div><div class="dh-r"><button class="round-btn" style="width:34px;height:34px" onclick="openEditor('note')">${svg('plus')}</button></div></div><div class="pad" style="padding-top:6px">${inner}</div>`;
-}
-
+function editSummary(id){const b=bookById(id);const v=prompt('Your summary of this book:',b.summary||'');if(v!==null){b.summary=v.trim();save();haptic();refresh();}}
 function openNotesSection(bookId){
-  const bn=notes.filter(n=>n.bookId===bookId);
-  const list=bn.length?`<div class="card note-list">${bn.map(noteRow).join('')}</div>`:emptyBlock('notes','Capture an idea, a reaction, a connection — anything you notice.');
-  go(()=>render(sectionShell('Notes',list),true));
-}
-function openCharactersSection(bookId){
-  const cs=characters.filter(c=>c.book===bookId);
-  const inner=cs.length?`<div style="display:flex;flex-direction:column;gap:10px">${cs.map(c=>`
-    <div class="card press" style="padding:14px;display:flex;align-items:center;gap:13px" onclick="openCharacter('${c.id}')">
-      <div class="av" style="width:48px;height:48px;border-radius:999px;display:grid;place-items:center;color:#fff;font-weight:600;background:${av(c.i)}">${c.name[0]}</div>
-      <div style="flex:1"><div style="font-weight:620;font-size:15px">${c.name}</div><div style="font-size:12.5px;color:var(--muted);margin-top:2px">${c.tags[0]} · ${c.rels.length} relationships</div></div>
-      <span style="color:var(--faint)">${svg('chevR')}</span>
-    </div>`).join('')}</div>`:emptyBlock('character','Give each character a page — appearances, relationships, quotes and how they change.');
-  go(()=>render(sectionShell('Characters',inner),true));
+  const bn=store.notes.filter(n=>n.bookId===bookId).sort((a,b)=>b.ts-a.ts);
+  const inner=bn.length?`<div class="card note-list">${bn.map(noteRow).join('')}</div>`:emptyBlock('notes','Capture an idea, a reaction, a connection — anything you notice.',`startNote('note','${bookId}')`,'Add note');
+  go(()=>render(sectionShell('Notes',inner,`startNote('note','${bookId}')`),true));
 }
 function openQuotesSection(bookId){
-  const title=bookById(bookId).title;
-  const qs=quotes.filter(q=>q.book===title);
-  const inner=qs.length?qs.map(quoteCard).join(''):emptyBlock('quote','Save the lines that stop you. Add a page, a theme, a reflection.');
-  go(()=>render(sectionShell('Quotes',inner),true));
+  const qs=store.quotes.filter(q=>q.bookId===bookId).sort((a,b)=>b.ts-a.ts);
+  const inner=qs.length?qs.map(quoteCard).join(''):emptyBlock('quote','Save the lines that stop you. Add a page and a reflection.',`startNote('quote','${bookId}')`,'Add quote');
+  go(()=>render(sectionShell('Quotes',inner,`startNote('quote','${bookId}')`),true));
 }
-function openChaptersSection(bookId){
-  const chapters=[
-    {n:'Chapter 4',t:'A Gatsby luncheon',notes:6,done:true},
-    {n:'Chapter 5',t:'The reunion',notes:9,done:true},
-    {n:'Chapter 6',t:'Gatsby\'s true history',notes:5,done:false},
-    {n:'Chapter 7',t:'Confrontation at the Plaza',notes:0,done:false},
-  ];
-  const inner=`<div class="card note-list">${chapters.map(c=>`
-    <div class="note-row" onclick="toast('Opening ${c.n} workspace')">
-      <div class="note-swatch ${c.done?'green':'indigo'}"></div>
-      <div class="note-body">
-        <div class="note-title">${c.n} · ${c.t}</div>
-        <div class="note-meta"><span class="chip">${c.notes} notes</span>${c.done?'<span class="chip" style="background:rgba(84,179,122,.14);color:#3e8c5f">Read</span>':'<span class="chip indigo">Current</span>'}</div>
-      </div>
-      <span style="color:var(--faint);align-self:center">${svg('chevR')}</span>
-    </div>`).join('')}</div>`;
-  go(()=>render(sectionShell('Chapters',inner),true));
+function openCharactersSection(bookId){
+  const cs=store.characters.filter(c=>c.bookId===bookId);
+  const inner=cs.length?`<div style="display:flex;flex-direction:column;gap:10px">${cs.map(charRow).join('')}</div>`:emptyBlock('character','Give each character a page — description, tags and how they change.',`startCharacter('${bookId}')`,'Add character');
+  go(()=>render(sectionShell('Characters',inner,`startCharacter('${bookId}')`),true));
 }
-function emptyBlock(ic,copy){
-  return `<div class="empty"><div class="e-ill">${svg(ic)}</div><h3>Nothing here yet</h3><p>${copy}</p><button class="btn btn-primary" style="flex:none;margin:0 auto" onclick="openEditor('note')">${svg('plus')} Add first</button></div>`;
-}
+function charRow(c){return `<div class="card press" style="padding:14px;display:flex;align-items:center;gap:13px" onclick="openCharacter('${c.id}')"><div style="width:48px;height:48px;border-radius:999px;display:grid;place-items:center;color:#fff;font-weight:600;background:${av(c.i)}">${esc((c.name||'?')[0]||'?')}</div><div style="flex:1;min-width:0"><div style="font-weight:620;font-size:15px">${esc(c.name)}</div><div style="font-size:12.5px;color:var(--muted);margin-top:2px">${c.tags&&c.tags.length?esc(c.tags[0]):'Character'}</div></div><span style="color:var(--faint)">${svg('chevR')}</span></div>`;}
 
-/* ============================================================
-   CHARACTER PAGE
-   ============================================================ */
+/* ============================================================ CHARACTERS */
+let charForm={id:null,bookId:null};
+function startCharacter(bookId){
+  if(!store.books.length){toast('Add a book first');return openAddBook();}
+  setChrome(true);haptic();
+  charForm={id:null,bookId:bookId||store.books[0].id};
+  go(renderCharForm);
+}
+function editChar(id){const c=charById(id);setChrome(true);charForm={id:id,bookId:c.bookId};go(renderCharForm);}
+function renderCharForm(){
+  const c=charForm.id?charById(charForm.id):null;
+  const b=bookById(charForm.bookId);
+  render(`
+    <div class="ed-top">
+      <button class="back-btn" onclick="back()">${svg('chevL')} ${c?'Character':'Cancel'}</button>
+      <span style="font-weight:640;font-size:16px">${c?'Edit character':'New character'}</span>
+      <button class="btn btn-primary" style="flex:none;padding:9px 16px;font-size:13.5px" onclick="saveChar()">Save</button>
+    </div>
+    <div class="ed-body">
+      <div class="form-field"><label>Name</label><input id="c-name" class="form-input" placeholder="Character name" value="${c?esc(c.name):''}"></div>
+      <div class="form-field"><label>Nickname / epithet</label><input id="c-nick" class="form-input" placeholder="Optional" value="${c?esc(c.nick||''):''}"></div>
+      <div class="form-field"><label>Book</label><button class="form-input" style="text-align:left;display:flex;justify-content:space-between;align-items:center;cursor:pointer" onclick="pickBook(function(id){charForm.bookId=id;renderCharForm();})"><span>${b?esc(b.title):'Choose book'}</span>${svg('chevR')}</button></div>
+      <div class="form-field"><label>Description</label><textarea id="c-desc" class="form-input" placeholder="Who are they?">${c?esc(c.desc||''):''}</textarea></div>
+      <div class="form-field"><label>Tags (comma separated)</label><input id="c-tags" class="form-input" placeholder="Protagonist, Ally" value="${c&&c.tags?esc(c.tags.join(', ')):''}"></div>
+      ${c?`<button class="btn" style="width:100%;margin-top:22px;background:var(--surface);color:var(--red);box-shadow:var(--shadow-card)" onclick="deleteChar('${c.id}')">Delete character</button>`:''}
+    </div>`,true);
+}
+function saveChar(){
+  const name=(document.getElementById('c-name').value||'').trim();
+  if(!name){toast('Add a name first');return;}
+  const nick=(document.getElementById('c-nick').value||'').trim();
+  const desc=(document.getElementById('c-desc').value||'').trim();
+  const tags=(document.getElementById('c-tags').value||'').split(',').map(s=>s.trim()).filter(Boolean);
+  if(charForm.id){Object.assign(charById(charForm.id),{name,nick,desc,tags,bookId:charForm.bookId});}
+  else{store.characters.push({id:uid(),name,nick,desc,tags,bookId:charForm.bookId,i:store.characters.length,ts:Date.now()});}
+  save();haptic();toast(charForm.id?'Character updated':'Character added');back();
+}
+function deleteChar(id){if(!confirm('Delete this character?'))return;store.characters=store.characters.filter(c=>c.id!==id);save();haptic();toast('Deleted');stack.pop();stack.pop();setChrome(false);refresh();}
 function openCharacter(id){
-  const c=charById(id);haptic();
+  const c=charById(id);if(!c)return;haptic();const b=bookById(c.bookId);
   go(()=>render(`
-    <div class="detail-head"><button class="back-btn" onclick="back()">${svg('chevL')} Back</button><div class="dh-title">Character</div><div class="dh-r"><button class="round-btn" style="width:34px;height:34px" onclick="toast('Edit character')">${svg('slider')}</button></div></div>
+    <div class="detail-head"><button class="back-btn" onclick="back()">${svg('chevL')} Back</button><div class="dh-title">Character</div><div class="dh-r"><button class="round-btn" style="width:34px;height:34px" onclick="editChar('${c.id}')">${svg('slider')}</button></div></div>
     <div class="pad" style="padding-top:0">
       <div class="char-hero">
-        <div class="big-av" style="background:${av(c.i)}">${c.name[0]}</div>
-        <h1>${c.name}</h1>
-        <div class="nick">${c.nick} · ${bookById(c.book).title}</div>
-        <div class="tag-row">${c.tags.map(t=>`<span class="chip indigo">${t}</span>`).join('')}</div>
+        <div class="big-av" style="background:${av(c.i)}">${esc((c.name||'?')[0]||'?')}</div>
+        <h1>${esc(c.name)}</h1>
+        <div class="nick">${c.nick?esc(c.nick)+' · ':''}${b?esc(b.title):''}</div>
+        ${c.tags&&c.tags.length?`<div class="tag-row">${c.tags.map(t=>`<span class="chip indigo">${esc(t)}</span>`).join('')}</div>`:''}
       </div>
-      <div class="field"><div class="f-label">Description</div><div class="f-val">${c.desc}</div></div>
-      <div class="field">
-        <div class="f-label">Relationships</div>
-        ${c.rels.map(r=>`<div class="rel-line"><div class="rl-av" style="background:${av(r.i)}">${r.n[0]}</div><div><div class="rl-name">${r.n}</div><div class="rl-type">${r.t}</div></div><span class="rl-arrow">${svg('chevR')}</span></div>`).join('')}
-      </div>
-      <div class="mini-grid" style="margin-top:12px">
-        <div class="field" style="margin-top:0;text-align:center"><div class="f-label">Appearances</div><div style="font-size:24px;font-weight:700;letter-spacing:-.03em">7 <span style="font-size:13px;color:var(--muted);font-weight:600">chapters</span></div></div>
-        <div class="field" style="margin-top:0;text-align:center"><div class="f-label">Quotes</div><div style="font-size:24px;font-weight:700;letter-spacing:-.03em">5 <span style="font-size:13px;color:var(--muted);font-weight:600">saved</span></div></div>
-      </div>
-      <div class="field">
-        <div class="f-label">Development</div>
-        <div class="f-val">Begins as an object of rumor and spectacle; the middle chapters peel back the invented persona to reveal James Gatz. The dream curdles as reality intrudes.</div>
-      </div>
-      <button class="btn btn-primary" style="width:100%;margin-top:16px" onclick="toast('Add custom property')">${svg('plus')} Add property</button>
-    </div>
-  `,true));
+      ${c.desc?`<div class="field"><div class="f-label">Description</div><div class="f-val" style="white-space:pre-wrap">${esc(c.desc)}</div></div>`:''}
+      <button class="btn btn-primary" style="width:100%;margin-top:16px" onclick="editChar('${c.id}')">${svg('slider')} Edit character</button>
+    </div>`,true));
 }
 
-/* ============================================================
-   QUOTES (tab-level manager)
-   ============================================================ */
-function quoteCard(q){
-  return `<div class="card quote-card">
-    <div class="accent-edge" style="background:${q.color}"></div>
-    <div class="qmark">"</div>
-    <div class="q-text">${q.text}</div>
-    ${q.reflect?`<div class="q-reflect"><div class="rl">Reflection</div>${q.reflect}</div>`:''}
-    <div class="q-foot">
-      <div class="q-src"><b>${q.book}</b> · ${q.ch} · p.${q.page}</div>
-      <div class="q-acts">
-        <button class="icon-btn ${q.fav?'on':''}" onclick="event.stopPropagation();toggleQuoteFav('${q.id}')">${svg(q.fav?'star':'starO')}</button>
-        <button class="icon-btn" onclick="event.stopPropagation();toast('Share quote')">${svg('share')}</button>
-      </div>
-    </div>
-  </div>`;
+/* ============================================================ EDITOR (notes & quotes) */
+let E=null;
+function startNote(kind,bookId){
+  closeSheets();
+  if(!store.books.length){toast('Add a book first');return openAddBook();}
+  setChrome(true);haptic();
+  E={id:null,kind:kind,bookId:bookId||store.books[0].id,page:'',chapter:'',tags:[],color:kind==='quote'?'gold':'indigo'};
+  go(()=>renderEditor());
 }
-function toggleQuoteFav(id){const q=quotes.find(x=>x.id===id);q.fav=!q.fav;haptic();toast(q.fav?'Favorited':'Unfavorited');const cur=stack[stack.length-1];if(cur)cur();else viewNotes();}
-
-/* ============================================================
-   NOTES tab (everything feed)
-   ============================================================ */
-function viewNotes(){
+function openNote(id){const n=store.notes.find(x=>x.id===id);if(!n)return;setChrome(true);haptic();E={id:n.id,kind:'note',bookId:n.bookId,page:n.page||'',chapter:n.chapter||'',tags:n.tags||[],color:n.color||'indigo'};go(()=>renderEditor(n));}
+function openQuote(id){const q=store.quotes.find(x=>x.id===id);if(!q)return;setChrome(true);haptic();E={id:q.id,kind:'quote',bookId:q.bookId,page:q.page||'',chapter:q.chapter||'',tags:[],color:q.color||'gold'};go(()=>renderEditor({content:q.text,reflect:q.reflect,title:''}));}
+function currentNoteData(){const t=document.getElementById('ed-title');const c=document.getElementById('ed-content');const r=document.getElementById('ed-reflect');return {title:t?t.value:'',content:c?c.innerText:'',reflect:r?r.value:''};}
+function renderEditor(existing){
+  const isQuote=E.kind==='quote';const b=bookById(E.bookId);
   render(`
-    <div class="lt-head">
-      <div class="lt-row">
-        <h1 class="lt-title">Notes</h1>
-        <div class="lt-actions"><button class="round-btn" onclick="toast('Filter & sort notes')">${svg('slider')}</button></div>
+    <div class="editor">
+      <div class="ed-top">
+        <button class="back-btn" onclick="back()">${svg('chevL')} ${isQuote?'Quotes':'Notes'}</button>
+        <span class="save-dot"><i></i> ${E.id?'Saved':'Draft'}</span>
+        <button class="btn btn-primary" style="flex:none;padding:9px 16px;font-size:13.5px" onclick="saveNote()">Done</button>
       </div>
-    </div>
-    <div class="filter-row">
-      ${['All','Notes','Quotes','Ideas','Questions','Favorites'].map((f,i)=>`<button class="f-chip ${i===0?'on':''}" onclick="notesFilter(this)">${f}</button>`).join('')}
-    </div>
-    <div class="pad" style="padding-top:8px">
-      <div class="section-label"><h2>Recent</h2><a onclick="toast('Group by book')">Group by book</a></div>
-      <div class="card note-list">${notes.map(noteRow).join('')}</div>
-      <div class="section-label" style="margin-top:24px"><h2>Saved quotes</h2></div>
-      ${quotes.slice(0,2).map(quoteCard).join('')}
-    </div>
-  `);
+      <div class="ed-body">
+        ${isQuote?'':`<input class="ed-title" id="ed-title" placeholder="Title (optional)" value="${existing?esc(existing.title||''):''}">`}
+        <div class="ed-attrs">
+          <span class="ed-attr set" onclick="pickBook(function(id){E.bookId=id;renderEditor(currentNoteData());})">${svg('book')} ${b?esc(shortTitle(b.title)):'Book'}</span>
+          <span class="ed-attr ${E.page?'set':''}" onclick="editAttr('page')">${svg('page')} ${E.page?'p.'+esc(E.page):'Page'}</span>
+          <span class="ed-attr ${E.chapter?'set':''}" onclick="editAttr('chapter')">${svg('chapter')} ${E.chapter?esc(E.chapter):'Chapter'}</span>
+          ${isQuote?'':`<span class="ed-attr ${E.tags.length?'set':''}" onclick="editAttr('tags')">${svg('tag')} ${E.tags.length?esc(E.tags.join(', ')):'Tags'}</span>`}
+          <span class="ed-attr" onclick="cycleColor()"><span style="width:12px;height:12px;border-radius:99px;background:${colorVar(E.color)};display:inline-block"></span> Color</span>
+        </div>
+        <div class="ed-content" id="ed-content" contenteditable="true" oninput="typing()" data-ph="${isQuote?'Type or paste the quote…':'Start writing your thoughts…'}">${existing?esc(existing.content||''):''}</div>
+        ${isQuote?`<div class="form-field" style="margin-top:18px"><label>Reflection (optional)</label><textarea id="ed-reflect" class="form-input" placeholder="What did this make you think?">${existing&&existing.reflect?esc(existing.reflect):''}</textarea></div>`:''}
+        ${E.id?`<button class="btn" style="width:100%;margin-top:22px;background:var(--surface);color:var(--red);box-shadow:var(--shadow-card)" onclick="deleteNote()">Delete ${isQuote?'quote':'note'}</button>`:''}
+      </div>
+      <div class="ed-toolbar">
+        <button class="tb-btn" onclick="fmt('ul')">${svg('list')}</button>
+        <button class="tb-btn" onclick="fmt('check')">☐</button>
+        <button class="tb-btn" onclick="fmt('num')">1.</button>
+        <button class="tb-btn" onclick="fmt('dash')">—</button>
+        <div class="tb-sep"></div>
+        <button class="tb-btn" onclick="toast('Photo attachments coming soon')">${svg('camera')}</button>
+        <button class="tb-btn" onclick="toast('Voice notes coming soon')">${svg('mic')}</button>
+      </div>
+    </div>`,true);
+  const ce=document.getElementById('ed-content');setTimeout(()=>{if(ce&&!E.id)ce.focus();},260);
 }
-function notesFilter(el){[...el.parentElement.children].forEach(c=>c.classList.remove('on'));el.classList.add('on');haptic();}
+function editAttr(f){
+  if(f==='tags'){const v=prompt('Tags (comma separated):',E.tags.join(', '));if(v!==null){E.tags=v.split(',').map(s=>s.trim()).filter(Boolean);renderEditor(currentNoteData());}return;}
+  const v=prompt((f==='page'?'Page number':'Chapter')+':',E[f]||'');if(v!==null){E[f]=v.trim();renderEditor(currentNoteData());}
+}
+function cycleColor(){const ks=['indigo','gold','green','rose'];E.color=ks[(ks.indexOf(E.color)+1)%ks.length];haptic();renderEditor(currentNoteData());}
+function fmt(k){const tok={ul:'\n•  ',check:'\n☐  ',num:'\n1. ',dash:'\n—  '}[k]||'';const c=document.getElementById('ed-content');if(!c)return;c.focus();try{document.execCommand('insertText',false,tok);}catch(e){}haptic();typing();}
+let saveTimer;
+function typing(){const d=vp().querySelector('.save-dot');if(!d)return;d.innerHTML='<i style="background:var(--muted)"></i> Editing…';d.style.color='var(--muted)';clearTimeout(saveTimer);saveTimer=setTimeout(()=>{d.innerHTML='<i></i> Draft';d.style.color='var(--green)';},600);}
+function saveNote(){
+  const c=document.getElementById('ed-content');
+  const content=(c?c.innerText:'').replace(/ /g,' ').replace(/\n{3,}/g,'\n\n').trim();
+  if(E.kind==='quote'){
+    if(!content){toast('Type the quote first');return;}
+    const r=document.getElementById('ed-reflect');const reflect=r?r.value.trim():'';
+    if(E.id){Object.assign(store.quotes.find(x=>x.id===E.id),{text:content,page:E.page,chapter:E.chapter,bookId:E.bookId,color:E.color,reflect});}
+    else{store.quotes.push({id:uid(),bookId:E.bookId,text:content,page:E.page,chapter:E.chapter,color:E.color,fav:false,reflect,ts:Date.now()});}
+  }else{
+    const t=document.getElementById('ed-title');const title=t?t.value.trim():'';
+    if(!content&&!title){toast('Write something first');return;}
+    if(E.id){Object.assign(store.notes.find(x=>x.id===E.id),{title,content,page:E.page,chapter:E.chapter,tags:E.tags,color:E.color});}
+    else{store.notes.push({id:uid(),bookId:E.bookId,kind:'note',title,content,page:E.page,chapter:E.chapter,tags:E.tags,color:E.color,ts:Date.now()});}
+  }
+  const b=bookById(E.bookId);if(b)b.updatedAt=Date.now();
+  save();haptic();toast(E.kind==='quote'?'Quote saved':'Note saved');back();
+}
+function deleteNote(){if(!confirm('Delete this?'))return;if(E.kind==='quote')store.quotes=store.quotes.filter(x=>x.id!==E.id);else store.notes=store.notes.filter(x=>x.id!==E.id);save();haptic();toast('Deleted');stack.pop();setChrome(false);refresh();}
+function toggleQuoteFav(id){const q=store.quotes.find(x=>x.id===id);q.fav=!q.fav;save();haptic();toast(q.fav?'Favorited':'Unfavorited');refresh();}
 
-/* ============================================================
-   SEARCH
-   ============================================================ */
+/* ============================================================ NOTES TAB */
+function viewNotes(){
+  if(!store.notes.length&&!store.quotes.length){
+    render(`<div class="lt-head"><div class="lt-row"><h1 class="lt-title">Notes</h1></div></div>
+      <div class="pad"><div class="empty" style="padding-top:30px"><div class="e-ill">${svg('notes')}</div><h3>No notes yet</h3><p>Your notes and quotes from every book collect here. Add your first from any book.</p>${store.books.length?`<button class="btn btn-primary" style="flex:none;margin:0 auto" onclick="startNote('note')">${svg('plus')} New note</button>`:`<button class="btn btn-primary" style="flex:none;margin:0 auto" onclick="openAddBook()">${svg('plus')} Add a book</button>`}</div></div>`);
+    return;
+  }
+  const notes=[...store.notes].sort((a,b)=>b.ts-a.ts);
+  const quotes=[...store.quotes].sort((a,b)=>b.ts-a.ts);
+  render(`
+    <div class="lt-head"><div class="lt-row"><h1 class="lt-title">Notes</h1><div class="lt-actions"><button class="round-btn" onclick="startNote('note')">${svg('plus')}</button></div></div></div>
+    <div class="pad" style="padding-top:8px">
+      ${notes.length?`<div class="section-label"><h2>Notes</h2></div><div class="card note-list">${notes.map(noteRow).join('')}</div>`:''}
+      ${quotes.length?`<div class="section-label" style="margin-top:22px"><h2>Quotes</h2></div>${quotes.map(quoteCard).join('')}`:''}
+    </div>`);
+}
+
+/* ============================================================ SEARCH */
 function viewSearch(){
-  const scopes=['All','Books','Notes','Quotes','Characters','Chapters','Tags','Themes','Pages'];
-  const recents=['green light','Muad\'Dib','habit stacking','#symbol','Chapter 6'];
   render(`
     <div class="lt-head" style="padding-bottom:2px"><h1 class="lt-title">Search</h1></div>
-    <div class="search-bar">
-      ${svg('search')}
-      <input placeholder="Books, notes, quotes, characters…" oninput="liveSearch(this.value)" />
-    </div>
-    <div class="scope-row">${scopes.map((s,i)=>`<button class="f-chip ${i===0?'on':''}" onclick="scopePick(this)">${s}</button>`).join('')}</div>
-    <div class="pad" id="searchBody" style="padding-top:6px">
-      <div class="section-label"><h2>Recent searches</h2><a onclick="toast('Cleared')">Clear</a></div>
-      <div class="card" style="padding:2px 16px">
-        ${recents.map(r=>`<div class="recent-row" onclick="doSearch('${r}')"><span class="rr-ic">${svg('clock')}</span><span class="rr-txt">${r}</span><span class="rr-x" onclick="event.stopPropagation();this.closest('.recent-row').remove()">${svg('x')}</span></div>`).join('')}
-      </div>
-      <div class="section-label" style="margin-top:24px"><h2>Browse</h2></div>
-      <div class="mod-grid">
-        ${[['Characters','character','#c25a52'],['Themes','theme','#54B37A'],['Quotes','quote','var(--gold)'],['Vocabulary','vocab','#3a8ac2']].map(([n,i,c])=>
-          `<div class="card mod press" onclick="doSearch('${n}')"><div class="m-ic" style="background:${hexTint(c)};color:${c}">${svg(i)}</div><div class="m-name">${n}</div></div>`).join('')}
-      </div>
-    </div>
-  `);
+    <div class="search-bar">${svg('search')}<input placeholder="Books, notes, quotes, characters…" oninput="liveSearch(this.value)" autocomplete="off"></div>
+    <div class="pad" id="searchBody" style="padding-top:16px">${searchIdle()}</div>`);
+}
+function searchIdle(){
+  if(!store.books.length&&!store.notes.length&&!store.quotes.length)return `<div class="empty"><div class="e-ill">${svg('search')}</div><h3>Nothing to search yet</h3><p>Add books and notes and you can find anything here instantly.</p></div>`;
+  return `<div class="section-label"><h2>Your library at a glance</h2></div>
+    <div class="mini-grid">
+      <div class="stat card"><div class="s-top">${svg('library')} Books</div><div class="s-val">${store.books.length}</div></div>
+      <div class="stat card"><div class="s-top">${svg('notes')} Notes</div><div class="s-val">${store.notes.length}</div></div>
+      <div class="stat card"><div class="s-top">${svg('quote')} Quotes</div><div class="s-val">${store.quotes.length}</div></div>
+      <div class="stat card"><div class="s-top">${svg('character')} People</div><div class="s-val">${store.characters.length}</div></div>
+    </div>`;
 }
 function liveSearch(q){
-  const body=document.getElementById('searchBody');
-  if(!q.trim())return viewSearch();
+  const body=document.getElementById('searchBody');q=(q||'').trim();
+  if(!q){body.innerHTML=searchIdle();return;}
   const ql=q.toLowerCase();
-  const mb=books.filter(b=>b.title.toLowerCase().includes(ql)||b.author.toLowerCase().includes(ql));
-  const mn=notes.filter(n=>n.title.toLowerCase().includes(ql)||n.excerpt.toLowerCase().includes(ql)||n.tags.some(t=>t.includes(ql)));
-  const mc=characters.filter(c=>c.name.toLowerCase().includes(ql));
-  if(!mb.length&&!mn.length&&!mc.length){body.innerHTML=`<div class="empty"><div class="e-ill">${svg('search')}</div><h3>No results</h3><p>Try a different word, or search inside your note text.</p></div>`;return;}
+  const mb=store.books.filter(b=>(b.title+' '+(b.author||'')).toLowerCase().includes(ql));
+  const mc=store.characters.filter(c=>(c.name+' '+(c.nick||'')+' '+(c.desc||'')).toLowerCase().includes(ql));
+  const mn=store.notes.filter(n=>((n.title||'')+' '+(n.content||'')+' '+(n.tags||[]).join(' ')).toLowerCase().includes(ql));
+  const mq=store.quotes.filter(x=>(x.text+' '+(x.reflect||'')).toLowerCase().includes(ql));
+  if(!mb.length&&!mc.length&&!mn.length&&!mq.length){body.innerHTML=`<div class="empty"><div class="e-ill">${svg('search')}</div><h3>No results</h3><p>Nothing matches &ldquo;${esc(q)}&rdquo;.</p></div>`;return;}
   body.innerHTML=`
-    ${mb.length?`<div class="section-label"><h2>Books</h2></div><div class="card note-list">${mb.map(b=>`<div class="note-row" onclick="openBook('${b.id}')"><div style="width:30px;height:44px;border-radius:5px;background:${COVERS[b.cover]};flex:none"></div><div class="note-body"><div class="note-title">${hl(b.title,q)}</div><div class="note-excerpt">${b.author}</div></div></div>`).join('')}</div>`:''}
-    ${mc.length?`<div class="section-label" style="margin-top:20px"><h2>Characters</h2></div><div class="card note-list">${mc.map(c=>`<div class="note-row" onclick="openCharacter('${c.id}')"><div class="rl-av" style="background:${av(c.i)}">${c.name[0]}</div><div class="note-body"><div class="note-title">${hl(c.name,q)}</div><div class="note-excerpt">${bookById(c.book).title}</div></div></div>`).join('')}</div>`:''}
-    ${mn.length?`<div class="section-label" style="margin-top:20px"><h2>Notes</h2></div><div class="card note-list">${mn.map(noteRow).join('')}</div>`:''}
-  `;
+    ${mb.length?`<div class="section-label"><h2>Books</h2></div><div class="card note-list">${mb.map(b=>`<div class="note-row" onclick="openBook('${b.id}')"><div style="width:30px;height:44px;border-radius:5px;flex:none;background:${b.cover}"></div><div class="note-body"><div class="note-title">${hl(b.title,q)}</div><div class="note-excerpt">${esc(b.author||'')}</div></div></div>`).join('')}</div>`:''}
+    ${mc.length?`<div class="section-label" style="margin-top:18px"><h2>Characters</h2></div><div class="card note-list">${mc.map(c=>`<div class="note-row" onclick="openCharacter('${c.id}')"><div class="rl-av" style="background:${av(c.i)}">${esc((c.name||'?')[0]||'?')}</div><div class="note-body"><div class="note-title">${hl(c.name,q)}</div><div class="note-excerpt">${esc((bookById(c.bookId)||{}).title||'')}</div></div></div>`).join('')}</div>`:''}
+    ${mn.length?`<div class="section-label" style="margin-top:18px"><h2>Notes</h2></div><div class="card note-list">${mn.map(noteRow).join('')}</div>`:''}
+    ${mq.length?`<div class="section-label" style="margin-top:18px"><h2>Quotes</h2></div>${mq.map(quoteCard).join('')}`:''}`;
 }
-function hl(txt,q){const i=txt.toLowerCase().indexOf(q.toLowerCase());if(i<0)return txt;return txt.slice(0,i)+`<mark style="background:var(--gold-tint);color:inherit;border-radius:3px">${txt.slice(i,i+q.length)}</mark>`+txt.slice(i+q.length);}
-function doSearch(t){haptic();toast('Searching "'+t+'"');}
-function scopePick(el){[...el.parentElement.children].forEach(c=>c.classList.remove('on'));el.classList.add('on');haptic();}
+function hl(txt,q){txt=txt||'';const i=txt.toLowerCase().indexOf(q.toLowerCase());if(i<0)return esc(txt);return esc(txt.slice(0,i))+`<mark style="background:var(--gold-tint);color:inherit;border-radius:3px">${esc(txt.slice(i,i+q.length))}</mark>`+esc(txt.slice(i+q.length));}
 
-/* ============================================================
-   PROFILE + STATS
-   ============================================================ */
-let toggles={sessions:true,ai:false,haptics:true,cloud:true};
+/* ============================================================ PROFILE */
 function viewProfile(){
+  const finished=store.books.filter(b=>b.status==='finished').length;
+  const w=notesThisWeek();
+  const nm=store.prefs.name||'You';
   render(`
     <div class="lt-head"><h1 class="lt-title">Profile</h1></div>
     <div class="pad">
-      <div class="profile-head">
-        <div class="pav">R</div>
-        <div><div class="pn">Reader</div><div class="pe">eutree10@gmail.com · iCloud synced</div></div>
+      <div class="profile-head"><div class="pav">${esc(nm[0].toUpperCase())}</div><div><div class="pn">${esc(nm)}</div><div class="pe">Saved on this device</div></div></div>
+
+      <div class="section-label" style="margin-top:20px"><h2>Your reading</h2></div>
+      <div class="mini-grid">
+        <div class="stat card"><div class="s-top">${svg('library')} Books</div><div class="s-val">${store.books.length}</div></div>
+        <div class="stat card"><div class="s-top">${svg('book')} Finished</div><div class="s-val">${finished}</div></div>
+        <div class="stat card"><div class="s-top">${svg('notes')} Notes</div><div class="s-val">${store.notes.length}</div></div>
+        <div class="stat card"><div class="s-top">${svg('quote')} Quotes</div><div class="s-val">${store.quotes.length}</div></div>
       </div>
 
-      <div class="section-label" style="margin-top:20px"><h2>Reading this year</h2><a onclick="toast('Detailed insights')">Details</a></div>
-      <div class="seg">
-        ${['Week','Month','Year'].map(r=>`<button class="${state.statRange===r?'on':''}" onclick="setRange('${r}')">${r}</button>`).join('')}
-      </div>
-      <div class="card chart-card">
-        <div style="display:flex;justify-content:space-between;align-items:baseline">
-          <div><div style="font-size:12px;color:var(--muted);font-weight:550">Reading time</div><div style="font-size:26px;font-weight:700;letter-spacing:-.03em">${state.statRange==='Week'?'4h 12m':state.statRange==='Month'?'18h 40m':'142h'}</div></div>
-          <span class="chip" style="background:rgba(84,179,122,.14);color:#3e8c5f">▲ 12%</span>
-        </div>
-        <div class="bars">
-          ${statBars().map((h,i)=>`<div class="bcol"><div class="bfill ${h===Math.max(...statBars())?'peak':''}" style="height:${h}%" onclick="toast('${labelFor(i)}: ${Math.round(h/100*60)}m')"></div><div class="blab">${labelFor(i)}</div></div>`).join('')}
-        </div>
-      </div>
-      <div class="mini-grid" style="margin-top:12px">
-        <div class="stat card"><div class="s-top">${svg('book')} Finished</div><div class="s-val">14 <small>books</small></div></div>
-        <div class="stat card"><div class="s-top">${svg('notes')} Notes</div><div class="s-val">312</div></div>
-        <div class="stat card gold"><div class="s-top">${svg('flame')} Longest streak</div><div class="s-val">28 <small>days</small></div></div>
-        <div class="stat card"><div class="s-top">${svg('quote')} Quotes</div><div class="s-val">86</div></div>
-      </div>
+      <div class="section-label" style="margin-top:22px"><h2>Notes this week</h2></div>
+      ${w.total?`<div class="card chart-card"><div style="font-size:26px;font-weight:700;letter-spacing:-.03em">${w.total} note${w.total!==1?'s':''}</div><div class="bars">${w.bars.map((h,i)=>`<div class="bcol"><div class="bfill ${h===w.max&&h>0?'peak':''}" style="height:${Math.max(4,Math.round(h/w.max*100))}%"></div><div class="blab">${['M','T','W','T','F','S','S'][i]}</div></div>`).join('')}</div></div>`:emptyInline('notes','No notes this week yet — add one and watch this fill in.')}
 
-      <div class="section-label" style="margin-top:24px"><h2>Preferences</h2></div>
+      <div class="section-label" style="margin-top:22px"><h2>Preferences</h2></div>
       <div class="settings-group">
-        ${toggleRow('sessions','clock','#3F51F5','Reading sessions','Track time, pages & mood')}
-        ${toggleRow('ai','sparkle','#7b5cf0','AI assist','Summaries & suggestions — optional')}
-        ${toggleRow('cloud','cloud','#3a8ac2','iCloud sync','Offline-first, always backed up')}
         ${toggleRow('haptics','reading','#54B37A','Haptic feedback','Subtle taps on actions')}
+        ${toggleRow('sessions','clock','#3F51F5','Reading sessions','Track time & mood (coming soon)')}
+        ${toggleRow('ai','sparkle','#7b5cf0','AI assist','Summaries & suggestions (coming soon)')}
+        ${toggleRow('cloud','cloud','#3a8ac2','Cloud sync','Across devices (coming soon)')}
       </div>
-
       <div class="settings-group">
-        ${linkRow('palette','var(--indigo)','Appearance','Light')}
-        ${linkRow('layers','#c47a2a','Customize home','5 widgets')}
-        ${linkRow('tag','#c25a52','Tags & collections','')}
-        ${linkRow('bell','#D8A94A','Reading reminders','9:00 PM')}
+        ${linkRow('profile','var(--indigo)','Your name',store.prefs.name||'Set name','editName()')}
+        ${linkRow('x','#c25a52','Reset all data','','resetData()')}
       </div>
-    </div>
-  `);
+      <p style="text-align:center;font-size:12px;color:var(--faint);margin:18px 4px 0;line-height:1.5">Everything you add is stored privately in this browser on your device. Add BookNotes to your Home Screen to keep it handy.</p>
+    </div>`);
 }
-function statBars(){
-  if(state.statRange==='Week')return [40,70,30,90,55,20,60];
-  if(state.statRange==='Month')return [55,80,45,70];
-  return [50,65,40,75,85,60,45,90,55,70,60,80];
+function notesThisWeek(){
+  const now=new Date();const day=(now.getDay()+6)%7;
+  const start=new Date(now);start.setHours(0,0,0,0);start.setDate(now.getDate()-day);
+  const bars=[0,0,0,0,0,0,0];
+  store.notes.concat(store.quotes).forEach(n=>{if(!n.ts)return;const d=new Date(n.ts);if(d>=start){const idx=Math.floor((d-start)/86400000);if(idx>=0&&idx<7)bars[idx]++;}});
+  return {bars,total:bars.reduce((a,b)=>a+b,0),max:Math.max(...bars,1)};
 }
-function labelFor(i){
-  if(state.statRange==='Week')return ['M','T','W','T','F','S','S'][i];
-  if(state.statRange==='Month')return ['W1','W2','W3','W4'][i];
-  return ['J','F','M','A','M','J','J','A','S','O','N','D'][i];
-}
-function setRange(r){state.statRange=r;haptic();viewProfile();}
-function toggleRow(key,ic,color,label,sub){
-  return `<div class="set-row" onclick="flip('${key}')">
-    <div class="sr-ic" style="background:${color}">${svg(ic)}</div>
-    <div style="flex:1"><div class="sr-label">${label}</div><div style="font-size:12px;color:var(--muted);margin-top:1px">${sub}</div></div>
-    <div class="tgl ${toggles[key]?'on':''}"><i></i></div>
-  </div>`;
-}
-function linkRow(ic,color,label,val){
-  return `<div class="set-row" onclick="toast('${label}')">
-    <div class="sr-ic" style="background:${color}">${svg(ic)}</div>
-    <div class="sr-label">${label}</div>
-    <div class="sr-val">${val}</div>
-    <span class="sr-chev">${svg('chevR')}</span>
-  </div>`;
-}
-function flip(key){toggles[key]=!toggles[key];haptic();viewProfile();}
+function toggleRow(key,ic,color,label,sub){return `<div class="set-row" onclick="flip('${key}')"><div class="sr-ic" style="background:${color}">${svg(ic)}</div><div style="flex:1"><div class="sr-label">${label}</div><div style="font-size:12px;color:var(--muted);margin-top:1px">${sub}</div></div><div class="tgl ${store.prefs[key]?'on':''}"><i></i></div></div>`;}
+function linkRow(ic,color,label,val,fn){return `<div class="set-row" onclick="${fn}"><div class="sr-ic" style="background:${color}">${svg(ic)}</div><div class="sr-label">${label}</div><div class="sr-val">${esc(val)}</div><span class="sr-chev">${svg('chevR')}</span></div>`;}
+function flip(key){store.prefs[key]=!store.prefs[key];save();haptic();viewProfile();}
+function editName(){const v=prompt('Your name:',store.prefs.name||'');if(v!==null){store.prefs.name=v.trim();save();haptic();viewProfile();}}
+function resetData(){if(!confirm('Delete ALL your books, notes, quotes and characters? This cannot be undone.'))return;store=blank();save();haptic();toast('All data cleared');selectTab('home');}
 
-/* ============================================================
-   EDITOR
-   ============================================================ */
-function openEditor(kind,noteId){
-  closeSheets();haptic();setChrome(true);
-  const n=noteId?notes.find(x=>x.id===noteId):null;
-  const isQuote=kind==='quote';
-  go(()=>{
-    render(`
-      <div class="editor">
-        <div class="ed-top">
-          <button class="back-btn" onclick="back()">${svg('chevL')} Notes</button>
-          <span class="save-dot"><i></i> Saved</span>
-          <button class="btn btn-primary" style="flex:none;padding:9px 16px;font-size:13.5px" onclick="toast('Note saved');back()">Done</button>
-        </div>
-        <div class="ed-body">
-          <input class="ed-title" placeholder="${isQuote?'Quote title (optional)':'Title'}" value="${n?n.title:''}" />
-          <div class="ed-attrs">
-            <span class="ed-attr set" onclick="attrPick(this)">${svg('book')} ${n?n.book.split(' ').slice(-1):'Gatsby'}</span>
-            <span class="ed-attr ${n?'set':''}" onclick="attrPick(this)">${svg('page')} ${n?'p.'+n.page:'Page'}</span>
-            <span class="ed-attr ${n?'set':''}" onclick="attrPick(this)">${svg('chapter')} ${n?n.chapter:'Chapter'}</span>
-            <span class="ed-attr" onclick="attrPick(this)">${svg('tag')} Tag</span>
-            <span class="ed-attr" onclick="attrPick(this)">${svg('character')} Character</span>
-          </div>
-          <div class="ed-content" contenteditable="true" oninput="typing()">
-            ${n?`<p>${n.excerpt}</p><div class="chk"><i></i><span>Re-read this passage aloud</span></div><div class="chk done"><i>${svg('x').replace('stroke-width="1.8"','stroke-width="2.4"')}</i><span>Link to the green-light note</span></div><blockquote>"Gatsby believed in the green light, the orgastic future…"</blockquote>`:
-            `<p class="ph">${isQuote?'Type or paste the quote, then add page & reflection below…':'Start writing your thoughts…'}</p>`}
-          </div>
-        </div>
-        <div class="ed-toolbar">
-          <button class="tb-btn" onclick="haptic()"><b>H</b></button>
-          <button class="tb-btn" onclick="haptic()" style="font-weight:800">B</button>
-          <button class="tb-btn" onclick="haptic()" style="font-style:italic">I</button>
-          <div class="tb-sep"></div>
-          <button class="tb-btn" onclick="haptic()">${svg('list')}</button>
-          <button class="tb-btn" onclick="haptic()">✓</button>
-          <button class="tb-btn" onclick="haptic()">${svg('quote')}</button>
-          <div class="tb-sep"></div>
-          <button class="tb-btn" onclick="toast('Insert image')">${svg('camera')}</button>
-          <button class="tb-btn" onclick="toast('Record voice note')">${svg('mic')}</button>
-          <button class="tb-btn" onclick="toast('Insert drawing')">${svg('drawing')}</button>
-          <button class="tb-btn" onclick="toast('Insert link')">${svg('link')}</button>
-        </div>
-      </div>
-    `,true);
-    // fix the checkbox check icon color
-    const chk=vp().querySelector('.chk.done i svg');if(chk)chk.style.color='#fff';
-  });
+/* ============================================================ SHEETS */
+function openSheet(id){document.getElementById('scrim').classList.add('show');document.getElementById(id).classList.add('show');}
+function closeSheets(){sheetOpen=false;document.getElementById('fab').classList.remove('open');document.getElementById('scrim').classList.remove('show');document.querySelectorAll('.sheet').forEach(s=>s.classList.remove('show'));}
+let pickCb=null;
+function pickBook(cb){
+  if(!store.books.length){toast('Add a book first');return openAddBook();}
+  pickCb=cb;haptic();
+  document.getElementById('pickList').innerHTML=store.books.map(b=>`<div class="cap-item" onclick="choosePick('${b.id}')"><div class="ci" style="background:${b.cover};width:30px;height:44px;border-radius:6px"></div><div><div class="cl">${esc(b.title)}</div><div class="cs">${esc(b.author||'')}</div></div></div>`).join('')+`<div class="cap-item" onclick="closeSheets();openAddBook()"><div class="ci" style="background:var(--indigo)">${svg('plus')}</div><div><div class="cl">New book</div><div class="cs">Add a book</div></div></div>`;
+  openSheet('pickSheet');
 }
-let saveTimer;
-function typing(){
-  const dot=vp().querySelector('.save-dot');if(!dot)return;
-  dot.innerHTML='<i style="background:var(--muted)"></i> Saving…';dot.style.color='var(--muted)';
-  clearTimeout(saveTimer);
-  saveTimer=setTimeout(()=>{dot.innerHTML='<i></i> Saved';dot.style.color='var(--green)';},700);
-}
-function attrPick(el){el.classList.toggle('set');haptic();}
-
-/* ============================================================
-   Quick capture sheet
-   ============================================================ */
+function choosePick(id){closeSheets();const cb=pickCb;pickCb=null;if(cb)cb(id);}
 const captureItems=[
-  {l:'New Note',s:'Blank note',ic:'notes',c:'#3F51F5',fn:"openEditor('note')"},
-  {l:'New Quote',s:'Save a line',ic:'quote',c:'#D8A94A',fn:"openEditor('quote')"},
-  {l:'New Character',s:'Add a person',ic:'character',c:'#c25a52',fn:"closeSheets();toast('New character')"},
-  {l:'Chapter Note',s:'For a chapter',ic:'chapter',c:'#3a8ac2',fn:"openEditor('note')"},
-  {l:'Voice Memo',s:'Speak a thought',ic:'mic',c:'#7b5cf0',fn:"closeSheets();toast('Recording…')"},
-  {l:'Photo',s:'Snap a page',ic:'camera',c:'#54B37A',fn:"closeSheets();toast('Camera')"},
+  {l:'New Note',s:'Blank note',ic:'notes',c:'#3F51F5',fn:"closeSheets();startNote('note')"},
+  {l:'New Quote',s:'Save a line',ic:'quote',c:'#D8A94A',fn:"closeSheets();startNote('quote')"},
+  {l:'New Character',s:'Add a person',ic:'character',c:'#c25a52',fn:"closeSheets();startCharacter()"},
+  {l:'New Book',s:'Add to library',ic:'book',c:'#54B37A',fn:"closeSheets();openAddBook()"},
 ];
-function renderCapture(){
-  document.getElementById('captureGrid').innerHTML=captureItems.map(c=>
-    `<div class="cap-item" onclick="${c.fn}"><div class="ci" style="background:${c.c}">${svg(c.ic)}</div><div><div class="cl">${c.l}</div><div class="cs">${c.s}</div></div></div>`
-  ).join('');
-}
+function renderCapture(){document.getElementById('captureGrid').innerHTML=captureItems.map(c=>`<div class="cap-item" onclick="${c.fn}"><div class="ci" style="background:${c.c}">${svg(c.ic)}</div><div><div class="cl">${c.l}</div><div class="cs">${c.s}</div></div></div>`).join('');}
 let sheetOpen=false;
 function toggleCapture(){sheetOpen?closeSheets():openCapture();}
-function openCapture(){
-  haptic();sheetOpen=true;
-  document.getElementById('fab').classList.add('open');
-  document.getElementById('scrim').classList.add('show');
-  document.getElementById('captureSheet').classList.add('show');
-}
-function closeSheets(){
-  sheetOpen=false;
-  document.getElementById('fab').classList.remove('open');
-  document.getElementById('scrim').classList.remove('show');
-  document.getElementById('captureSheet').classList.remove('show');
-}
+function openCapture(){haptic();sheetOpen=true;document.getElementById('fab').classList.add('open');openSheet('captureSheet');}
 
-/* ============================================================
-   Utilities
-   ============================================================ */
-function hexTint(color){
-  if(color.startsWith('var'))return color==='var(--indigo)'?'var(--indigo-tint)':color==='var(--gold)'?'var(--gold-tint)':'rgba(84,179,122,.14)';
-  // hex -> soft tint
-  const h=color.replace('#','');const r=parseInt(h.slice(0,2),16),g=parseInt(h.slice(2,4),16),b=parseInt(h.slice(4,6),16);
-  return `rgba(${r},${g},${b},.13)`;
-}
+/* ============================================================ UTILITIES */
 let toastTimer;
-function toast(msg){
-  const t=document.getElementById('toast');
-  document.getElementById('toastMsg').textContent=msg;
-  t.classList.add('show');haptic();
-  clearTimeout(toastTimer);
-  toastTimer=setTimeout(()=>t.classList.remove('show'),1900);
-}
-function haptic(){
-  if(toggles.haptics&&navigator.vibrate){try{navigator.vibrate(8);}catch(e){}}
-}
-function setDevice(d){
-  state.device=d;
-  document.getElementById('device').classList.toggle('ipad',d==='ipad');
-  document.getElementById('tg-phone').classList.toggle('on',d==='phone');
-  document.getElementById('tg-pad').classList.toggle('on',d==='ipad');
-}
+function toast(msg){const t=document.getElementById('toast');document.getElementById('toastMsg').textContent=msg;t.classList.add('show');haptic();clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),1800);}
+function haptic(){if(store.prefs.haptics&&navigator.vibrate){try{navigator.vibrate(8);}catch(e){}}}
+function setDevice(d){state.device=d;document.getElementById('device').classList.toggle('ipad',d==='ipad');document.getElementById('tg-phone').classList.toggle('on',d==='phone');document.getElementById('tg-pad').classList.toggle('on',d==='ipad');}
 
-/* ---------- Legend under device ---------- */
-document.getElementById('legend').innerHTML=[
-  ['Adaptive, not rigid','Every reader builds their own system. Book sections are modular — enable, rename, reorder or ignore any of them.'],
-  ['Flexible notes','A note can be one line or a rich document with page, chapter, character, tags, voice, images and checklists — all optional.'],
-  ['Calm by design','Warm-white canvas, generous spacing, indigo only for actions, soft gold reserved for streaks & favorites.'],
-  ['Everything connected','Characters, chapters, quotes, pages and themes link to each other and surface where they\'re relevant.'],
-].map(([t,d])=>`<div class="lg"><b>${t}</b><p>${d}</p></div>`).join('');
-
-/* ---------- boot ---------- */
+/* ---------- desktop legend + boot ---------- */
+(function(){const lg=document.getElementById('legend');if(lg)lg.innerHTML=[
+  ['Your own library','Starts empty. Add the books you read, then build notes, quotes and characters around each one.'],
+  ['Flexible notes','A note can be one line or a page — with optional page, chapter, tags and color. Nothing is required.'],
+  ['Private &amp; offline','Everything is saved locally in your browser on this device. Add to Home Screen to use it like an app.'],
+  ['Calm by design','Warm-white canvas, generous spacing, indigo for actions and soft gold for the moments worth keeping.'],
+].map(x=>`<div class="lg"><b>${x[0]}</b><p>${x[1]}</p></div>`).join('');})();
 renderCapture();
 renderTabs();
 viewHome();
+
 </script>
 </body>
 </html>
