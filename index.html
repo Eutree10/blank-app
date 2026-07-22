@@ -433,6 +433,8 @@ textarea.form-input{min-height:112px;resize:none;line-height:1.5;}
 .cover-ini{position:absolute;left:9px;bottom:8px;color:rgba(255,255,255,.92);font-weight:700;letter-spacing:.01em;font-size:15px;text-shadow:0 1px 5px rgba(0,0,0,.4);}
 .ed-content{white-space:pre-wrap;word-break:break-word;}
 .ed-content:empty:before{content:attr(data-ph);color:var(--faint);}
+.ic24{width:24px;height:24px;margin-left:auto;margin-right:auto;}
+.ic24 svg{width:24px;height:24px;display:block;}
 
 /* view transitions */
 .view{animation:fadeUp .34s var(--ease);}
@@ -665,6 +667,7 @@ const ES={
 "New Note":"Nueva nota","Blank note":"Nota en blanco","New Quote":"Nueva cita","Save a line":"Guarda una frase",
 "New Character":"Nuevo personaje","Add a person":"Agregar una persona","New Book":"Nuevo libro","Add to library":"Agregar a la biblioteca",
 "Which book is this for?":"¿Para qué libro es?","Add a book first":"Primero agrega un libro",
+"Tap + to add your first book":"Toca + para agregar tu primer libro","Tap + to add a book":"Toca + para agregar un libro","Tap + to add a note":"Toca + para agregar una nota","Tap + to add":"Toca + para agregar","New entry in":"Nueva entrada en",
 "just now":"justo ahora","yesterday":"ayer"
 };
 function t(s){return store.prefs.lang==='es'?(ES[s]!==undefined?ES[s]:s):s;}
@@ -711,6 +714,7 @@ function cOf(id){return store.characters.filter(c=>c.bookId===id).length;}
 
 /* ---------- router ---------- */
 let state={tab:'home',device:'phone',libView:'grid',libFilter:'All'};
+let ctxBook=null; /* book context for the single + button */
 let stack=[];
 const vp=()=>document.getElementById('viewport');
 function render(html,slide){const v=vp();v.innerHTML=html;v.scrollTop=0;if(v.firstElementChild)v.firstElementChild.classList.add(slide?'slide-in':'view');}
@@ -722,12 +726,13 @@ function refresh(){(stack[stack.length-1]||currentTabView())();}
 
 const TABS=[{k:'home',l:'Home',i:'home'},{k:'library',l:'Library',i:'library'},{k:'notes',l:'Notes',i:'notes'},{k:'search',l:'Search',i:'search'},{k:'profile',l:'Profile',i:'profile'}];
 function renderTabs(){document.getElementById('tabbar').innerHTML=TABS.map(x=>`<button class="tab ${state.tab===x.k?'on':''}" onclick="selectTab('${x.k}')">${svg(x.i)}<span class="tl">${t(x.l)}</span></button>`).join('');}
-function selectTab(k){state.tab=k;stack=[];setChrome(false);haptic();renderTabs();currentTabView()();}
+function selectTab(k){state.tab=k;stack=[];ctxBook=null;setChrome(false);haptic();renderTabs();currentTabView()();}
 
 /* ---------- shared bits ---------- */
-function emptyInline(ic,msg){return `<div class="card" style="padding:26px 20px;text-align:center"><div style="color:var(--faint);margin-bottom:10px">${svg(ic)}</div><div style="font-size:13.5px;color:var(--muted);line-height:1.5">${msg}</div></div>`;}
-function emptyBlock(ic,copy,addFn,label){return `<div class="empty"><div class="e-ill">${svg(ic)}</div><h3>${t('Nothing here yet')}</h3><p>${copy}</p><button class="btn btn-primary" style="flex:none;margin:0 auto" onclick="${addFn}">${svg('plus')} ${label}</button></div>`;}
-function sectionShell(title,inner,addFn){return `<div class="detail-head"><button class="back-btn" onclick="back()">${svg('chevL')} ${t('Back')}</button><div class="dh-title">${esc(title)}</div><div class="dh-r">${addFn?`<button class="round-btn" style="width:34px;height:34px" onclick="${addFn}">${svg('plus')}</button>`:''}</div></div><div class="pad" style="padding-top:6px">${inner}</div>`;}
+function emptyInline(ic,msg){return `<div class="card" style="padding:24px 20px;text-align:center"><div class="ic24" style="color:var(--faint);margin-bottom:10px">${svg(ic)}</div><div style="font-size:13.5px;color:var(--muted);line-height:1.5">${msg}</div></div>`;}
+function fabHint(msg){return `<div style="display:inline-flex;align-items:center;gap:9px;margin-top:2px;color:var(--muted);font-size:13.5px;font-weight:550"><span style="width:30px;height:30px;border-radius:999px;background:var(--indigo);color:#fff;display:grid;place-items:center;box-shadow:0 5px 14px rgba(63,81,245,.4);flex:none">${svg('plus')}</span>${esc(msg)}</div>`;}
+function emptyBlock(ic,copy){return `<div class="empty"><div class="e-ill">${svg(ic)}</div><h3>${t('Nothing here yet')}</h3><p>${copy}</p>${fabHint(t('Tap + to add'))}</div>`;}
+function sectionShell(title,inner){return `<div class="detail-head"><button class="back-btn" onclick="back()">${svg('chevL')} ${t('Back')}</button><div class="dh-title">${esc(title)}</div><div class="dh-r"></div></div><div class="pad" style="padding-top:6px">${inner}</div>`;}
 
 function noteRow(n){
   const b=bookById(n.bookId);
@@ -774,7 +779,7 @@ function viewHome(){
         <div class="e-ill">${svg('book')}</div>
         <h3>${t('Welcome to BookNotes')}</h3>
         <p>${t("Your library is empty. Add the first book you're reading and start capturing notes, quotes and characters.")}</p>
-        <button class="btn btn-primary" style="flex:none;margin:0 auto" onclick="openAddBook()">${svg('plus')} ${t('Add your first book')}</button>
+        ${fabHint(t('Tap + to add your first book'))}
       </div></div>`);
     return;
   }
@@ -783,8 +788,7 @@ function viewHome(){
   const recent=[...store.notes].sort((a,b)=>b.ts-a.ts).slice(0,3);
   render(`
     <div class="lt-head"><div class="lt-eyebrow">${todayStr()}</div>
-      <div class="lt-row"><h1 class="lt-title">${greet()}</h1>
-        <div class="lt-actions"><button class="round-btn" onclick="openAddBook()">${svg('plus')}</button></div></div></div>
+      <div class="lt-row"><h1 class="lt-title">${greet()}</h1></div></div>
     <div class="pad">
       <div class="section-label"><h2>${t('Continue reading')}</h2></div>
       <div class="card hero press" onclick="openBook('${cont.id}')">
@@ -808,14 +812,6 @@ function viewHome(){
 
       ${reading.length?`<div class="section-label" style="margin-top:24px"><h2>${t('Currently reading')}</h2><a onclick="selectTab('library')">${t('Library')}</a></div><div class="hscroll">${reading.map(miniBook).join('')}</div>`:''}
       ${store.characters.length?`<div class="section-label" style="margin-top:24px"><h2>${t('Characters')}</h2></div><div class="hscroll">${[...store.characters].slice(-8).reverse().map(miniChar).join('')}</div>`:''}
-
-      <div class="section-label" style="margin-top:24px"><h2>${t('Quick add')}</h2></div>
-      <div class="quick-strip">
-        <div class="quick-tile" onclick="startNote('note')"><div class="qi">${svg('notes')}</div><div class="ql">${t('Note')}</div></div>
-        <div class="quick-tile" onclick="startNote('quote')"><div class="qi">${svg('quote')}</div><div class="ql">${t('Quote')}</div></div>
-        <div class="quick-tile" onclick="startCharacter()"><div class="qi">${svg('character')}</div><div class="ql">${t('Person')}</div></div>
-        <div class="quick-tile" onclick="openAddBook()"><div class="qi">${svg('book')}</div><div class="ql">${t('Book')}</div></div>
-      </div>
     </div>`);
 }
 
@@ -825,21 +821,19 @@ function viewLibrary(){
   const bks=store.books;
   render(`
     <div class="lt-head"><div class="lt-row"><h1 class="lt-title">${t('Library')}</h1>
-      <div class="lt-actions">
-        ${bks.length?`<button class="round-btn" onclick="toggleLibView()">${svg(state.libView==='grid'?'list':'grid')}</button>`:''}
-        <button class="round-btn" onclick="openAddBook()">${svg('plus')}</button>
-      </div></div></div>
+      ${bks.length?`<div class="lt-actions"><button class="round-btn" onclick="toggleLibView()">${svg(state.libView==='grid'?'list':'grid')}</button></div>`:''}
+    </div></div>
     ${bks.length?`<div class="filter-row">${FILTERS.map(f=>`<button class="f-chip ${state.libFilter===f?'on':''}" onclick="setFilter('${f}')">${t(f)}</button>`).join('')}</div>`:''}
     <div class="pad" style="padding-top:8px">
       ${bks.length?`<div class="book-grid ${state.libView==='list'?'list-mode':''}">${libraryBooks().map(gbook).join('')||`<div class="empty" style="grid-column:1/-1"><div class="e-ill">${svg('library')}</div><h3>${t('Nothing here')}</h3><p>${t('No books in this collection yet.')}</p></div>`}</div>`
-      :`<div class="empty"><div class="e-ill">${svg('library')}</div><h3>${t('No books yet')}</h3><p>${t("Add the books you're reading to start building your notes.")}</p><button class="btn btn-primary" style="flex:none;margin:0 auto" onclick="openAddBook()">${svg('plus')} ${t('Add a book')}</button></div>`}
+      :`<div class="empty"><div class="e-ill">${svg('library')}</div><h3>${t('No books yet')}</h3><p>${t("Add the books you're reading to start building your notes.")}</p>${fabHint(t('Tap + to add a book'))}</div>`}
     </div>`);
 }
 function libraryBooks(){const f=state.libFilter;return store.books.filter(b=>{if(f==='All')return true;if(f==='Favorites')return b.fav;return b.status===f.toLowerCase();});}
 function gbook(b){
   const p=bookProgress(b);
   if(state.libView==='list'){
-    return `<div class="gbook" onclick="openBook('${b.id}')"><div class="cover-wrap">${coverEl(b,'',false)}${b.fav?`<div class="fav">${svg('star')}</div>`:''}</div><div class="g-info"><div class="g-title">${esc(b.title)}</div><div class="g-auth">${esc(b.author||'')}</div><div class="g-meta">${esc(statusLabel(b.status))} · ${cnt(nOf(b.id),'note')}${p?` · ${p}%`:''}</div></div><span style="color:var(--faint)">${svg('chevR')}</span></div>`;
+    return `<div class="gbook" onclick="openBook('${b.id}')"><div class="cover-wrap">${coverEl(b,'',false)}${b.fav?`<div class="fav">${svg('star')}</div>`:''}</div><div class="g-info"><div class="g-title">${esc(b.title)}</div><div class="g-auth">${esc(b.author||'')}</div><div class="g-meta">${esc(statusLabel(b.status))} · ${cnt(nOf(b.id),'note')}${p?` · ${p}%`:''}</div></div></div>`;
   }
   return `<div class="gbook" onclick="openBook('${b.id}')"><div class="cover-wrap">${coverEl(b)}${b.fav?`<div class="fav">${svg('star')}</div>`:''}</div><div class="g-title">${esc(b.title)}</div><div class="g-auth">${esc(b.author||'')}</div><div class="g-prog"><div class="bar"><i style="width:${p}%"></i></div><span class="pct">${p}%</span></div></div>`;
 }
@@ -894,7 +888,7 @@ function deleteBook(id){
 }
 
 /* ============================================================ BOOK WORKSPACE */
-function openBook(id){const b=bookById(id);if(!b)return selectTab('library');b.updatedAt=Date.now();save();haptic();go(()=>renderBook(b));}
+function openBook(id){const b=bookById(id);if(!b)return selectTab('library');ctxBook=b.id;b.updatedAt=Date.now();save();haptic();go(()=>renderBook(b));}
 function renderBook(b){
   const notesN=nOf(b.id),quotesN=qOf(b.id),charsN=cOf(b.id),p=bookProgress(b);
   const mods=[
@@ -907,6 +901,7 @@ function renderBook(b){
     <div class="book-hero">
       <div class="detail-head" style="padding:0;position:absolute;top:calc(env(safe-area-inset-top,0px) + 10px);left:8px;right:8px;z-index:5">
         <button class="back-btn" onclick="back()">${svg('chevL')} ${t('Library')}</button><div style="flex:1"></div>
+        <button class="round-btn" onclick="toggleFav('${b.id}')" style="color:${b.fav?'var(--gold)':'var(--text)'}">${svg(b.fav?'star':'starO')}</button>
         <button class="round-btn" onclick="openAddBook('${b.id}')">${svg('slider')}</button>
       </div>
       <div class="bh-top" style="margin-top:34px">
@@ -917,11 +912,6 @@ function renderBook(b){
           <div class="bh-stat"><div><b>${p}%</b>${t('read')}</div><div><b>${notesN}</b>${t('notes')}</div><div><b>${quotesN}</b>${t('quotes')}</div></div>
         </div>
       </div>
-      <div class="bh-actions">
-        <button class="btn btn-primary" onclick="startNote('note','${b.id}')">${svg('plus')} ${t('Add note')}</button>
-        <button class="btn btn-ghost" onclick="startNote('quote','${b.id}')">${svg('quote')}</button>
-        <button class="btn btn-ghost" onclick="toggleFav('${b.id}')">${svg(b.fav?'star':'starO')}</button>
-      </div>
     </div>
     <div class="pad">
       <div class="sec-manage"><h3>${t('Sections')}</h3></div>
@@ -930,7 +920,7 @@ function renderBook(b){
 }
 function toggleFav(id){const b=bookById(id);b.fav=!b.fav;save();haptic();toast(b.fav?t('Added to favorites'):t('Removed from favorites'));renderBook(b);}
 function openOverview(bookId){
-  const b=bookById(bookId),p=bookProgress(b);
+  ctxBook=bookId;const b=bookById(bookId),p=bookProgress(b);
   go(()=>render(sectionShell(t('Overview'),`
     <div class="card" style="padding:18px"><div class="progress"><div class="bar"><i style="width:${p}%"></i></div><div class="meta"><span>${p}% ${t('read')}${b.totalPages?` · p.${b.page||0}/${b.totalPages}`:''}</span><span>${statusLabel(b.status)}</span></div></div></div>
     <div class="field"><div class="f-label">${t('My summary')}</div><div class="f-val" style="white-space:pre-wrap">${b.summary?esc(b.summary):`<span style="color:var(--faint)">${t('No summary yet.')}</span>`}</div><button class="btn" style="margin-top:12px;background:var(--surface-2);color:var(--indigo);padding:9px 14px" onclick="editSummary('${b.id}')">${svg('plus')} ${b.summary?t('Edit'):t('Write')} ${t('summary')}</button></div>
@@ -941,28 +931,28 @@ function openOverview(bookId){
 }
 function editSummary(id){const b=bookById(id);const v=prompt(t('Your summary of this book:'),b.summary||'');if(v!==null){b.summary=v.trim();save();haptic();refresh();}}
 function openNotesSection(bookId){
-  const bn=store.notes.filter(n=>n.bookId===bookId).sort((a,b)=>b.ts-a.ts);
-  const inner=bn.length?`<div class="card note-list">${bn.map(noteRow).join('')}</div>`:emptyBlock('notes',t('Capture an idea, a reaction, a connection — anything you notice.'),`startNote('note','${bookId}')`,t('Add note'));
-  go(()=>render(sectionShell(t('Notes'),inner,`startNote('note','${bookId}')`),true));
+  ctxBook=bookId;const bn=store.notes.filter(n=>n.bookId===bookId).sort((a,b)=>b.ts-a.ts);
+  const inner=bn.length?`<div class="card note-list">${bn.map(noteRow).join('')}</div>`:emptyBlock('notes',t('Capture an idea, a reaction, a connection — anything you notice.'));
+  go(()=>render(sectionShell(t('Notes'),inner),true));
 }
 function openQuotesSection(bookId){
-  const qs=store.quotes.filter(q=>q.bookId===bookId).sort((a,b)=>b.ts-a.ts);
-  const inner=qs.length?qs.map(quoteCard).join(''):emptyBlock('quote',t('Save the lines that stop you. Add a page and a reflection.'),`startNote('quote','${bookId}')`,t('Add quote'));
-  go(()=>render(sectionShell(t('Quotes'),inner,`startNote('quote','${bookId}')`),true));
+  ctxBook=bookId;const qs=store.quotes.filter(q=>q.bookId===bookId).sort((a,b)=>b.ts-a.ts);
+  const inner=qs.length?qs.map(quoteCard).join(''):emptyBlock('quote',t('Save the lines that stop you. Add a page and a reflection.'));
+  go(()=>render(sectionShell(t('Quotes'),inner),true));
 }
 function openCharactersSection(bookId){
-  const cs=store.characters.filter(c=>c.bookId===bookId);
-  const inner=cs.length?`<div style="display:flex;flex-direction:column;gap:10px">${cs.map(charRow).join('')}</div>`:emptyBlock('character',t('Give each character a page — description, tags and how they change.'),`startCharacter('${bookId}')`,t('Add character'));
-  go(()=>render(sectionShell(t('Characters'),inner,`startCharacter('${bookId}')`),true));
+  ctxBook=bookId;const cs=store.characters.filter(c=>c.bookId===bookId);
+  const inner=cs.length?`<div style="display:flex;flex-direction:column;gap:10px">${cs.map(charRow).join('')}</div>`:emptyBlock('character',t('Give each character a page — description, tags and how they change.'));
+  go(()=>render(sectionShell(t('Characters'),inner),true));
 }
-function charRow(c){return `<div class="card press" style="padding:14px;display:flex;align-items:center;gap:13px" onclick="openCharacter('${c.id}')"><div style="width:48px;height:48px;border-radius:999px;display:grid;place-items:center;color:#fff;font-weight:600;background:${av(c.i)}">${esc((c.name||'?')[0]||'?')}</div><div style="flex:1;min-width:0"><div style="font-weight:620;font-size:15px">${esc(c.name)}</div><div style="font-size:12.5px;color:var(--muted);margin-top:2px">${c.tags&&c.tags.length?esc(c.tags[0]):t('Character')}</div></div><span style="color:var(--faint)">${svg('chevR')}</span></div>`;}
+function charRow(c){return `<div class="card press" style="padding:14px;display:flex;align-items:center;gap:13px" onclick="openCharacter('${c.id}')"><div style="width:48px;height:48px;border-radius:999px;display:grid;place-items:center;color:#fff;font-weight:600;background:${av(c.i)}">${esc((c.name||'?')[0]||'?')}</div><div style="flex:1;min-width:0"><div style="font-weight:620;font-size:15px">${esc(c.name)}</div><div style="font-size:12.5px;color:var(--muted);margin-top:2px">${c.tags&&c.tags.length?esc(c.tags[0]):t('Character')}</div></div></div>`;}
 
 /* ============================================================ CHARACTERS */
 let charForm={id:null,bookId:null};
 function startCharacter(bookId){
   if(!store.books.length){toast(t('Add a book first'));return openAddBook();}
   setChrome(true);haptic();
-  charForm={id:null,bookId:bookId||store.books[0].id};
+  charForm={id:null,bookId:bookId||ctxBook||store.books[0].id};
   go(renderCharForm);
 }
 function editChar(id){const c=charById(id);setChrome(true);charForm={id:id,bookId:c.bookId};go(renderCharForm);}
@@ -996,7 +986,7 @@ function saveChar(){
 }
 function deleteChar(id){if(!confirm(t('Delete this character?')))return;store.characters=store.characters.filter(c=>c.id!==id);save();haptic();toast(t('Deleted'));stack.pop();stack.pop();setChrome(false);refresh();}
 function openCharacter(id){
-  const c=charById(id);if(!c)return;haptic();const b=bookById(c.bookId);
+  const c=charById(id);if(!c)return;ctxBook=c.bookId;haptic();const b=bookById(c.bookId);
   go(()=>render(`
     <div class="detail-head"><button class="back-btn" onclick="back()">${svg('chevL')} ${t('Back')}</button><div class="dh-title">${t('Character')}</div><div class="dh-r"><button class="round-btn" style="width:34px;height:34px" onclick="editChar('${c.id}')">${svg('slider')}</button></div></div>
     <div class="pad" style="padding-top:0">
@@ -1007,7 +997,6 @@ function openCharacter(id){
         ${c.tags&&c.tags.length?`<div class="tag-row">${c.tags.map(x=>`<span class="chip indigo">${esc(x)}</span>`).join('')}</div>`:''}
       </div>
       ${c.desc?`<div class="field"><div class="f-label">${t('Description')}</div><div class="f-val" style="white-space:pre-wrap">${esc(c.desc)}</div></div>`:''}
-      <button class="btn btn-primary" style="width:100%;margin-top:16px" onclick="editChar('${c.id}')">${svg('slider')} ${t('Edit character')}</button>
     </div>`,true));
 }
 
@@ -1017,7 +1006,7 @@ function startNote(kind,bookId){
   closeSheets();
   if(!store.books.length){toast(t('Add a book first'));return openAddBook();}
   setChrome(true);haptic();
-  E={id:null,kind:kind,bookId:bookId||store.books[0].id,page:'',chapter:'',tags:[],color:kind==='quote'?'gold':'indigo'};
+  E={id:null,kind:kind,bookId:bookId||ctxBook||store.books[0].id,page:'',chapter:'',tags:[],color:kind==='quote'?'gold':'indigo'};
   go(()=>renderEditor());
 }
 function openNote(id){const n=store.notes.find(x=>x.id===id);if(!n)return;setChrome(true);haptic();E={id:n.id,kind:'note',bookId:n.bookId,page:n.page||'',chapter:n.chapter||'',tags:n.tags||[],color:n.color||'indigo'};go(()=>renderEditor(n));}
@@ -1089,13 +1078,13 @@ function toggleQuoteFav(id){const q=store.quotes.find(x=>x.id===id);q.fav=!q.fav
 function viewNotes(){
   if(!store.notes.length&&!store.quotes.length){
     render(`<div class="lt-head"><div class="lt-row"><h1 class="lt-title">${t('Notes')}</h1></div></div>
-      <div class="pad"><div class="empty" style="padding-top:30px"><div class="e-ill">${svg('notes')}</div><h3>${t('No notes yet')}</h3><p>${t('Your notes and quotes from every book collect here. Add your first from any book.')}</p>${store.books.length?`<button class="btn btn-primary" style="flex:none;margin:0 auto" onclick="startNote('note')">${svg('plus')} ${t('New note')}</button>`:`<button class="btn btn-primary" style="flex:none;margin:0 auto" onclick="openAddBook()">${svg('plus')} ${t('Add a book')}</button>`}</div></div>`);
+      <div class="pad"><div class="empty" style="padding-top:30px"><div class="e-ill">${svg('notes')}</div><h3>${t('No notes yet')}</h3><p>${t('Your notes and quotes from every book collect here. Add your first from any book.')}</p>${fabHint(t(store.books.length?'Tap + to add a note':'Tap + to add a book'))}</div></div>`);
     return;
   }
   const notes=[...store.notes].sort((a,b)=>b.ts-a.ts);
   const quotes=[...store.quotes].sort((a,b)=>b.ts-a.ts);
   render(`
-    <div class="lt-head"><div class="lt-row"><h1 class="lt-title">${t('Notes')}</h1><div class="lt-actions"><button class="round-btn" onclick="startNote('note')">${svg('plus')}</button></div></div></div>
+    <div class="lt-head"><div class="lt-row"><h1 class="lt-title">${t('Notes')}</h1></div></div>
     <div class="pad" style="padding-top:8px">
       ${notes.length?`<div class="section-label"><h2>${t('Notes')}</h2></div><div class="card note-list">${notes.map(noteRow).join('')}</div>`:''}
       ${quotes.length?`<div class="section-label" style="margin-top:22px"><h2>${t('Quotes')}</h2></div>${quotes.map(quoteCard).join('')}`:''}
@@ -1211,7 +1200,7 @@ const captureItems=[
 function renderCapture(){document.getElementById('captureGrid').innerHTML=captureItems.map(c=>`<div class="cap-item" onclick="${c.fn}"><div class="ci" style="background:${c.c}">${svg(c.ic)}</div><div><div class="cl">${t(c.l)}</div><div class="cs">${t(c.s)}</div></div></div>`).join('');}
 let sheetOpen=false;
 function toggleCapture(){sheetOpen?closeSheets():openCapture();}
-function openCapture(){haptic();sheetOpen=true;document.getElementById('fab').classList.add('open');openSheet('captureSheet');}
+function openCapture(){haptic();sheetOpen=true;document.getElementById('fab').classList.add('open');const sub=document.getElementById('cap-sub');if(sub){const b=ctxBook?bookById(ctxBook):null;sub.textContent=b?(t('New entry in')+' «'+b.title+'»'):t("Start a new entry. It saves when you're done.");}renderCapture();openSheet('captureSheet');}
 
 /* ============================================================ UTILITIES */
 let toastTimer;
