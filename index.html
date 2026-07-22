@@ -99,7 +99,7 @@ body{
 
 /* ---------- App shell ---------- */
 .app{position:absolute;inset:0;display:flex;flex-direction:column;}
-.viewport{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;scroll-behavior:smooth;}
+.viewport{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;}
 .viewport::-webkit-scrollbar{width:0;height:0;}
 .pad{padding:0 20px calc(120px);}
 .device.ipad .pad{padding:0 34px 120px;}
@@ -436,11 +436,8 @@ textarea.form-input{min-height:112px;resize:none;line-height:1.5;}
 .ic24{width:24px;height:24px;margin-left:auto;margin-right:auto;}
 .ic24 svg{width:24px;height:24px;display:block;}
 
-/* view transitions */
-.view{animation:fadeUp .34s var(--ease);}
-@keyframes fadeUp{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
-.slide-in{animation:slideIn .34s var(--ease);}
-@keyframes slideIn{from{opacity:0;transform:translateX(22px);}to{opacity:1;transform:none;}}
+/* No page-level entrance animation — screen updates are instant/native.
+   Micro-interactions (button press, sheet slide-up, FAB, toggle) stay below. */
 
 .legend{max-width:1080px;width:100%;margin:30px auto 0;display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;}
 .legend .lg{background:rgba(255,255,255,.6);backdrop-filter:blur(10px);border:1px solid rgba(22,22,22,.06);border-radius:14px;padding:14px 16px;}
@@ -717,16 +714,17 @@ let state={tab:'home',device:'phone',libView:'grid',libFilter:'All'};
 let ctxBook=null; /* book context for the single + button */
 let stack=[];
 const vp=()=>document.getElementById('viewport');
-function render(html,slide){const v=vp();v.innerHTML=html;v.scrollTop=0;if(v.firstElementChild)v.firstElementChild.classList.add(slide?'slide-in':'view');}
-function go(view){stack.push(view);view();}
-function back(){setChrome(false);stack.pop();const prev=stack[stack.length-1];if(prev)prev();else selectTab(state.tab);}
+let _navScroll=false; /* true => this render is a navigation (jump to top); else keep scroll position */
+function render(html){const v=vp();const keep=!_navScroll;const ps=v.scrollTop;v.innerHTML=html;v.scrollTop=keep?ps:0;_navScroll=false;}
+function go(view){stack.push(view);_navScroll=true;view();}
+function back(){setChrome(false);stack.pop();_navScroll=true;const prev=stack[stack.length-1];if(prev)prev();else selectTab(state.tab);}
 function setChrome(hidden){document.getElementById('tabbar').classList.toggle('hide',hidden);document.getElementById('fab').classList.toggle('hide',hidden);}
 function currentTabView(){return ({home:viewHome,library:viewLibrary,notes:viewNotes,search:viewSearch,profile:viewProfile})[state.tab];}
 function refresh(){(stack[stack.length-1]||currentTabView())();}
 
 const TABS=[{k:'home',l:'Home',i:'home'},{k:'library',l:'Library',i:'library'},{k:'notes',l:'Notes',i:'notes'},{k:'search',l:'Search',i:'search'},{k:'profile',l:'Profile',i:'profile'}];
 function renderTabs(){document.getElementById('tabbar').innerHTML=TABS.map(x=>`<button class="tab ${state.tab===x.k?'on':''}" onclick="selectTab('${x.k}')">${svg(x.i)}<span class="tl">${t(x.l)}</span></button>`).join('');}
-function selectTab(k){state.tab=k;stack=[];ctxBook=null;setChrome(false);haptic();renderTabs();currentTabView()();}
+function selectTab(k){state.tab=k;stack=[];ctxBook=null;setChrome(false);haptic();renderTabs();_navScroll=true;currentTabView()();}
 
 /* ---------- shared bits ---------- */
 function emptyInline(ic,msg){return `<div class="card" style="padding:24px 20px;text-align:center"><div class="ic24" style="color:var(--faint);margin-bottom:10px">${svg(ic)}</div><div style="font-size:13.5px;color:var(--muted);line-height:1.5">${msg}</div></div>`;}
