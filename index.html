@@ -389,6 +389,11 @@ body{
 .fab:active{transform:scale(.9) rotate(90deg);}
 .fab svg{width:26px;height:26px;transition:transform .3s var(--ease);}
 .fab.open svg{transform:rotate(45deg);}
+/* first-use guidance: subtle expanding halo, a few gentle pulses then stop */
+.fab::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;}
+.fab.pulse::after{animation:fabPulse 1.7s cubic-bezier(.22,.61,.36,1) 3;}
+@keyframes fabPulse{0%{box-shadow:0 0 0 0 rgba(63,81,245,.40);}70%{box-shadow:0 0 0 14px rgba(63,81,245,0);}100%{box-shadow:0 0 0 0 rgba(63,81,245,0);}}
+@media (prefers-reduced-motion: reduce){.fab.pulse::after{animation:none;}}
 
 /* ---------- Sheets / overlays ---------- */
 .scrim{position:absolute;inset:0;background:rgba(20,20,30,.28);backdrop-filter:blur(2px);opacity:0;pointer-events:none;transition:opacity .3s var(--ease);z-index:70;}
@@ -730,9 +735,10 @@ function selectTab(k){state.tab=k;stack=[];ctxBook=null;setChrome(false);haptic(
 /* ---------- shared bits ---------- */
 function emptyInline(ic,msg){return `<div class="card" style="padding:24px 20px;text-align:center"><div class="ic24" style="color:var(--faint);margin-bottom:10px">${svg(ic)}</div><div style="font-size:13.5px;color:var(--muted);line-height:1.5">${msg}</div></div>`;}
 function firstUse(){return !store.prefs.fabUsed;}
-/* thin, subtle gray guide arrow pointing toward the floating + button — visual only, first use only */
-function fabArrow(){return '<div aria-hidden="true" style="pointer-events:none;margin-top:12px;display:flex;justify-content:center;color:var(--faint);opacity:.75"><svg width="52" height="52" viewBox="0 0 64 64" fill="none"><path d="M16 12 C 27 38, 35 49, 50 50" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><path d="M39 48.5 L 51 51 L 47.5 39.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></div>';}
-function emptyBlock(ic,copy){return `<div class="empty"><div class="e-ill">${svg(ic)}</div><h3>${t('Nothing here yet')}</h3><p>${copy}</p>${firstUse()?fabArrow():''}</div>`;}
+/* First-use guidance: briefly pulse the floating + button (no arrows/lines/icons). */
+let _pulseT;
+function pulseFab(){const f=document.getElementById('fab');if(!f)return;f.classList.remove('pulse');void f.offsetWidth;f.classList.add('pulse');clearTimeout(_pulseT);_pulseT=setTimeout(()=>f.classList.remove('pulse'),6000);}
+function emptyBlock(ic,copy){return `<div class="empty"><div class="e-ill">${svg(ic)}</div><h3>${t('Nothing here yet')}</h3><p>${copy}</p></div>`;}
 function sectionShell(title,inner){return `<div class="detail-head"><button class="back-btn" onclick="back()">${svg('chevL')} ${t('Back')}</button><div class="dh-title">${esc(title)}</div><div class="dh-r"></div></div><div class="pad" style="padding-top:6px">${inner}</div>`;}
 
 function noteRow(n){
@@ -780,8 +786,8 @@ function viewHome(){
         <div class="e-ill">${svg('book')}</div>
         <h3>${t('Welcome to BookNotes')}</h3>
         <p>${t('Use the + button to add your first book.')}</p>
-        ${firstUse()?fabArrow():''}
       </div></div>`);
+    if(firstUse())pulseFab();
     return;
   }
   const reading=bks.filter(b=>b.status==='reading').sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0));
@@ -827,8 +833,9 @@ function viewLibrary(){
     ${bks.length?`<div class="filter-row">${FILTERS.map(f=>`<button class="f-chip ${state.libFilter===f?'on':''}" onclick="setFilter('${f}')">${t(f)}</button>`).join('')}</div>`:''}
     <div class="pad" style="padding-top:8px">
       ${bks.length?`<div class="book-grid ${state.libView==='list'?'list-mode':''}">${libraryBooks().map(gbook).join('')||`<div class="empty" style="grid-column:1/-1"><div class="e-ill">${svg('library')}</div><h3>${t('Nothing here')}</h3><p>${t('No books in this collection yet.')}</p></div>`}</div>`
-      :`<div class="empty"><div class="e-ill">${svg('library')}</div><h3>${t('No books yet')}</h3><p>${t('Use the + button to add your first book.')}</p>${firstUse()?fabArrow():''}</div>`}
+      :`<div class="empty"><div class="e-ill">${svg('library')}</div><h3>${t('No books yet')}</h3><p>${t('Use the + button to add your first book.')}</p></div>`}
     </div>`);
+  if(!bks.length&&firstUse())pulseFab();
 }
 function libraryBooks(){const f=state.libFilter;return store.books.filter(b=>{if(f==='All')return true;if(f==='Favorites')return b.fav;return b.status===f.toLowerCase();});}
 function gbook(b){
@@ -1079,7 +1086,8 @@ function toggleQuoteFav(id){const q=store.quotes.find(x=>x.id===id);q.fav=!q.fav
 function viewNotes(){
   if(!store.notes.length&&!store.quotes.length){
     render(`<div class="lt-head"><div class="lt-row"><h1 class="lt-title">${t('Notes')}</h1></div></div>
-      <div class="pad"><div class="empty" style="padding-top:30px"><div class="e-ill">${svg('notes')}</div><h3>${t('No notes yet')}</h3><p>${t(store.books.length?'Open a book and create your first note.':'Add your first book to start taking notes.')}</p>${firstUse()?fabArrow():''}</div></div>`);
+      <div class="pad"><div class="empty" style="padding-top:30px"><div class="e-ill">${svg('notes')}</div><h3>${t('No notes yet')}</h3><p>${t(store.books.length?'Open a book and create your first note.':'Add your first book to start taking notes.')}</p></div></div>`);
+    if(firstUse())pulseFab();
     return;
   }
   const notes=[...store.notes].sort((a,b)=>b.ts-a.ts);
