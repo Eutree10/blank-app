@@ -326,6 +326,45 @@ main {
   place-items: center;
 }
 
+.problem__headtext {
+  flex: 1;
+  min-width: 0;
+}
+
+.problem__check {
+  flex: none;
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+  color: var(--azul-700);
+  font-weight: 700;
+  font-size: 13px;
+  padding: 7px 13px;
+  border-radius: 999px;
+  transition: all 0.15s ease;
+}
+.problem__check:hover {
+  background: var(--celeste-50);
+}
+.problem__check--on {
+  background: var(--ok-bg);
+  color: var(--ok);
+  border-color: #bfe6cf;
+}
+
+.problem--done {
+  border-color: #cfe9d9;
+}
+.problem--done .problem__head {
+  background: linear-gradient(180deg, var(--ok-bg), var(--surface));
+  border-bottom-color: #d9ecdf;
+}
+.problem--done .problem__num {
+  background: var(--ok);
+}
+.problem--done .problem__body {
+  color: var(--muted);
+}
+
 .problem__label {
   font-weight: 700;
   font-size: 14px;

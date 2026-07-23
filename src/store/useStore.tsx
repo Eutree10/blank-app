@@ -9,6 +9,7 @@ import {
 } from 'react'
 import type { AppState, Assignment, Problem } from '../types'
 import {
+  alternarProblema,
   asegurarAsignacionDeHoy,
   completarAsignacion,
 } from '../lib/assignment'
@@ -33,7 +34,11 @@ interface StoreValue {
   problemasDeHoy: Problem[]
   /** Devuelve un problema por id. */
   getProblem: (id: string) => Problem | undefined
-  /** Marca la asignación de hoy como completada. */
+  /** true si el problema está marcado como completado. */
+  estaCompletado: (id: string) => boolean
+  /** Marca/desmarca un problema individual de la asignación de hoy. */
+  alternarProblemaHoy: (id: string) => void
+  /** Marca TODA la asignación de hoy como completada. */
   completarHoy: () => void
   /** Reemplaza el dataset conservando el historial de completados por id. */
   importarDataset: (problems: Problem[]) => void
@@ -106,6 +111,15 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       .filter((p): p is Problem => Boolean(p))
   }, [hoy, problemById])
 
+  const estaCompletado = useCallback(
+    (id: string) => Boolean(state.completed[id]),
+    [state.completed],
+  )
+
+  const alternarProblemaHoy = useCallback((id: string) => {
+    setState((prev) => alternarProblema(prev, id, dayKeyOf()))
+  }, [])
+
   const completarHoy = useCallback(() => {
     setState((prev) => {
       const key = dayKeyOf()
@@ -155,6 +169,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     progreso,
     problemasDeHoy,
     getProblem,
+    estaCompletado,
+    alternarProblemaHoy,
     completarHoy,
     importarDataset,
     resetProgreso,

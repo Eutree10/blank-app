@@ -27,17 +27,39 @@ export function ProgressBar({ porcentaje }: { porcentaje: number }) {
   )
 }
 
-export function ProblemCard({ problem, orden }: { problem: Problem; orden?: number }) {
+export function ProblemCard({
+  problem,
+  orden,
+  done,
+  onToggle,
+}: {
+  problem: Problem
+  orden?: number
+  /** Si está definido, el problema se muestra como completado/no. */
+  done?: boolean
+  /** Si está definido, muestra el botón para marcar/desmarcar el problema. */
+  onToggle?: () => void
+}) {
   return (
-    <article className="problem">
+    <article className={`problem ${done ? 'problem--done' : ''}`}>
       <header className="problem__head">
-        <div className="problem__num">{orden ?? problem.numero}</div>
-        <div>
+        <div className="problem__num">{done ? '✓' : orden ?? problem.numero}</div>
+        <div className="problem__headtext">
           <div className="problem__label">Problema {problem.numero}</div>
           <div className="problem__meta">
             {problem.instancia} · {problem.anio} · Nivel {problem.nivel}
           </div>
         </div>
+        {onToggle && (
+          <button
+            type="button"
+            className={`problem__check ${done ? 'problem__check--on' : ''}`}
+            onClick={onToggle}
+            aria-pressed={done}
+          >
+            {done ? '✓ Hecho' : 'Marcar'}
+          </button>
+        )}
       </header>
       <div className="problem__body">{problem.enunciado}</div>
       <footer className="problem__foot">

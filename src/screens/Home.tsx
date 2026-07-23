@@ -1,10 +1,24 @@
 import { useEffect, useState } from 'react'
 import { useStore } from '../store/useStore'
 import { cuentaRegresiva, fechaLarga } from '../lib/date'
-import { EstadoBadge, InstanciaBadge, NivelBadge, ProblemCard } from '../components/ui'
+import {
+  EstadoBadge,
+  InstanciaBadge,
+  NivelBadge,
+  ProblemCard,
+  ProgressBar,
+} from '../components/ui'
 
 export function Home({ irADatos }: { irADatos: () => void }) {
-  const { hoy, problemasDeHoy, finalizado, completarHoy, progreso } = useStore()
+  const {
+    hoy,
+    problemasDeHoy,
+    finalizado,
+    estaCompletado,
+    alternarProblemaHoy,
+    completarHoy,
+    progreso,
+  } = useStore()
   const [countdown, setCountdown] = useState(() => cuentaRegresiva())
 
   useEffect(() => {
@@ -49,7 +63,10 @@ export function Home({ irADatos }: { irADatos: () => void }) {
   }
 
   const esZonal = hoy.instancia === 'Zonal'
-  const yaCompletado = hoy.estado === 'completed'
+  const total = problemasDeHoy.length
+  const hechos = problemasDeHoy.filter((p) => estaCompletado(p.id)).length
+  const yaCompletado = total > 0 && hechos === total
+  const pctHoy = total > 0 ? Math.round((hechos / total) * 100) : 0
 
   return (
     <div>
@@ -80,7 +97,13 @@ export function Home({ irADatos }: { irADatos: () => void }) {
 
       <div className="mt-16">
         {problemasDeHoy.map((p, i) => (
-          <ProblemCard key={p.id} problem={p} orden={i + 1} />
+          <ProblemCard
+            key={p.id}
+            problem={p}
+            orden={i + 1}
+            done={estaCompletado(p.id)}
+            onToggle={() => alternarProblemaHoy(p.id)}
+          />
         ))}
       </div>
 
@@ -88,8 +111,11 @@ export function Home({ irADatos }: { irADatos: () => void }) {
         {yaCompletado ? (
           <div className="field-row" style={{ justifyContent: 'space-between' }}>
             <div>
-              <strong style={{ color: 'var(--ok)' }}>✓ Marcado como completado</strong>
+              <strong style={{ color: 'var(--ok)' }}>✓ Asignación completada</strong>
               <div className="muted small">
+                {total > 1
+                  ? 'Marcaste los ' + total + ' problemas. '
+                  : 'Marcaste el problema. '}
                 Pasó al historial. La próxima asignación llega mañana a las 00:00.
               </div>
             </div>
@@ -97,13 +123,23 @@ export function Home({ irADatos }: { irADatos: () => void }) {
           </div>
         ) : (
           <>
-            <button className="btn btn--primary btn--lg btn--block" onClick={completarHoy}>
-              Marcar como completado
-            </button>
-            <p className="muted small" style={{ textAlign: 'center', marginTop: 12, marginBottom: 0 }}>
-              Tenés hasta las 00:00 de hoy. Si no lo completás, queda registrado como vencido y
-              los problemas vuelven a estar disponibles más adelante.
+            <div className="field-row" style={{ justifyContent: 'space-between', marginBottom: 12 }}>
+              <strong>Progreso de hoy</strong>
+              <span className="mono muted">
+                {hechos} / {total} completado{total === 1 ? '' : 's'}
+              </span>
+            </div>
+            <ProgressBar porcentaje={pctHoy} />
+            <p className="muted small" style={{ marginTop: 12, marginBottom: 0 }}>
+              Marcá cada problema con <strong>“Marcar”</strong> a medida que lo resolvés
+              {total > 1 ? ' — podés marcar solo el que hiciste' : ''}. Tenés hasta las 00:00;
+              lo que quede sin marcar se registra como vencido y esos problemas vuelven al pool.
             </p>
+            {total > 1 && (
+              <button className="btn btn--ghost btn--block mt-16" onClick={completarHoy}>
+                Marcar todos como completados
+              </button>
+            )}
           </>
         )}
       </div>
