@@ -168,3 +168,4 @@ dist/
 *.local
 .vite/
 tsconfig.tsbuildinfo
+dist-single/
