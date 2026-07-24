@@ -1,19 +1,19 @@
-# 🎈 Blank app template
+# Life RPG
 
-A simple Streamlit app template for you to modify!
+App móvil de hábitos que convierte tu vida diaria en un juego de rol simple:
+completa hábitos, gana XP y monedas, sube de nivel y desbloquea recompensas.
 
-[![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://blank-app-template.streamlit.app/)
+La aplicación vive en la carpeta [`life-rpg/`](./life-rpg) y está construida con
+**React Native + Expo Router + TypeScript**, con almacenamiento local
+(AsyncStorage / localStorage) y sin backend.
 
-### How to run it on your own machine
+## Empezar
 
-1. Install the requirements
+```bash
+cd life-rpg
+npm install
+npm run web   # o `npm start` para Android / iOS / web con Expo
+```
 
-   ```
-   $ pip install -r requirements.txt
-   ```
-
-2. Run the app
-
-   ```
-   $ streamlit run streamlit_app.py
-   ```
+Consulta [`life-rpg/README.md`](./life-rpg/README.md) para más detalles sobre el
+concepto, la estructura del código y los componentes.
