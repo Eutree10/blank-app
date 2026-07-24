@@ -25,9 +25,6 @@
     "scheme": "liferpg",
     "plugins": [
       "expo-router"
-    ],
-    "experiments": {
-      "baseUrl": "/blank-app"
-    }
+    ]
   }
 }
