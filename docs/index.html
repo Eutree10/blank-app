@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#141820" />
+<title>Life RPG</title>
+<style>
+  :root {
+    --bg: #0f1319;
+    --card: #1e2530;
+    --card2: #262f3d;
+    --text: #e8ecf3;
+    --muted: #8b95a5;
+    --accent: #7b3fbf;
+    --accent2: #4c2d8f;
+    --gold: #ffd54a;
+    --life: #ff2d55;
+    --good: #35d07f;
+    --bad: #ff5e7e;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+  #app { max-width: 520px; margin: 0 auto; padding: 16px 16px calc(84px + env(safe-area-inset-bottom)); min-height: 100vh; }
+  h1, h2, h3 { margin: 0 0 12px; }
+  h1 { font-size: 1.5rem; }
+  h2 { font-size: 1.05rem; margin-top: 20px; }
+  .muted { color: var(--muted); font-size: 0.85rem; }
+
+  .hero { background: linear-gradient(145deg, var(--accent2), var(--accent)); border-radius: 20px; padding: 18px 20px; color: #fff; margin-bottom: 14px; }
+  .hero .sub { opacity: 0.85; font-size: 0.85rem; }
+  .hero .lvl { font-size: 2.2rem; font-weight: 800; line-height: 1; }
+  .bar-wrap { background: rgba(0,0,0,0.28); border-radius: 999px; height: 12px; overflow: hidden; margin-top: 10px; }
+  .bar-fill { background: linear-gradient(90deg, #ffd54a, #ff9d3f); height: 100%; border-radius: 999px; transition: width .35s ease; }
+  .life-fill { background: linear-gradient(90deg, #ff5e7e, #ff2d55); height: 100%; border-radius: 999px; transition: width .35s ease; }
+
+  .grid2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 10px; }
+  .card { background: linear-gradient(145deg, var(--card), var(--card2)); border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 16px; padding: 14px 16px; margin-bottom: 10px; }
+  .card .label { font-size: 0.72rem; opacity: 0.65; text-transform: uppercase; letter-spacing: .04em; }
+  .card .value { font-size: 1.5rem; font-weight: 700; margin-top: 2px; }
+
+  .row { display: flex; align-items: center; gap: 12px; }
+  .row .info { flex: 1; min-width: 0; }
+  .row .info .name { font-weight: 600; }
+  .row .info .meta { font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
+
+  button { font-family: inherit; cursor: pointer; border: none; }
+  .btn { background: var(--accent); color: #fff; border-radius: 12px; padding: 10px 14px; font-size: 0.9rem; font-weight: 600; white-space: nowrap; }
+  .btn:active { transform: scale(0.97); }
+  .btn:disabled { background: #3a4150; color: var(--muted); cursor: not-allowed; }
+  .btn-ghost { background: transparent; border: 1px solid rgba(255,255,255,0.15); color: var(--text); }
+  .btn-danger { background: #b3324a; }
+  .btn-full { width: 100%; }
+
+  .pill { font-size: 0.72rem; padding: 2px 8px; border-radius: 999px; background: rgba(255,255,255,0.08); color: var(--muted); }
+  .toast-host { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(90px + env(safe-area-inset-bottom)); z-index: 1200; display: flex; flex-direction: column; gap: 8px; width: 90%; max-width: 480px; pointer-events: none; }
+  .toast { background: #2a3340; color: #fff; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 10px 14px; font-size: 0.88rem; box-shadow: 0 6px 20px rgba(0,0,0,.4); animation: pop .25s ease; }
+  @keyframes pop { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+  /* Form controls */
+  input, select { width: 100%; background: #12171f; border: 1px solid rgba(255,255,255,0.12); color: var(--text);
+    border-radius: 10px; padding: 10px 12px; font-size: 0.95rem; font-family: inherit; margin-top: 4px; }
+  label.field { display: block; font-size: 0.8rem; color: var(--muted); margin-bottom: 10px; }
+  details { background: var(--card); border: 1px solid rgba(255,255,255,0.06); border-radius: 14px; padding: 4px 14px; margin-bottom: 10px; }
+  summary { cursor: pointer; padding: 12px 0; font-weight: 600; }
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+  /* Bottom tab bar */
+  .tabbar { position: fixed; left: 50%; transform: translateX(-50%); bottom: 0; width: 100%; max-width: 520px;
+    display: flex; background: rgba(20,24,32,0.97); backdrop-filter: blur(8px);
+    border-top: 1px solid rgba(255,255,255,0.08); padding: 6px 4px calc(6px + env(safe-area-inset-bottom)); z-index: 1000; }
+  .tabbar button { flex: 1; background: transparent; color: var(--muted); font-size: 0.66rem; padding: 5px 0; border-radius: 12px; }
+  .tabbar button .ico { display: block; font-size: 1.35rem; line-height: 1.4; }
+  .tabbar button.active { color: #fff; background: rgba(123,63,191,0.28); }
+
+  /* Modal */
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 20px; }
+  .modal { background: var(--card2); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 24px; max-width: 420px; width: 100%; text-align: center; }
+  .modal .big { font-size: 1.6rem; font-weight: 800; margin: 12px 0; }
+  .warn { background: rgba(255,93,110,0.12); border: 1px solid rgba(255,93,110,0.3); color: #ffb3c0; border-radius: 12px; padding: 10px 12px; font-size: 0.85rem; margin: 14px 0; }
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div class="toast-host" id="toastHost"></div>
+<nav class="tabbar" id="tabbar"></nav>
+<div id="modalRoot"></div>
+
+<script>
+"use strict";
+
+// ---------------------------------------------------------------------------
+// Constants (mirror of game.py)
+// ---------------------------------------------------------------------------
+const MAX_LEVEL = 46;
+const BASE_XP = 100;
+const XP_CURVE = 1.2;
+const INITIAL_LIFE = 1000;
+const DEFAULT_LIFE_PENALTY = 100;
+const PUNISHMENT_TEXT = "100 flexiones (push-ups)";
+const STORAGE_KEY = "life_rpg_state_v1";
+
+const TABS = [
+  { key: "home", icon: "🏠", label: "Home" },
+  { key: "habits", icon: "✅", label: "Hábitos" },
+  { key: "shop", icon: "🛒", label: "Tienda" },
+  { key: "history", icon: "📜", label: "Historial" },
+  { key: "settings", icon: "⚙️", label: "Ajustes" },
+];
+
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+const newId = () => Math.random().toString(36).slice(2, 10);
+const todayStr = () => new Date().toISOString().slice(0, 10);
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) =>
+  ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+function xpToLevel(n) {
+  if (n >= MAX_LEVEL) return 1e9;
+  return Math.round(BASE_XP * Math.pow(XP_CURVE, n - 1));
+}
+
+// ---------------------------------------------------------------------------
+// Default state
+// ---------------------------------------------------------------------------
+function defaultHabits() {
+  return [
+    { id: newId(), name: "Hacer ejercicio", type: "good", xpReward: 50, coinReward: 20, lifePenalty: 0, icon: "🏋️", active: true },
+    { id: newId(), name: "Leer 30 min", type: "good", xpReward: 30, coinReward: 10, lifePenalty: 0, icon: "📚", active: true },
+    { id: newId(), name: "Beber agua", type: "good", xpReward: 15, coinReward: 5, lifePenalty: 0, icon: "💧", active: true },
+    { id: newId(), name: "Meditar", type: "good", xpReward: 25, coinReward: 10, lifePenalty: 0, icon: "🧘", active: true },
+    { id: newId(), name: "Comida chatarra", type: "bad", xpReward: 0, coinReward: 0, lifePenalty: 100, icon: "🍔", active: true },
+    { id: newId(), name: "Fumar", type: "bad", xpReward: 0, coinReward: 0, lifePenalty: 150, icon: "🚬", active: true },
+    { id: newId(), name: "Procrastinar", type: "bad", xpReward: 0, coinReward: 0, lifePenalty: 100, icon: "📱", active: true },
+  ];
+}
+function defaultShop() {
+  return [
+    { id: newId(), name: "Vida +200", price: 150, effect: "life", lifeAmount: 200, icon: "❤️", active: true },
+    { id: newId(), name: "Vida +500", price: 350, effect: "life", lifeAmount: 500, icon: "💖", active: true },
+    { id: newId(), name: "Café premium", price: 50, effect: "none", lifeAmount: 0, icon: "☕", active: true },
+    { id: newId(), name: "Noche de películas", price: 100, effect: "none", lifeAmount: 0, icon: "🎬", active: true },
+    { id: newId(), name: "Compra especial", price: 500, effect: "none", lifeAmount: 0, icon: "🎁", active: true },
+  ];
+}
+function defaultPlayer() {
+  return { level: 1, xp: 0, coins: 0, life: INITIAL_LIFE, lastLifeBuyDate: null, xpToNextLevel: xpToLevel(1) };
+}
+function defaultState() {
+  return { schemaVersion: 1, player: defaultPlayer(), habits: defaultHabits(), shop: defaultShop(), logs: [] };
+}
+
+// ---------------------------------------------------------------------------
+// Persistence (offline-first via localStorage)
+// ---------------------------------------------------------------------------
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return defaultState();
+    return migrate(JSON.parse(raw));
+  } catch (e) {
+    return defaultState();
+  }
+}
+function saveState() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {}
+}
+function migrate(data) {
+  const base = defaultState();
+  if (data && typeof data.player === "object") Object.assign(base.player, data.player);
+  for (const key of ["habits", "shop", "logs"]) {
+    if (Array.isArray(data[key])) base[key] = data[key];
+  }
+  base.player.xpToNextLevel = xpToLevel(base.player.level || 1);
+  return base;
+}
+
+// ---------------------------------------------------------------------------
+// Logging
+// ---------------------------------------------------------------------------
+function addLog(category, refId, dXp = 0, dCoins = 0, dLife = 0, note = "") {
+  state.logs.unshift({
+    id: newId(), timestamp: new Date().toISOString(), category, refId,
+    deltaXp: dXp, deltaCoins: dCoins, deltaLife: dLife, note,
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Game rules
+// ---------------------------------------------------------------------------
+function applyLevelUps(p) {
+  let gained = 0;
+  while (p.level < MAX_LEVEL) {
+    const needed = xpToLevel(p.level);
+    if (p.xp < needed) break;
+    p.xp -= needed;
+    p.level += 1;
+    gained += 1;
+  }
+  p.xpToNextLevel = xpToLevel(p.level);
+  return gained;
+}
+
+function markHabit(habitId) {
+  const h = state.habits.find((x) => x.id === habitId);
+  if (!h) return;
+  const p = state.player;
+  if (h.type === "good") {
+    p.xp += h.xpReward; p.coins += h.coinReward;
+    const gained = applyLevelUps(p);
+    addLog("habit", habitId, h.xpReward, h.coinReward, 0, h.name);
+    let msg = `${h.icon} ${h.name}: +${h.xpReward} XP · +${h.coinReward} 🪙`;
+    if (gained) msg += ` · 🎉 ¡Subiste ${gained} nivel(es)!`;
+    toast(msg);
+  } else {
+    const pen = h.lifePenalty || DEFAULT_LIFE_PENALTY;
+    p.life -= pen;
+    addLog("habit", habitId, 0, 0, -pen, h.name);
+    toast(`${h.icon} ${h.name}: -${pen} ❤️`);
+  }
+  saveState();
+  render();
+}
+
+function buyItem(itemId) {
+  const it = state.shop.find((x) => x.id === itemId);
+  if (!it) return;
+  const p = state.player;
+  if (p.coins < it.price) { toast("No tenés suficientes monedas."); return; }
+  const isLife = it.effect === "life";
+  if (isLife && p.lastLifeBuyDate === todayStr()) { toast("Solo podés comprar vida una vez por día."); return; }
+  p.coins -= it.price;
+  let dLife = 0;
+  if (isLife) { dLife = it.lifeAmount; p.life += dLife; p.lastLifeBuyDate = todayStr(); }
+  addLog("shop", itemId, 0, -it.price, dLife, it.name);
+  toast(`${it.icon} Compraste ${it.name} (-${it.price} 🪙${dLife ? " · +" + dLife + " ❤️" : ""})`);
+  saveState();
+  render();
+}
+
+function needsPunishment() { return state.player.life <= 0; }
+function completePunishment() {
+  state.player.life = INITIAL_LIFE;
+  addLog("punishment", "punishment", 0, 0, INITIAL_LIFE, PUNISHMENT_TEXT);
+  saveState();
+  render();
+}
+
+// ---------------------------------------------------------------------------
+// Toast
+// ---------------------------------------------------------------------------
+function toast(msg) {
+  const host = document.getElementById("toastHost");
+  const el = document.createElement("div");
+  el.className = "toast";
+  el.textContent = msg;
+  host.appendChild(el);
+  setTimeout(() => { el.style.transition = "opacity .3s"; el.style.opacity = "0"; setTimeout(() => el.remove(), 300); }, 2600);
+}
+
+// ---------------------------------------------------------------------------
+// Views
+// ---------------------------------------------------------------------------
+function viewHome() {
+  const p = state.player;
+  const maxed = p.level >= MAX_LEVEL;
+  const needed = xpToLevel(p.level);
+  const pct = maxed ? 100 : Math.min(100, Math.round((100 * p.xp) / needed));
+  const lifePct = Math.max(0, Math.min(100, Math.round((100 * p.life) / INITIAL_LIFE)));
+  const xpLine = maxed ? "¡Nivel máximo!" : `${p.xp} / ${needed} XP`;
+  let html = `
+    <h1>🎮 Life RPG</h1>
+    <div class="hero">
+      <div class="sub">Nivel</div>
+      <div class="lvl">${p.level} <span style="font-size:1rem;opacity:.7">/ ${MAX_LEVEL}</span></div>
+      <div class="bar-wrap"><div class="bar-fill" style="width:${pct}%"></div></div>
+      <div class="sub" style="margin-top:6px">${xpLine}</div>
+    </div>
+    <div class="grid2">
+      <div class="card"><div class="label">🪙 Monedas</div><div class="value">${p.coins}</div></div>
+      <div class="card"><div class="label">⭐ XP del nivel</div><div class="value">${p.xp}</div></div>
+    </div>
+    <div class="card">
+      <div class="label">❤️ Vida</div>
+      <div class="value">${p.life} <span style="font-size:.8rem;opacity:.6">/ ${INITIAL_LIFE}</span></div>
+      <div class="bar-wrap"><div class="life-fill" style="width:${lifePct}%"></div></div>
+    </div>
+    <p class="muted">Marcá tus hábitos del día en <b>Hábitos</b>. Ganás XP y monedas con los buenos; los malos te quitan vida.</p>
+  `;
+  const recent = state.logs.slice(0, 5);
+  if (recent.length) {
+    html += `<h2>Actividad reciente</h2>` + recent.map(logCard).join("");
+  }
+  return html;
+}
+
+function habitRow(h) {
+  const meta = h.type === "good"
+    ? `<span style="color:var(--good)">+${h.xpReward} XP · +${h.coinReward} 🪙</span>`
+    : `<span style="color:var(--bad)">-${h.lifePenalty} ❤️</span>`;
+  return `<div class="card"><div class="row">
+      <div class="info"><div class="name">${esc(h.icon)} ${esc(h.name)}</div><div class="meta">${meta}</div></div>
+      <button class="btn" data-mark="${h.id}">Marcar</button>
+    </div></div>`;
+}
+function viewHabits() {
+  const good = state.habits.filter((h) => h.active && h.type === "good");
+  const bad = state.habits.filter((h) => h.active && h.type === "bad");
+  let html = `<h1>✅ Hábitos</h1><h2>🌱 Buenos hábitos</h2>`;
+  html += good.length ? good.map(habitRow).join("") : `<p class="muted">No hay buenos hábitos activos. Agregá algunos en Ajustes.</p>`;
+  html += `<h2>⚠️ Malos hábitos</h2>`;
+  html += bad.length ? bad.map(habitRow).join("") : `<p class="muted">No hay malos hábitos activos.</p>`;
+  return html;
+}
+
+function viewShop() {
+  const p = state.player;
+  const items = state.shop.filter((s) => s.active);
+  let html = `<h1>🛒 Tienda</h1>
+    <div class="card"><div class="label">🪙 Tus monedas</div><div class="value">${p.coins}</div></div>`;
+  if (!items.length) html += `<p class="muted">La tienda está vacía. Agregá items en Ajustes.</p>`;
+  html += items.map((it) => {
+    const boughtLife = it.effect === "life" && p.lastLifeBuyDate === todayStr();
+    const disabled = p.coins < it.price || boughtLife;
+    let detail = `${it.price} 🪙`;
+    if (it.effect === "life") detail += ` · +${it.lifeAmount} ❤️`;
+    const label = boughtLife ? "Comprado" : "Comprar";
+    return `<div class="card"><div class="row">
+        <div class="info"><div class="name">${esc(it.icon)} ${esc(it.name)}</div><div class="meta">${detail}</div></div>
+        <button class="btn" data-buy="${it.id}" ${disabled ? "disabled" : ""}>${label}</button>
+      </div>${boughtLife ? '<div class="meta" style="margin-top:8px;color:var(--muted)">Solo una compra de vida por día.</div>' : ""}</div>`;
+  }).join("");
+  return html;
+}
+
+function logCard(e) {
+  const icons = { habit: "✅", shop: "🛒", punishment: "💪" };
+  const ico = icons[e.category] || "•";
+  const parts = [];
+  if (e.deltaXp) parts.push(`${e.deltaXp > 0 ? "+" : ""}${e.deltaXp} XP`);
+  if (e.deltaCoins) parts.push(`${e.deltaCoins > 0 ? "+" : ""}${e.deltaCoins} 🪙`);
+  if (e.deltaLife) parts.push(`${e.deltaLife > 0 ? "+" : ""}${e.deltaLife} ❤️`);
+  const deltas = parts.length ? parts.join(" · ") : "—";
+  let ts = e.timestamp;
+  try {
+    const d = new Date(e.timestamp);
+    ts = d.toLocaleDateString("es", { day: "2-digit", month: "2-digit" }) + " " +
+         d.toLocaleTimeString("es", { hour: "2-digit", minute: "2-digit" });
+  } catch (err) {}
+  const note = e.note || e.category;
+  return `<div class="card" style="margin-bottom:8px"><b>${ico} ${esc(note)}</b>
+    <div class="meta">${ts} · ${deltas}</div></div>`;
+}
+function viewHistory() {
+  let html = `<h1>📜 Historial</h1>`;
+  if (!state.logs.length) return html + `<p class="muted">Todavía no hay actividad. ¡Empezá marcando hábitos!</p>`;
+  html += state.logs.slice(0, 100).map(logCard).join("");
+  if (state.logs.length > 100) html += `<p class="muted">Mostrando 100 de ${state.logs.length} entradas.</p>`;
+  return html;
+}
+
+function viewSettings() {
+  const habitRows = state.habits.map((h) => `
+    <div class="row" style="padding:8px 0;border-top:1px solid rgba(255,255,255,.06)">
+      <div class="info"><div class="name">${esc(h.icon)} ${esc(h.name)}</div>
+        <div class="meta">${h.type === "good" ? "bueno" : "malo"}</div></div>
+      <button class="btn btn-ghost" data-toggle-habit="${h.id}">${h.active ? "Activo" : "Inactivo"}</button>
+      <button class="btn btn-danger" data-del-habit="${h.id}">🗑️</button>
+    </div>`).join("");
+  const shopRows = state.shop.map((it) => `
+    <div class="row" style="padding:8px 0;border-top:1px solid rgba(255,255,255,.06)">
+      <div class="info"><div class="name">${esc(it.icon)} ${esc(it.name)}</div>
+        <div class="meta">${it.price} 🪙</div></div>
+      <button class="btn btn-ghost" data-toggle-item="${it.id}">${it.active ? "Activo" : "Inactivo"}</button>
+      <button class="btn btn-danger" data-del-item="${it.id}">🗑️</button>
+    </div>`).join("");
+
+  return `<h1>⚙️ Ajustes</h1>
+    <details><summary>➕ Agregar hábito</summary>
+      <label class="field">Nombre<input id="h_name" placeholder="Ej: Salir a correr" /></label>
+      <div class="form-grid">
+        <label class="field">Icono<input id="h_icon" value="⭐" /></label>
+        <label class="field">Tipo
+          <select id="h_type"><option value="good">Bueno</option><option value="bad">Malo</option></select>
+        </label>
+      </div>
+      <div class="form-grid">
+        <label class="field">XP (si bueno)<input id="h_xp" type="number" value="30" min="0" /></label>
+        <label class="field">Monedas (si bueno)<input id="h_coins" type="number" value="10" min="0" /></label>
+      </div>
+      <label class="field">Penalización de vida (si malo)<input id="h_pen" type="number" value="100" min="0" /></label>
+      <button class="btn btn-full" id="addHabit">Agregar hábito</button>
+      <div style="height:12px"></div>
+    </details>
+
+    <details><summary>🗂️ Administrar hábitos</summary>${habitRows || '<p class="muted">Sin hábitos.</p>'}<div style="height:8px"></div></details>
+
+    <details><summary>🛒 Agregar item de tienda</summary>
+      <label class="field">Nombre<input id="s_name" placeholder="Ej: Helado" /></label>
+      <div class="form-grid">
+        <label class="field">Icono<input id="s_icon" value="🎁" /></label>
+        <label class="field">Precio<input id="s_price" type="number" value="100" min="0" /></label>
+      </div>
+      <div class="form-grid">
+        <label class="field">Efecto
+          <select id="s_effect"><option value="none">Ninguno</option><option value="life">Dar vida</option></select>
+        </label>
+        <label class="field">Vida (si aplica)<input id="s_life" type="number" value="200" min="0" /></label>
+      </div>
+      <button class="btn btn-full" id="addItem">Agregar item</button>
+      <div style="height:12px"></div>
+    </details>
+
+    <details><summary>🗂️ Administrar tienda</summary>${shopRows || '<p class="muted">Sin items.</p>'}<div style="height:8px"></div></details>
+
+    <h2>Datos</h2>
+    <div class="grid2">
+      <button class="btn btn-ghost" id="resetProgress">♻️ Reiniciar progreso</button>
+      <button class="btn btn-danger" id="resetAll">💥 Restablecer todo</button>
+    </div>
+    <p class="muted">El progreso se guarda en este dispositivo (offline). "Reiniciar progreso" mantiene tus hábitos y tienda; "Restablecer todo" vuelve a los valores de fábrica.</p>`;
+}
+
+// ---------------------------------------------------------------------------
+// Render + event wiring
+// ---------------------------------------------------------------------------
+let activeTab = "home";
+
+function renderTabbar() {
+  document.getElementById("tabbar").innerHTML = TABS.map((t) =>
+    `<button data-tab="${t.key}" class="${t.key === activeTab ? "active" : ""}">
+       <span class="ico">${t.icon}</span>${t.label}</button>`).join("");
+}
+
+function renderModal() {
+  const root = document.getElementById("modalRoot");
+  if (needsPunishment()) {
+    root.innerHTML = `<div class="modal-overlay"><div class="modal">
+        <div style="font-size:2.4rem">💀</div>
+        <h2 style="margin:6px 0">Vida en 0</h2>
+        <p class="muted">Tu vida llegó a 0. Para continuar, completá el castigo:</p>
+        <div class="big">💪 ${PUNISHMENT_TEXT}</div>
+        <div class="warn">No podés seguir jugando hasta confirmar el castigo.</div>
+        <button class="btn btn-full" id="confirmPunishment">✅ Confirmar castigo hecho</button>
+      </div></div>`;
+    document.getElementById("confirmPunishment").onclick = completePunishment;
+  } else {
+    root.innerHTML = "";
+  }
+}
+
+function render() {
+  const views = { home: viewHome, habits: viewHabits, shop: viewShop, history: viewHistory, settings: viewSettings };
+  document.getElementById("app").innerHTML = (views[activeTab] || viewHome)();
+  renderTabbar();
+  renderModal();
+  wire();
+}
+
+function wire() {
+  // Tab navigation
+  document.querySelectorAll("[data-tab]").forEach((b) => b.onclick = () => { activeTab = b.dataset.tab; render(); });
+  // Habits
+  document.querySelectorAll("[data-mark]").forEach((b) => b.onclick = () => markHabit(b.dataset.mark));
+  // Shop
+  document.querySelectorAll("[data-buy]").forEach((b) => b.onclick = () => buyItem(b.dataset.buy));
+
+  // Settings: add habit
+  const addHabit = document.getElementById("addHabit");
+  if (addHabit) addHabit.onclick = () => {
+    const name = document.getElementById("h_name").value.trim();
+    if (!name) { toast("Poné un nombre."); return; }
+    state.habits.push({
+      id: newId(), name, icon: document.getElementById("h_icon").value || "⭐",
+      type: document.getElementById("h_type").value,
+      xpReward: Math.max(0, parseInt(document.getElementById("h_xp").value) || 0),
+      coinReward: Math.max(0, parseInt(document.getElementById("h_coins").value) || 0),
+      lifePenalty: Math.max(0, parseInt(document.getElementById("h_pen").value) || 0),
+      active: true,
+    });
+    saveState(); toast("Hábito agregado"); render();
+  };
+  // Settings: add item
+  const addItem = document.getElementById("addItem");
+  if (addItem) addItem.onclick = () => {
+    const name = document.getElementById("s_name").value.trim();
+    if (!name) { toast("Poné un nombre."); return; }
+    state.shop.push({
+      id: newId(), name, icon: document.getElementById("s_icon").value || "🎁",
+      price: Math.max(0, parseInt(document.getElementById("s_price").value) || 0),
+      effect: document.getElementById("s_effect").value,
+      lifeAmount: Math.max(0, parseInt(document.getElementById("s_life").value) || 0),
+      active: true,
+    });
+    saveState(); toast("Item agregado"); render();
+  };
+  // Toggle / delete
+  document.querySelectorAll("[data-toggle-habit]").forEach((b) => b.onclick = () => {
+    const h = state.habits.find((x) => x.id === b.dataset.toggleHabit); if (h) { h.active = !h.active; saveState(); render(); }
+  });
+  document.querySelectorAll("[data-del-habit]").forEach((b) => b.onclick = () => {
+    state.habits = state.habits.filter((x) => x.id !== b.dataset.delHabit); saveState(); render();
+  });
+  document.querySelectorAll("[data-toggle-item]").forEach((b) => b.onclick = () => {
+    const it = state.shop.find((x) => x.id === b.dataset.toggleItem); if (it) { it.active = !it.active; saveState(); render(); }
+  });
+  document.querySelectorAll("[data-del-item]").forEach((b) => b.onclick = () => {
+    state.shop = state.shop.filter((x) => x.id !== b.dataset.delItem); saveState(); render();
+  });
+  // Reset
+  const rp = document.getElementById("resetProgress");
+  if (rp) rp.onclick = () => {
+    if (!confirm("¿Reiniciar nivel, XP, monedas, vida e historial? (se mantienen hábitos y tienda)")) return;
+    state.player = defaultPlayer(); state.logs = []; saveState(); toast("Progreso reiniciado"); render();
+  };
+  const ra = document.getElementById("resetAll");
+  if (ra) ra.onclick = () => {
+    if (!confirm("¿Restablecer TODO a los valores de fábrica?")) return;
+    state = defaultState(); saveState(); toast("Todo restablecido"); render();
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Boot
+// ---------------------------------------------------------------------------
+let state = loadState();
+render();
+</script>
+</body>
+</html>
