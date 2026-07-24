@@ -449,29 +449,29 @@ textarea.form-input{min-height:112px;resize:none;line-height:1.5;}
 .legend .lg b{font-size:13px;letter-spacing:-.01em;}
 .legend .lg p{margin:5px 0 0;font-size:12.5px;color:#5a5a62;line-height:1.45;}
 .hint{max-width:1080px;width:100%;text-align:center;color:#7a7a82;font-size:12.5px;margin-top:26px;}
-/* ===== Full-screen APP MODE on phones — no device frame, edge to edge ===== */
-@media(max-width:760px){
+/* ===== Full-screen APP MODE — any touch device (phone AND iPad), edge to edge ===== */
+@media (hover: none) and (pointer: coarse), (max-width: 760px){
   html,body{height:100%;}
   body{margin:0;padding:0;display:block;background:var(--bg);overflow:hidden;}
   .stage-head,.device-toggle,.legend,.hint{display:none!important;}
   .island{display:none;}
   .statusbar{display:none;}
-  .device{
+  .device,.device.ipad{
     position:fixed;top:0;left:0;right:0;bottom:0;
-    width:100%!important;height:100vh;height:100dvh;
-    padding:0;border-radius:0;box-shadow:none;background:var(--bg);
-    transform:none!important;flex:1;
+    width:100%!important;height:100vh!important;height:100dvh!important;
+    padding:0!important;border-radius:0!important;box-shadow:none!important;background:var(--bg);
+    transform:none!important;
   }
-  .device .screen{border-radius:0;height:100%;}
+  .device .screen,.device.ipad .screen{border-radius:0!important;height:100%;}
   /* clear the real status bar / notch via safe-area insets */
-  .lt-head{padding-top:calc(env(safe-area-inset-top,0px) + 18px);}
-  .detail-head{padding-top:calc(env(safe-area-inset-top,0px) + 14px);}
-  .ed-top{padding-top:calc(env(safe-area-inset-top,0px) + 14px);}
-  .book-hero{padding-top:calc(env(safe-area-inset-top,0px) + 62px);}
-  .fab{bottom:calc(104px + env(safe-area-inset-bottom,0px));}
+  .lt-head,.device.ipad .lt-head{padding-top:calc(env(safe-area-inset-top,0px) + 18px);}
+  .detail-head,.device.ipad .detail-head{padding-top:calc(env(safe-area-inset-top,0px) + 14px);}
+  .ed-top,.device.ipad .ed-top{padding-top:calc(env(safe-area-inset-top,0px) + 14px);}
+  .book-hero,.device.ipad .book-hero{padding-top:calc(env(safe-area-inset-top,0px) + 62px);}
+  .fab,.device.ipad .fab{bottom:calc(104px + env(safe-area-inset-bottom,0px));}
 }
-/* Slightly narrow the desktop showcase frame on small laptops */
-@media(min-width:761px) and (max-width:900px){
+/* Desktop-only (mouse) showcase: slightly narrow the framed preview on small laptops */
+@media (hover: hover) and (pointer: fine) and (min-width:761px) and (max-width:900px){
   body{padding:18px 10px 40px;}
   .device{transform:scale(.94);transform-origin:top center;}
 }
@@ -1216,6 +1216,9 @@ let toastTimer;
 function toast(msg){const t2=document.getElementById('toast');document.getElementById('toastMsg').textContent=msg;t2.classList.add('show');haptic();clearTimeout(toastTimer);toastTimer=setTimeout(()=>t2.classList.remove('show'),1800);}
 function haptic(){if(store.prefs.haptics&&navigator.vibrate){try{navigator.vibrate(8);}catch(e){}}}
 function setDevice(d){state.device=d;document.getElementById('device').classList.toggle('ipad',d==='ipad');document.getElementById('tg-phone').classList.toggle('on',d==='phone');document.getElementById('tg-pad').classList.toggle('on',d==='ipad');}
+/* On real touch devices the app runs full-screen; pick the phone or iPad (multi-column) layout by width and reflow on rotation. Desktop keeps the manual showcase toggle. */
+function appMode(){try{return window.matchMedia('(hover: none) and (pointer: coarse)').matches||window.innerWidth<=760;}catch(e){return window.innerWidth<=760;}}
+function autoDevice(){if(appMode())setDevice(window.innerWidth>=700?'ipad':'phone');}
 
 /* ---------- desktop legend + boot ---------- */
 (function(){const lg=document.getElementById('legend');if(lg)lg.innerHTML=[
@@ -1229,6 +1232,8 @@ if(store.prefs.fabUsed===undefined){store.prefs.fabUsed=(store.books.length||sto
 i18nStatic();
 renderCapture();
 renderTabs();
+autoDevice();
+window.addEventListener('resize',autoDevice);
 viewHome();
 
 </script>
