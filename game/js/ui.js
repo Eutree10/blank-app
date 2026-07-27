@@ -68,7 +68,19 @@ const UI = {
         this.V.selected = c; this.V.centerOn(c.x, c.y); this.showCityCard(c);
         break;
       }
-      case 'good': this.openGood = this.openGood === d.g ? null : d.g; this.renderMarket(); break;
+      case 'good': {
+        this.openGood = this.openGood === d.g ? null : d.g;
+        const g = this.openGood;
+        if (g) this.groupOpen[GOOD[g].tier] = true;      // que no quede oculto tras un grupo plegado
+        this.selectTab('market');
+        this.renderMarket();
+        if (g) {
+          const row = $('pane-market').querySelector(`tr.g[data-g="${g}"]`);
+          if (row) row.scrollIntoView({ block: 'nearest' });
+        }
+        break;
+      }
+      case 'grp': this.groupOpen[d.t] = !this.groupOpen[d.t]; this.renderMarket(); break;
       case 'cargo': this.cargoModal(d.g); break;
       case 'cq': this.setCargoQty(d.v); break;
       case 'cqsell': this.cargoSell(); break;
@@ -212,48 +224,148 @@ const UI = {
   },
 
   /* ------------------------------- Mercado --------------------------------- */
+  /** Datos de una fila de mercado: precio, desviación sobre la media y contexto. */
+  goodRow(g) {
+    const G = this.G, c = G.city, good = GOOD[g];
+    const banned = !!c.banned[g];
+    const bp = buyPriceAt(c, g);
+    const sp = sellPriceAt(c, g) * (banned ? 1.85 : 1 - c.tax);
+    const dev = (banned ? sp : bp) / good.base - 1;       // cuánto se aleja de lo que vale normalmente
+    const trend = c.price[g] - (c.lastPrice[g] || c.price[g]);
+    return {
+      g, good, banned, bp, sp, dev,
+      mine: Math.floor(G.p.cargo[g] || 0),
+      stock: Math.floor(c.stock[g]),
+      cheap: !banned && dev < -0.18,
+      dear: dev > 0.35,
+      trend: trend > 0.02 ? 1 : trend < -0.02 ? -1 : 0,
+    };
+  },
+
   renderMarket() {
     const G = this.G, c = G.city;
-    const filters = [['all', 'Todo'], ['0', 'Materias'], ['1', 'Elaborados'], ['2', 'Manufacturas'], ['mine', 'Mi bodega'], ['deal', 'Oportunidades']];
-    let rows = '';
-    for (const good of GOODS) {
-      const g = good.id;
-      if (this.filter === '0' || this.filter === '1' || this.filter === '2') { if (String(good.tier) !== this.filter) continue; }
-      if (this.filter === 'mine' && !(G.p.cargo[g] >= 0.5)) continue;
-      const bp = buyPriceAt(c, g), sp = sellPriceAt(c, g) * (c.banned[g] ? 1.85 : 1 - c.tax);
-      const base = good.base;
-      const ratio = bp / base;
-      if (this.filter === 'deal' && !(ratio < 0.78 || (G.p.cargo[g] >= 1 && this.bestSellDelta(g) > 0.15))) continue;
-      const trend = c.price[g] - (c.lastPrice[g] || c.price[g]);
-      const tclass = trend > 0.02 ? 'up' : trend < -0.02 ? 'down' : 'flat';
-      const tarrow = trend > 0.02 ? '▲' : trend < -0.02 ? '▼' : '·';
-      const mine = Math.floor(G.p.cargo[g] || 0);
-      const cheap = ratio < 0.75, dear = ratio > 1.4;
-      const tag = c.banned[g] ? '<span class="pill">proh.</span>'
-        : cheap ? '<span class="pill deal">barato</span>' : dear ? '<span class="pill">caro</span>' : '';
-      rows += `<tr class="g ${this.openGood === g ? 'sel' : ''}" data-act="good" data-g="${g}">
-        <td class="tier${good.tier}"><span class="gname"><span class="gi">${good.icon}</span><span class="gt">${good.name}</span>${tag}</span></td>
-        <td class="${cheap ? 'up' : ''}">${c.banned[g] ? '—' : fmt(bp)}</td>
-        <td class="${dear ? 'down' : ''}">${fmt(sp)}</td>
-        <td class="mini">${fmt(c.stock[g])}</td>
-        <td class="${mine ? '' : 'flat'}">${mine || '–'}</td>
-        <td class="${tclass}">${tarrow}</td></tr>`;
-      if (this.openGood === g) rows += this.tradeRow(g);
+    const filters = [['all', 'Todo'], ['0', 'Materias'], ['1', 'Elaborados'], ['2', 'Manufacturas'], ['mine', 'Mi bodega'], ['deal', 'Gangas']];
+    if (!this.groupOpen) this.groupOpen = { 0: true, 1: true, 2: true };
+
+    const all = GOODS.map(x => this.goodRow(x.id));
+    const visible = all.filter(r => {
+      if (this.filter === 'mine') return r.mine > 0;
+      if (this.filter === 'deal') return r.cheap || (r.mine > 0 && this.bestSellDelta(r.g) > 0.12);
+      if (this.filter === '0' || this.filter === '1' || this.filter === '2') return String(r.good.tier) === this.filter;
+      return true;
+    });
+
+    // --- destacado: lo más barato de la plaza, con destino sugerido
+    let deals = '';
+    if (this.filter === 'all' || this.filter === 'deal') {
+      const best = all.filter(r => r.cheap && r.stock > 8).sort((a, b) => a.dev - b.dev).slice(0, 3);
+      if (best.length) {
+        deals = `<div class="deals">
+          <h4>Barato aquí <span class="mini">precio muy por debajo de lo normal</span></h4>
+          ${best.map(r => {
+            const to = this.bestMarketFor(r.g);
+            return `<button class="dealcard" data-act="good" data-g="${r.g}">
+              <span class="di">${r.good.icon}</span>
+              <span class="dn">${r.good.name}<small>${to ? `→ ${esc(to.city.name)} ${to.days}d · ${pct(to.margin)}` : 'aún no sabes dónde venderlo caro'}</small></span>
+              <span class="dp">${fmt(r.bp)} ⦿<small class="up">${pct(r.dev)}</small></span>
+            </button>`;
+          }).join('')}
+        </div>`;
+      }
     }
+
+    // --- lo que llevas, para venderlo sin buscarlo
+    let hold = '';
+    const carried = all.filter(r => r.mine > 0);
+    if (carried.length && this.filter !== 'mine') {
+      hold = `<div class="deals hold">
+        <h4>En tu bodega <span class="mini">pulsa para vender</span></h4>
+        ${carried.map(r => {
+          const avg = G.p.avgCost && G.p.avgCost[r.g] && G.p.avgCost[r.g].n > 0 ? G.p.avgCost[r.g].total / G.p.avgCost[r.g].n : null;
+          const prof = avg === null ? null : (r.sp - avg) / avg;
+          const nota = prof === null ? 'vendiendo aquí'
+            : (prof >= 0 ? 'ganarías ' : 'perderías ') + Math.round(Math.abs(prof) * 100) + '% sobre lo que pagaste';
+          return `<button class="dealcard" data-act="cargo" data-g="${r.g}">
+            <span class="di">${r.good.icon}</span>
+            <span class="dn">${r.good.name} <b>×${r.mine}</b><small>${nota}</small></span>
+            <span class="dp ${prof === null ? '' : prof >= 0 ? 'up' : 'down'}">${fmt(r.sp * r.mine)} ⦿</span>
+          </button>`;
+        }).join('')}
+      </div>`;
+    }
+
+    // --- tabla agrupada por categoría
+    const TIERS = [
+      { t: 0, name: 'Materias primas', hint: 'de la tierra y el mar' },
+      { t: 1, name: 'Elaborados', hint: 'pasan por un taller' },
+      { t: 2, name: 'Manufacturas y lujo', hint: 'lo que más margen deja' },
+    ];
+    const grouped = this.filter === 'all';
+    let rows = '';
+    const rowHtml = r => {
+      const tag = r.banned ? '<span class="pill">proh.</span>' : '';
+      return `<tr class="g ${this.openGood === r.g ? 'sel' : ''} ${r.cheap ? 'isdeal' : ''}" data-act="good" data-g="${r.g}">
+        <td><span class="gname"><span class="gi">${r.good.icon}</span><span class="gt">${r.good.name}</span>${tag}</span></td>
+        <td class="${r.cheap ? 'up strong' : ''}">${r.banned ? '—' : fmt(r.bp)}</td>
+        <td class="${r.dear ? 'down' : ''}">${fmt(r.sp)}</td>
+        <td class="dev ${r.dev < -0.18 ? 'up' : r.dev > 0.35 ? 'down' : 'flat'}">${pct(r.dev)}</td>
+        <td class="${r.mine ? '' : 'flat'}">${r.mine || '–'}</td>
+        <td class="${r.trend > 0 ? 'up' : r.trend < 0 ? 'down' : 'flat'}">${r.trend > 0 ? '▲' : r.trend < 0 ? '▼' : '·'}</td></tr>`
+        + (this.openGood === r.g ? this.tradeRow(r.g) : '');
+    };
+
+    if (grouped) {
+      for (const T of TIERS) {
+        const list = visible.filter(r => r.good.tier === T.t);
+        if (!list.length) continue;
+        const nDeals = list.filter(r => r.cheap).length;
+        const open = this.groupOpen[T.t];
+        rows += `<tr class="grp" data-act="grp" data-t="${T.t}"><td colspan="6"><span class="gh">
+          <span class="caret">${open ? '▾' : '▸'}</span>
+          <span class="gtitle">${T.name}</span>
+          <span class="mini">${T.hint} · ${list.length}</span>
+          ${nDeals ? `<span class="pill deal">${nDeals} barato${nDeals > 1 ? 's' : ''}</span>` : ''}
+        </span></td></tr>`;
+        if (open) rows += list.map(rowHtml).join('');
+      }
+    } else {
+      rows = visible.map(rowHtml).join('');
+    }
+
     $('pane-market').innerHTML = `
       <div class="mkt-head">
         <div><h2>${esc(c.name)}</h2>
         <div class="where">${BIOMES[c.biome].name} · ${fmt(c.pop)} hab · impuesto ${(c.tax * 100).toFixed(1)}% · ${c.coastal ? 'puerto' : 'interior'}</div></div>
       </div>
       <div class="filters">${filters.map(f => `<button data-f="${f[0]}" class="${this.filter === f[0] ? 'active' : ''}">${f[1]}</button>`).join('')}</div>
+      ${deals}${hold}
       <table class="mkt">
         <colgroup><col class="c-name"><col class="c-num"><col class="c-num"><col class="c-num"><col class="c-mine"><col class="c-tr"></colgroup>
-        <thead><tr><th>Bien</th><th>Compra</th><th>Venta</th><th>Stock</th><th>Tuyo</th><th></th></tr></thead>
+        <thead><tr><th>Bien</th><th>Compra</th><th>Venta</th><th title="Diferencia con lo que suele valer este bien"><span class="thl">vs normal</span><span class="ths">±%</span></th><th>Tuyo</th><th></th></tr></thead>
         <tbody>${rows || '<tr><td colspan="6" class="mini" style="padding:14px">Nada que mostrar con este filtro.</td></tr>'}</tbody>
       </table>`;
     $('pane-market').querySelectorAll('.filters button').forEach(b => b.onclick = e => {
       e.stopPropagation(); this.filter = b.dataset.f; this.renderMarket();
     });
+  },
+
+  /** Mejor mercado recordado para un bien, con margen y distancia. */
+  bestMarketFor(g) {
+    const G = this.G, mem = G.p.memory || {};
+    const bp = buyPriceAt(G.city, g);
+    let best = null;
+    for (const cid in mem) {
+      if (+cid === G.p.at) continue;
+      const city = G.world.cities[cid], sell = mem[cid].price[g];
+      if (!city || !sell) continue;
+      const margin = (sell - bp) / bp;
+      if (margin < 0.08) continue;
+      const r = G.routeTo(city.id);
+      if (!r) continue;
+      const days = Math.max(1, Math.round(r.days));
+      if (!best || margin / days > best.margin / best.days) best = { city, margin, days };
+    }
+    return best;
   },
 
   tradeRow(g) {
@@ -270,7 +382,7 @@ const UI = {
         <button class="btn tiny" data-act="qty" data-g="${g}" data-v="10">10</button>
         <button class="btn tiny" data-act="qty" data-g="${g}" data-v="50">50</button>
         <button class="btn tiny" data-act="qty" data-g="${g}" data-v="max">Máx</button>
-        <span class="mini">cabe ${max}</span>
+        <span class="mini">cabe ${max} · hay ${fmt(c.stock[g])} en plaza</span>
       </div>
       <div class="qty">
         <button class="btn tiny primary" data-act="buy" data-g="${g}" ${c.banned[g] ? 'disabled' : ''}>Comprar</button>

@@ -226,8 +226,46 @@ table.mkt .gname { font-family: var(--sans); display: flex; align-items: center;
 table.mkt .gname .gi { flex: none; }
 table.mkt .gname .gt { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
 table.mkt .gname .pill { flex: none; }
-.tier0 { border-left: 2px solid #4a5a35; } .tier1 { border-left: 2px solid #5a4a2a; } .tier2 { border-left: 2px solid #6a4a5a; }
 .up { color: var(--up); } .down { color: var(--down); } .flat { color: var(--muted); }
+.strong { font-weight: 700; }
+
+/* --- cabeceras de categoría dentro de la tabla --- */
+table.mkt tr.grp td {
+  background: #14120d; border-bottom: 1px solid var(--border); border-top: 1px solid var(--border);
+  font-family: var(--sans); font-size: 11.5px; font-weight: 600; color: #d8cdb4;
+  padding: 7px 6px; cursor: pointer; letter-spacing: .01em;
+}
+table.mkt tr.grp:hover td { background: #1b1811; }
+table.mkt tr.grp .gh { display: flex; align-items: center; gap: 6px; min-width: 0; }
+table.mkt tr.grp .caret { color: var(--accent); flex: none; width: 11px; }
+table.mkt tr.grp .gtitle { flex: none; }
+table.mkt tr.grp .mini { font-weight: 400; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+table.mkt tr.grp .pill { flex: none; margin-left: auto; }
+/* filas de ganga: se ven de un vistazo */
+table.mkt tr.isdeal td:first-child { box-shadow: inset 2px 0 0 var(--up); }
+table.mkt tr.isdeal td { background: rgba(63,185,80,.055); }
+table.mkt td.dev { font-size: 11.5px; }
+table.mkt th .ths { display: none; }   /* cabecera corta, solo en paneles estrechos */
+
+/* --- tarjetas destacadas de gangas / bodega --- */
+.deals { margin-bottom: 12px; }
+.deals h4 {
+  margin: 0 0 6px; font-size: 10px; letter-spacing: .16em; text-transform: uppercase;
+  color: var(--muted); font-weight: 600; display: flex; gap: 8px; align-items: baseline;
+}
+.deals h4 .mini { letter-spacing: 0; text-transform: none; font-size: 10.5px; }
+.dealcard {
+  width: 100%; display: flex; align-items: center; gap: 9px; text-align: left;
+  background: var(--surface); border: 1px solid var(--border); border-left: 2px solid var(--up);
+  border-radius: 8px; padding: 5px 9px; margin-bottom: 4px;
+}
+.dealcard:hover { border-color: var(--border2); border-left-color: var(--up); background: #1c1a14; }
+.dealcard .di { font-size: 16px; flex: none; }
+.dealcard .dn { flex: 1; min-width: 0; font-size: 12.5px; overflow: hidden; }
+.dealcard .dn small { display: block; color: var(--muted); font-size: 10.5px; font-family: var(--mono); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dealcard .dp { font-family: var(--mono); font-size: 13px; text-align: right; flex: none; color: var(--accent); }
+.dealcard .dp small { display: block; font-size: 10.5px; }
+.deals.hold .dealcard { border-left-color: var(--accent); }
 .pill { font-size: 9.5px; padding: 0 4px; border-radius: 4px; background: #2a1614; color: #f3b2ae; border: 1px solid #5a2a26; line-height: 1.5; }
 .pill.deal { background: #12240f; color: #b6e0a8; border-color: #2c4d24; }
 
@@ -320,6 +358,8 @@ table.mkt .gname .pill { flex: none; }
 @media (max-width: 1180px) and (min-width: 901px) {
   table.mkt .gname .pill { display: none; }
   table.mkt th { font-size: 9px; }
+  table.mkt th .thl { display: none; }
+  table.mkt th .ths { display: inline; }
   col.c-name { width: 40%; } col.c-num { width: 15%; }
 }
 @media (max-width: 900px) {
