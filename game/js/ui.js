@@ -230,7 +230,7 @@ const UI = {
     const G = this.G, c = G.city, good = GOOD[g];
     const banned = !!c.banned[g];
     const bp = buyPriceAt(c, g);
-    const sp = sellPriceAt(c, g) * (banned ? 1.85 : 1 - c.tax);
+    const sp = sellPriceAt(c, g) * (banned ? 1.85 : 1 - taxP(c));
     const dev = (banned ? sp : bp) / good.base - 1;       // cuánto se aleja de lo que vale normalmente
     const trend = c.price[g] - (c.lastPrice[g] || c.price[g]);
     return {
@@ -336,11 +336,16 @@ const UI = {
     $('pane-market').innerHTML = `
       <div class="mkt-head">
         <div><h2>${esc(c.name)}</h2>
-        <div class="where">${BIOMES[c.biome].name} · ${fmt(c.pop)} hab · impuesto ${(c.tax * 100).toFixed(1)}% · ${c.coastal ? 'puerto' : 'interior'}</div></div>
+        <div class="where">${CITY_TRAIT[c.trait] ? CITY_TRAIT[c.trait].icon + ' ' + CITY_TRAIT[c.trait].name + ' · ' : ''}${fmt(c.pop)} hab · impuesto ${(taxP(c) * 100).toFixed(1)}%</div></div>
       </div>
-      <div class="filters">${filters.map(f => `<button data-f="${f[0]}" class="${this.filter === f[0] ? 'active' : ''}">${f[1]}</button>`).join('')}</div>
+      ${G.vetoed(c) ? '<div class="warnbox">⛔ <b>Te han vetado en esta ciudad.</b> No te compran ni te venden nada. Gánate su perdón entregando contratos en otras plazas… o no vuelvas.</div>' : ''}
+      <div class="filters">
+        ${filters.map(f => `<button data-f="${f[0]}" class="${this.filter === f[0] ? 'active' : ''}">${f[1]}</button>`).join('')}
+        <button class="viewtog" id="btnStalls">${this.stallView ? '☰ Ver tabla' : '🏪 Ver puestos'}</button>
+      </div>
       ${deals}${hold}
-      <table class="mkt">
+      ${this.stallView ? `<div class="stalls">${this.renderStalls(all)}</div>` : ''}
+      <table class="mkt" ${this.stallView ? 'style="display:none"' : ''}>
         <colgroup><col class="c-name"><col class="c-num"><col class="c-num"><col class="c-num"><col class="c-mine"><col class="c-tr"></colgroup>
         <thead><tr><th>Bien</th>
           <th title="Lo que pagas tú por cada unidad que compras aquí">Cuesta</th>
@@ -349,9 +354,61 @@ const UI = {
           <th title="Unidades que llevas en la bodega">Tuyo</th><th></th></tr></thead>
         <tbody>${rows || '<tr><td colspan="6" class="mini" style="padding:14px">Nada que mostrar con este filtro.</td></tr>'}</tbody>
       </table>`;
-    $('pane-market').querySelectorAll('.filters button').forEach(b => b.onclick = e => {
+    $('pane-market').querySelectorAll('.filters button[data-f]').forEach(b => b.onclick = e => {
       e.stopPropagation(); this.filter = b.dataset.f; this.renderMarket();
     });
+    const tog = $('btnStalls');
+    if (tog) tog.onclick = e => { e.stopPropagation(); this.stallView = !this.stallView; this.renderMarket(); };
+  },
+
+  /* ------------------------- El mercado por puestos ------------------------ */
+  STALLS: [
+    { name: 'Granero', icon: '🌾', goods: ['grano', 'harina', 'pan'] },
+    { name: 'Pescadería', icon: '🐟', goods: ['pescado', 'sal'] },
+    { name: 'Maderero', icon: '🪵', goods: ['madera', 'tablones', 'muebles'] },
+    { name: 'Fragua', icon: '🔩', goods: ['mineral', 'carbon', 'hierro', 'herram', 'espadas', 'armadura'] },
+    { name: 'Telares', icon: '🧵', goods: ['lana', 'pieles', 'tela', 'cuero', 'ropa'] },
+    { name: 'Especiero', icon: '🌶️', goods: ['especias', 'hierbas', 'incienso', 'medicina'] },
+    { name: 'Bodega', icon: '🍷', goods: ['uva', 'vino'] },
+    { name: 'Joyería', icon: '💎', goods: ['gemas', 'joyas'] },
+    { name: 'Cantera', icon: '🪨', goods: ['piedra'] },
+  ],
+
+  stallKeeper(c, stall) {
+    const h = hashStr(c.name + stall.name);
+    return MERCH_FIRST[h % MERCH_FIRST.length] + ' ' + MERCH_LAST[(h >> 5) % MERCH_LAST.length];
+  },
+  stallLine(c, rows) {
+    const cheap = rows.find(r => r.cheap), dear = rows.find(r => r.dear);
+    const crisis = c.events.find(e => ['hambruna', 'peste', 'guerra', 'sequia'].includes(e.id));
+    if (crisis && rows.some(r => GOOD[r.g].tag === 'alimento' || GOOD[r.g].tag === 'medicina'))
+      return `«Con esto de ${crisis.name.toLowerCase()}, lo que traigas se vende solo.»`;
+    if (cheap) return `«Me sobra ${GOOD[cheap.g].name.toLowerCase()}, llévatelo casi regalado.»`;
+    if (dear) return `«De ${GOOD[dear.g].name.toLowerCase()} queda poco, y lo que queda se paga.»`;
+    return '«Precio de siempre, ni un cobre menos.»';
+  },
+
+  renderStalls(all) {
+    const G = this.G, c = G.city;
+    return this.STALLS.map(st => {
+      const rows = st.goods.map(g => all.find(r => r.g === g)).filter(Boolean);
+      if (!rows.length) return '';
+      return `<div class="stall">
+        <div class="stallhead">
+          <span class="si">${st.icon}</span>
+          <div class="sn"><b>${st.name}</b><small>${esc(this.stallKeeper(c, st))}</small></div>
+        </div>
+        <div class="stallsay">${this.stallLine(c, rows)}</div>
+        <div class="stallgoods">
+          ${rows.map(r => `<button class="sg ${r.cheap ? 'cheap' : ''} ${r.dear ? 'dear' : ''}" data-act="good" data-g="${r.g}">
+            <span class="sgi">${r.good.icon}</span>
+            <span class="sgn">${r.good.name}</span>
+            <span class="sgp">${r.banned ? '🕯️' : fmt(r.bp)}<small class="${r.dev < -0.18 ? 'up' : r.dev > 0.35 ? 'down' : 'flat'}">${pct(r.dev)}</small></span>
+            ${r.mine ? `<span class="sgm">llevas ${r.mine}</span>` : ''}
+          </button>`).join('')}
+        </div>
+      </div>`;
+    }).join('');
   },
 
   /** Mejor mercado recordado para un bien, con margen y distancia. */
@@ -458,7 +515,7 @@ const UI = {
       out.push({ city, price, age, days: r ? Math.round(r.days) : null, black: !!city.banned[g] });
     }
     out.sort((a, b) => b.price - a.price);
-    const cur = sellPriceAt(here, g) * (here.banned[g] ? 1.85 : 1 - here.tax);
+    const cur = sellPriceAt(here, g) * (here.banned[g] ? 1.85 : 1 - taxP(here));
     const top = out.slice(0, 7).map(o => {
       const d = (o.price - cur) / cur;
       return `<div class="w" data-act="select-city" data-city="${o.city.id}">
@@ -469,7 +526,7 @@ const UI = {
   },
   bestSellDelta(g) {
     const G = this.G, mem = G.p.memory || {}, c = G.city;
-    const cur = sellPriceAt(c, g) * (c.banned[g] ? 1.85 : 1 - c.tax);
+    const cur = sellPriceAt(c, g) * (c.banned[g] ? 1.85 : 1 - taxP(c));
     let best = cur;
     for (const cid in mem) if (mem[cid].price[g]) best = Math.max(best, mem[cid].price[g]);
     return (best - cur) / cur;
@@ -478,34 +535,61 @@ const UI = {
   /* -------------------------------- Ciudad --------------------------------- */
   renderCity() {
     const G = this.G, c = G.city;
+    const T = CITY_TRAIT[c.trait];
+    const st = standing(c);
+    const mem = (c.memories || []).slice(0, 4);
     const evs = c.events.map(e => `<span class="evtag ${['guerra', 'peste', 'hambruna', 'sequia', 'erupcion', 'revolucion', 'impuestos', 'minaagotada', 'plagaganado'].includes(e.id) ? 'bad' : 'good'}">${e.icon} ${e.name} · ${e.daysLeft}d</span>`).join('') || '<span class="mini">Sin sucesos activos.</span>';
     const sp = c.specialties.map(s => `<span class="evtag">${SPECIALTY[s].icon} ${SPECIALTY[s].name}</span>`).join('');
     const banned = Object.keys(c.banned);
     const ks = c.contracts.map(k => {
       const to = G.world.cities[k.to];
       const have = Math.floor(G.p.cargo[k.good] || 0);
+      if (k.mega) {
+        return `<div class="opt mega">
+          <span>👑</span>
+          <div class="t"><b>Gran encargo: ${fmt(k.qty)} de ${GOOD[k.good].name} ${GOOD[k.good].icon}</b>
+          <small>${k.what} · ${k.days} días · paga <b>${fmt(k.reward)} ⦿</b> · se entrega por partes</small></div>
+          <button class="btn tiny primary" data-act="accept" data-k="${k.id}">Aceptar</button></div>`;
+      }
       return `<div class="opt">
         <span>${GOOD[k.good].icon}</span>
         <div class="t"><b>${k.qty}× ${GOOD[k.good].name} → ${esc(to.name)}</b>
         <small>${k.days} días · paga ${fmt(k.reward)} ⦿ · multa ${fmt(k.penalty)} ⦿ · llevas ${have}</small></div>
         <button class="btn tiny primary" data-act="accept" data-k="${k.id}">Aceptar</button></div>`;
     }).join('') || '<div class="mini">No hay contratos ahora mismo.</div>';
-    const deliver = G.p.contracts.filter(k => k.to === c.id).map(k =>
-      `<div class="opt"><span>${GOOD[k.good].icon}</span><div class="t"><b>Entregar ${k.qty}× ${GOOD[k.good].name}</b>
-      <small>llevas ${Math.floor(G.p.cargo[k.good] || 0)} · paga ${fmt(k.reward)} ⦿ · ${k.deadline - G.day} días</small></div>
-      <button class="btn tiny primary" data-act="deliver" data-k="${k.id}" ${(G.p.cargo[k.good] || 0) >= k.qty ? '' : 'disabled'}>Entregar</button></div>`).join('');
+    const deliver = G.p.contracts.filter(k => k.to === c.id).map(k => {
+      const have = Math.floor(G.p.cargo[k.good] || 0);
+      if (k.mega) {
+        const p = clamp(k.delivered / k.qty, 0, 1) * 100;
+        return `<div class="opt mega"><span>👑</span><div class="t">
+          <b>Gran encargo: ${GOOD[k.good].icon} ${GOOD[k.good].name}</b>
+          <small>${fmt(k.delivered)} de ${fmt(k.qty)} entregados · llevas ${have} · quedan ${k.deadline - G.day} días</small>
+          <div class="prog"><div class="prog-fill" style="width:${p}%"></div></div></div>
+          <button class="btn tiny primary" data-act="deliver" data-k="${k.id}" ${have > 0 ? '' : 'disabled'}>Descargar ${have}</button></div>`;
+      }
+      return `<div class="opt"><span>${GOOD[k.good].icon}</span><div class="t"><b>Entregar ${k.qty}× ${GOOD[k.good].name}</b>
+      <small>llevas ${have} · paga ${fmt(k.reward)} ⦿ · ${k.deadline - G.day} días</small></div>
+      <button class="btn tiny primary" data-act="deliver" data-k="${k.id}" ${(G.p.cargo[k.good] || 0) >= k.qty ? '' : 'disabled'}>Entregar</button></div>`;
+    }).join('');
 
     $('pane-city').innerHTML = `
+      ${T ? `<div class="traitbox">
+        <div class="traithead"><span class="ti">${T.icon}</span><b>${T.name}</b></div>
+        <p>${T.expect}</p>
+      </div>` : ''}
       <div class="block">
         <h3>${esc(c.name)}</h3>
         <div class="kv"><span>Población</span><b>${fmt(c.pop)}</b></div>
         <div class="kv"><span>Riqueza</span><b>${(c.wealth * 100).toFixed(0)}</b></div>
-        <div class="kv"><span>Impuesto</span><b>${(c.tax * 100).toFixed(1)}%</b></div>
+        <div class="kv"><span>Impuesto para ti</span><b>${(taxP(c) * 100).toFixed(1)}%${Math.abs(taxP(c) - c.tax) > 0.002 ? ` <span class="mini">(normal ${(c.tax * 100).toFixed(1)}%)</span>` : ''}</b></div>
         <div class="kv"><span>Descontento</span><b class="${c.unrest > 0.5 ? 'down' : ''}">${(c.unrest * 100).toFixed(0)}%</b></div>
-        <div class="kv"><span>Tu prestigio aquí</span><b class="${c.playerRep < 0 ? 'down' : 'up'}">${c.playerRep.toFixed(0)}</b></div>
+        <div class="kv"><span>Cómo te ven aquí</span><b class="${st.color}">${st.icon} ${st.name} (${(c.playerRep || 0).toFixed(0)})</b></div>
         <div class="evrow" style="margin-top:8px">${sp}</div>
-        ${banned.length ? `<div class="mini">Prohibido: ${banned.map(b => GOOD[b].icon + ' ' + GOOD[b].name).join(', ')}</div>` : ''}
+        ${banned.length ? `<div class="mini">Prohibido: ${banned.map(b => GOOD[b].icon + ' ' + GOOD[b].name).join(', ')} · te pillarían con un ${Math.round(G.smuggleRisk(c) * 100)}% de probabilidad</div>` : ''}
       </div>
+      ${mem.length ? `<div class="block"><h3>Lo que recuerdan de ti</h3>
+        ${mem.map(m => `<div class="memline"><span class="mq">«${esc(m.text)}»</span><span class="mini">${yearsAgo(G, m.day)}</span></div>`).join('')}
+      </div>` : ''}
       <div class="block"><h3>Sucesos</h3><div class="evrow">${evs}</div></div>
       <div class="block"><h3>Servicios</h3>
         <div class="grid2">
@@ -553,7 +637,26 @@ const UI = {
       <small>${(l.rate * 100).toFixed(2)}% diario · desde el día ${l.day}</small></div>
       <button class="btn tiny" data-act="repay" data-i="${i}" data-n="${Math.ceil(l.amount)}">Pagar</button></div>`).join('') || '<div class="mini">Sin deudas. Bien.</div>';
 
+    const role = fameRole(p);
+    const fameRows = FAME_KINDS.filter(f => (p.fame || {})[f.id] > 0)
+      .sort((a, b) => p.fame[b.id] - p.fame[a.id])
+      .map(f => {
+        const v = p.fame[f.id];
+        const lvl = clamp(Math.floor(Math.log(v / 6) / Math.log(2.4)) + 1, 0, 5);
+        return `<div class="famerow"><span class="fi">${f.icon}</span>
+          <span class="fn">${f.name}<small>${f.desc}</small></span>
+          <span class="fs">${fameStars(lvl)}</span></div>`;
+      }).join('') || '<div class="mini">Todavía nadie habla de ti. Comercia, cumple contratos… o rompe alguna ley.</div>';
+    const mines = (p.mines || []).length;
+
     $('pane-empire').innerHTML = `
+      <div class="block fameblock">
+        <h3>Tu fama</h3>
+        <div class="famehead"><span class="bigicon">${role.icon}</span>
+          <div><b>${role.name}</b><div class="stars">${fameStars(role.level)}</div>
+          <div class="mini">${role.desc}</div></div></div>
+        ${fameRows}
+      </div>
       <div class="block">
         <h3>Balance</h3>
         <div class="kv"><span>Oro</span><b class="gold">${fmt(p.gold)} ⦿</b></div>
@@ -567,6 +670,9 @@ const UI = {
       <div class="block"><h3>Flota</h3>${veh}</div>
       <div class="block"><h3>Talleres y fábricas</h3>${fac}</div>
       <div class="block"><h3>Almacenes</h3>${whs}</div>
+      ${mines ? `<div class="block"><h3>Minas propias</h3>
+        <div class="opt"><span>⛏️</span><div class="t"><b>${mines} mina${mines > 1 ? 's' : ''} en explotación</b>
+        <small>Rinden mineral y gemas cada mes; se venden solas en la ciudad más cercana.</small></div></div></div>` : ''}
       <div class="block"><h3>Préstamos</h3>${loans}</div>
       <div class="block"><h3>Estadísticas</h3>
         <div class="kv"><span>Días en el camino</span><b>${G.stats.days}</b></div>
@@ -600,7 +706,16 @@ const UI = {
       <button class="btn tiny" data-act="select-city" data-city="${o.city.id}">Ruta</button></div>`).join('')
       || '<div class="mini">Visita más ciudades para comparar precios.</div>';
 
+    const we = G.worldEvent;
+    const weBlock = we ? `<div class="worldev">
+      <div class="wehead"><span class="wi">${we.icon}</span><b>${we.name}</b><span class="mini">${we.daysLeft} días</span></div>
+      <p>${esc(we.line)}</p>
+      <div class="mini">${esc(we.aside)} · Afecta a ${we.cities.length} ciudades.</div>
+      <div class="prog"><div class="prog-fill" style="width:${100 - clamp(we.daysLeft / we.total, 0, 1) * 100}%"></div></div>
+    </div>` : '';
+
     $('pane-world').innerHTML = `
+      ${weBlock}
       <div class="block"><h3>Oportunidades desde aquí</h3>${opps}</div>
       <div class="block"><h3>Los más ricos <span class="hint">tu puesto: ${myPos}/${all.length}</span></h3>${rank}</div>
       <div class="block"><h3>Crónicas del mundo</h3>${news || '<div class="mini">Silencio en los caminos.</div>'}</div>`;
@@ -659,8 +774,12 @@ const UI = {
         <div class="acts"><button class="btn tiny primary" data-act="travel" data-city="${c.id}" ${capOk ? '' : 'disabled'}>Viajar</button>
         <button class="btn tiny" data-act="closecard">Cerrar</button></div>`;
     }
+    const T = CITY_TRAIT[c.trait];
+    const st = standing(c);
     el.innerHTML = `<h4>${esc(c.name)}</h4>
       <div class="meta">${BIOMES[c.biome].name} · ${c.visited ? fmt(c.pop) + ' hab' : 'sin visitar'} ${c.coastal ? '· puerto' : ''}</div>
+      ${T && c.visited ? `<div class="traitmini">${T.icon} <b>${T.name}</b> — ${T.expect}</div>` : ''}
+      ${c.visited && st.id !== 'neutral' ? `<div class="kv"><span>Te ven como</span><b class="${st.color}">${st.icon} ${st.name}</b></div>` : ''}
       ${evs ? `<div class="evrow">${evs}</div>` : ''}
       ${mem ? `<div class="kv"><span>Precios recordados</span><b>hace ${G.day - mem.day}d</b></div>` : '<div class="mini">No conoces sus precios.</div>'}
       ${route}`;
@@ -690,14 +809,43 @@ const UI = {
     this.recordMemory();
     this.V.fogDirty = true;
     this.refreshAll();
+    if (G.pendingWorldNews) { const w = G.pendingWorldNews; G.pendingWorldNews = null; this.worldEventModal(w, () => this.arrivalModal(res)); return; }
+    this.arrivalModal(res);
+  },
+
+  arrivalModal(res) {
+    const G = this.G, c = G.city;
+    const T = CITY_TRAIT[c.trait];
+    const greet = cityGreeting(G, c);
     const changes = this.priceHighlights(c);
+    const sites = (res.sites || []).map(s => `<li><b>${s.def.icon} ${s.def.name}</b> — ${s.def.text}
+      ${s.gold ? `<b class="up">+${fmt(s.gold)} ⦿</b>` : ''}
+      ${Object.keys(s.goods || {}).length ? '· ' + Object.keys(s.goods).map(g => `${s.goods[g]} ${GOOD[g].name}`).join(', ') : ''}
+      ${s.def.text2 ? `<br><span class="mini">${s.def.text2}</span>` : ''}</li>`).join('');
     const body = `
       <p>Llegas a <b>${esc(c.name)}</b> tras <b>${res.days} días</b> de camino.</p>
+      ${greet ? `<div class="greet">${esc(greet)}</div>` : ''}
+      ${T ? `<div class="traitmini">${T.icon} <b>${T.name}</b> — ${T.expect}</div>` : ''}
+      ${sites ? `<h4>Hallazgos del camino</h4><ul>${sites}</ul>` : ''}
       ${res.log.length ? '<h4>En el camino</h4><ul>' + res.log.map(l => `<li>${l}</li>`).join('') + '</ul>' : ''}
       ${c.events.length ? '<h4>Situación</h4><div class="evrow">' + c.events.map(e => `<span class="evtag">${e.icon} ${e.name} · ${e.daysLeft}d</span>`).join('') + '</div>' : ''}
       <h4>Mercado</h4>${changes}`;
     this.modal(`${c.events.length ? c.events[0].icon + ' ' : '🏙️ '}${esc(c.name)}`, body,
       '<button class="btn primary" data-act="modal-close">Al mercado</button>');
+  },
+
+  /** Un gran acontecimiento merece su propia pantalla. */
+  worldEventModal(w, then) {
+    const G = this.G;
+    const names = w.cities.map(id => G.world.cities[id]).filter(c => c.known).slice(0, 8).map(c => esc(c.name));
+    this.modal(`${w.icon} ${w.name}`, `
+      <div class="worldev big">
+        <p class="lead">${esc(w.line)}</p>
+        <p>${esc(w.aside)}</p>
+        <div class="mini">Durará unos <b>${Math.round(w.daysLeft / 30)} meses</b> y alcanza a <b>${w.cities.length} ciudades</b>${names.length ? `, entre ellas ${names.join(', ')}` : ''}.</div>
+      </div>`, '<button class="btn primary" id="weOk">Seguir</button>');
+    const btn = $('weOk');
+    if (btn) btn.onclick = () => { this.closeModal(); if (then) setTimeout(then, 120); };
   },
 
   priceHighlights(c) {
@@ -707,7 +855,7 @@ const UI = {
       const bp = buyPriceAt(c, g), ratio = bp / good.base;
       return {
         g, good, bp, ratio, mine: Math.floor(G.p.cargo[g] || 0),
-        sp: sellPriceAt(c, g) * (c.banned[g] ? 1.85 : 1 - c.tax), banned: !!c.banned[g],
+        sp: sellPriceAt(c, g) * (c.banned[g] ? 1.85 : 1 - taxP(c)), banned: !!c.banned[g],
       };
     });
     const cheap = list.filter(x => x.ratio < 0.8 && !x.banned).sort((a, b) => a.ratio - b.ratio).slice(0, 4);
@@ -752,7 +900,7 @@ const UI = {
     if (!G.p.memory) G.p.memory = {};
     const price = {}, buy = {};   // lo que cobrarías y lo que te costaría aquí
     for (const g of GOOD_IDS) {
-      price[g] = sellPriceAt(c, g) * (c.banned[g] ? 1.85 : 1 - c.tax);
+      price[g] = sellPriceAt(c, g) * (c.banned[g] ? 1.85 : 1 - taxP(c));
       buy[g] = c.banned[g] ? 0 : buyPriceAt(c, g);   // 0 = no se vende abiertamente
     }
     G.p.memory[c.id] = { day: G.day, price, buy };
@@ -813,7 +961,7 @@ const UI = {
       out.push({
         city, here,
         buy: here ? (city.banned[g] ? 0 : buyPriceAt(city, g)) : (m.buy ? m.buy[g] : 0),
-        sell: here ? sellPriceAt(city, g) * (city.banned[g] ? 1.85 : 1 - city.tax) : m.price[g],
+        sell: here ? sellPriceAt(city, g) * (city.banned[g] ? 1.85 : 1 - taxP(city)) : m.price[g],
         age: here ? 0 : G.day - m.day,
         days: here ? 0 : (r ? Math.max(1, Math.round(r.days)) : null),
         banned: !!city.banned[g],
@@ -862,7 +1010,7 @@ const UI = {
       <div class="sheet-top">
         <div class="sheet-cell"><label>Precio normal</label><b>${fmt(good.base)} ⦿</b></div>
         <div class="sheet-cell"><label>Aquí te cuesta</label><b class="${dev < -0.18 ? 'up' : ''}">${c.banned[g] ? '—' : fmt(buyPriceAt(c, g)) + ' ⦿'}</b></div>
-        <div class="sheet-cell"><label>Aquí te pagan</label><b class="gold">${fmt(sellPriceAt(c, g) * (c.banned[g] ? 1.85 : 1 - c.tax))} ⦿</b></div>
+        <div class="sheet-cell"><label>Aquí te pagan</label><b class="gold">${fmt(sellPriceAt(c, g) * (c.banned[g] ? 1.85 : 1 - taxP(c)))} ⦿</b></div>
         <div class="sheet-cell"><label>vs normal</label><b class="${dev < -0.18 ? 'up' : dev > 0.35 ? 'down' : 'flat'}">${pct(dev)}</b></div>
         <div class="sheet-cell"><label>En plaza</label><b>${fmt(c.stock[g])}</b></div>
         <div class="sheet-cell"><label>Llevas</label><b>${Math.floor(G.p.cargo[g] || 0)}</b></div>
@@ -923,7 +1071,7 @@ const UI = {
     const n = this.cq;
     const banned = !!c.banned[g];
     const gross = revenueToSell(c, g, n);
-    const net = banned ? gross * 1.85 : gross * (1 - c.tax);
+    const net = banned ? gross * 1.85 : gross * (1 - taxP(c));
     const unit = net / n;
     const avg = G.p.avgCost && G.p.avgCost[g] && G.p.avgCost[g].n > 0 ? G.p.avgCost[g].total / G.p.avgCost[g].n : null;
     const profit = avg === null ? null : net - avg * n;
@@ -935,7 +1083,7 @@ const UI = {
       <div class="kv"><span>Aquí en ${esc(c.name)} <b>te pagan</b></span><b class="gold">${fmt(unit)} ⦿ la unidad</b></div>
       ${banned ? `<div class="warnbox small">🕯️ Mercado negro: cobras un <b>+85%</b>, pero hay un
           <b>${Math.round(G.smuggleRisk(c) * 100)}%</b> de que te pillen en esta venta y pierdas la mercancía más una multa.</div>`
-        : `<div class="mini">Ya descontado el ${(c.tax * 100).toFixed(1)}% de impuesto.</div>`}
+        : `<div class="mini">Ya descontado el ${(taxP(c) * 100).toFixed(1)}% de impuesto.</div>`}
 
       <div class="sellbox">
         <div class="sellqty">
@@ -975,7 +1123,7 @@ const UI = {
       this.cq = clamp(Math.floor(+e.target.value), 1, have);
       inp.value = this.cq;
       const gr = revenueToSell(c, g, this.cq);
-      const nt = banned ? gr * 1.85 : gr * (1 - c.tax);
+      const nt = banned ? gr * 1.85 : gr * (1 - taxP(c));
       $('cargoPane').querySelector('.selltotal').innerHTML =
         `<span>Recibes por <b>${this.cq}</b></span><b class="gold big">${fmt(nt)} ⦿</b>`;
     });
@@ -1002,7 +1150,7 @@ const UI = {
   shipyard() {
     const G = this.G, c = G.city;
     const list = VEHICLES.filter(v => v.era <= G.p.era && (v.terrain === 'land' || c.shipyard)).map(v => {
-      const price = Math.round(v.cost * (1 + c.tax));
+      const price = Math.round(v.cost * (1 + taxP(c)));
       const can = G.p.gold >= price && v.cost > 0;
       return `<div class="opt ${can ? '' : 'dis'}"><span>${v.icon}</span>
         <div class="t"><b>${v.name}</b><small>carga ${v.cap} · velocidad ${v.speed.toFixed(2)} · mant. ${v.up}/día · ${v.terrain === 'sea' ? 'mar' : 'tierra'}</small></div>
@@ -1048,6 +1196,15 @@ const UI = {
   rumors() {
     const G = this.G, c = G.city;
     const out = [];
+    // voces de rivales que se acuerdan de ti
+    const here = G.ai.merchants.filter(m => m.alive && m.at === c.id && m.memory && m.memory.length);
+    for (const m of here.slice(0, 2)) {
+      const line = rivalLine(m);
+      if (line) out.push(line);
+    }
+    // lo que la ciudad recuerda
+    const mem = (c.memories || []).filter(m => m.w >= 2);
+    if (mem.length) { const m = pick(mem); out.push(`«${esc(m.text)}» — te lo recuerdan ${yearsAgo(G, m.day)}.`); }
     // eventos conocidos en ciudades cercanas
     const near = G.world.cities.filter(x => x.id !== c.id && dist(x.x, x.y, c.x, c.y) < 55).sort((a, b) => dist(a.x, a.y, c.x, c.y) - dist(b.x, b.y, c.x, c.y));
     for (const x of near) {
@@ -1068,7 +1225,7 @@ const UI = {
     const G = this.G, c = G.city;
     const list = RECIPES.map(r => {
       const b = G.p.buildings.find(x => x.city === c.id && x.recipe === r.id);
-      const cost = Math.round(r.cost * (1 + c.tax) * (b ? Math.pow(1.7, b.level) : 1));
+      const cost = Math.round(r.cost * (1 + taxP(c)) * (b ? Math.pow(1.7, b.level) : 1));
       const ins = Object.keys(r.in).map(g => `${r.in[g]}× ${GOOD[g].icon}${GOOD[g].name}`).join(' + ');
       const outs = Object.keys(r.out).map(g => `${r.out[g]}× ${GOOD[g].icon}${GOOD[g].name}`).join(' + ');
       // margen local estimado
@@ -1120,6 +1277,15 @@ const UI = {
         <li>Construye <b>talleres</b> (trigo → harina → pan) que generan ingresos cada día.</li>
         <li>Acepta <b>contratos</b> con plazo para ganancias seguras.</li>
         <li>Usa el <b>banco</b> para apalancarte… con cuidado con los intereses.</li>
+      </ul>
+      <h4>El mundo te recuerda</h4>
+      <ul>
+        <li>Cada ciudad tiene un <b>carácter</b> (pesquera, minera, corte, santa, militar…): al entrar ya sabes qué se compra barato y qué se paga caro.</li>
+        <li>Tu <b>fama</b> se construye con lo que haces: honrado, benefactor, contrabandista, corsario, especulador o mercader imperial. Cambia impuestos, precios, contratos y hasta si te dejan entrar.</li>
+        <li>Las ciudades <b>recuerdan hechos concretos</b> y te los echan en cara años después. Vender comida barata en una hambruna no se olvida. Acaparar el hierro, tampoco.</li>
+        <li>Cada varios meses ocurre un <b>gran acontecimiento</b> que reordena una región entera durante estaciones.</li>
+        <li>Los <b>grandes encargos</b> piden cientos de unidades y se entregan por partes: no caben en una carreta.</li>
+        <li>Explorando encuentras <b>ruinas, pecios, minas y oasis</b>: oro inmediato o ventajas permanentes.</li>
       </ul>
       <h4>Otros caminos</h4>
       <ul>

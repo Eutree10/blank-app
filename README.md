@@ -15,6 +15,14 @@ propias. Todo corre en el navegador, sin dependencias ni servidor.
 | Sistema | Detalle |
 |---|---|
 | **Mundo procedural** | Mapa de 224×144 con ruido fractal: continentes, biomas, costas y montañas. ~38 ciudades con población, riqueza, impuestos y especialidades coherentes con su terreno. |
+| **Carácter de cada ciudad** | Once arquetipos (villa pesquera, ciudad minera, corte principesca, ciudad santa, plaza militar, puerto franco, comarca agrícola, gremios, universidad, encrucijada de caravanas, villa fronteriza). Cada uno inclina su producción, su demanda, sus impuestos, lo que prohíbe y el peligro de sus caminos. Al entrar, una línea te dice qué esperar. |
+| **Fama** | Seis facetas —honrado, benefactor, contrabandista, corsario, especulador, mercader imperial— que crecen con lo que haces, no con lo que tienes. Cambian impuestos, márgenes, contratos y si una ciudad te veta las puertas. |
+| **Memoria** | Las ciudades guardan hechos concretos («nos trajo grano durante la hambruna y no nos desangró») y te los recuerdan años después al llegar o en la taberna. Los rivales también, y sus herederos heredan la opinión. |
+| **Generaciones** | Los mercaderes rivales envejecen, se retiran y dejan la casa a un hijo que conserva el apellido, el capital mermado y la memoria de lo que hiciste. Una casa arruinada puede reabrir una generación después. |
+| **Grandes acontecimientos** | Cada varios meses cae uno sobre una región entera durante estaciones: la Gran Guerra, la Peste Negra, la Gran Hambruna, la Fiebre del Oro, la Feria de las Naciones, la Revolución de los Talleres, el Gran Bloqueo o la Paz Dorada. |
+| **Lugares por descubrir** | Ruinas, pecios, monasterios, caravanas perdidas, minas abandonadas, oasis e islas sin nombre. Unos dan botín; otros, ventajas permanentes: una mina que rinde cada mes, rutas más rápidas o mares más seguros. |
+| **Encargos descomunales** | Pedidos de cientos de unidades con plazos de estaciones, que se entregan por partes. No caben en una carreta: hacen falta flotas. |
+| **Mercado por puestos** | Alterna entre la tabla y una vista de puestos con su tendero, que comenta lo que le sobra y lo que escasea. |
 | **Economía viva** | 27 bienes en 3 niveles (materia prima → elaborado → manufactura). El precio sale de stock frente a demanda, con elasticidad: si algo se pone carísimo, la gente compra menos y se produce más. Producción y consumo globales se normalizan al generar el mundo, así que el mundo no se muere solo. |
 | **Sucesos** | 18 tipos: guerra, peste, hambruna, sequía, minas descubiertas o agotadas, ferias, auges industriales, revoluciones, aranceles, erupciones, modas… Cada uno mueve producción, demanda, impuestos, población y peligro de las rutas. |
 | **Rutas** | Grafo terrestre y marítimo con Dijkstra. Las rutas se cortan por nieve o temporales y se infestan de bandidos y piratas. Sin barco, media parte del mundo es inalcanzable. |
@@ -50,7 +58,8 @@ game/
   css/style.css       paleta cálida oscura, cifras en monoespaciada
   js/core.js          RNG determinista, bienes, recetas, vehículos, biomas
   js/world.js         generación del mundo, ciudades, grafo de rutas, niebla
-  js/economy.js       precios, oferta/demanda, sucesos, contratos
+  js/lore.js          fama, memoria de las ciudades, generaciones de rivales
+  js/economy.js       precios, oferta/demanda, sucesos, grandes acontecimientos, contratos
   js/ai.js            comerciantes rivales
   js/game.js          estado del jugador, acciones, guardado
   js/render.js        render pixel art del mapa sobre canvas

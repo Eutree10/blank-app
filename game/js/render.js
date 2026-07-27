@@ -266,6 +266,27 @@ class MapView {
       }
     }
 
+    // --- lugares hallados (ruinas, minas, oasis…)
+    for (const s of W.sites || []) {
+      if (!s.found) continue;
+      const p = this.w2s(s.x, s.y);
+      if (p.x < -20 || p.y < -20 || p.x > rect.width + 20 || p.y > rect.height + 20) continue;
+      const r = clamp(z * 0.34, 2.4, 4.4);
+      ctx.beginPath();
+      ctx.moveTo(p.x, p.y - r); ctx.lineTo(p.x + r, p.y + r); ctx.lineTo(p.x - r, p.y + r); ctx.closePath();
+      ctx.fillStyle = s.claimed ? 'rgba(154,143,118,.85)' : '#E3B341';
+      ctx.strokeStyle = '#0B0A08'; ctx.lineWidth = 1.6;
+      ctx.stroke(); ctx.fill();
+      if (z > 6) {
+        ctx.font = `${Math.round(clamp(z * 1.2, 8, 11))}px "IBM Plex Mono", ui-monospace, monospace`;
+        ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+        ctx.lineWidth = 3; ctx.strokeStyle = 'rgba(6,6,4,.85)';
+        ctx.strokeText(SITE[s.type].name, p.x, p.y + r + 2);
+        ctx.fillStyle = '#9A8F76';
+        ctx.fillText(SITE[s.type].name, p.x, p.y + r + 2);
+      }
+    }
+
     // --- ciudades
     for (const c of W.cities) {
       if (!c.known) continue;

@@ -106,6 +106,7 @@ class World {
     this.placeCities();
     this.balanceWorld();
     this.buildGraph();
+    this.placeSites();
   }
 
   /* --- componentes conexas de tierra (para saber qué se alcanza a pie) --- */
@@ -130,6 +131,16 @@ class World {
     this.nComp = id;
     this.compSize = new Int32Array(id);
     for (let i = 0; i < this.comp.length; i++) if (this.comp[i] >= 0) this.compSize[this.comp[i]]++;
+  }
+
+  /** Biomas del entorno: lo que la ciudad tiene a mano, no solo bajo sus pies. */
+  nearBiomes(x, y, r) {
+    const set = new Set();
+    for (let dy = -r; dy <= r; dy++) for (let dx = -r; dx <= r; dx++) {
+      const nx = x + dx, ny = y + dy;
+      if (this.inBounds(nx, ny)) set.add(this.biomeAt(nx, ny));
+    }
+    return set;
   }
 
   isCoastal(x, y) {
@@ -182,6 +193,7 @@ class World {
     const pop = Math.round(rrange(1.2, 9) * (coastal ? 1.5 : 1) * (b === 'plains' ? 1.35 : 1) * 1000);
     const c = {
       name: genCityName(used), x, y, biome: b, coastal,
+      around: this.nearBiomes(x, y, 6),   // qué hay en sus alrededores
       pop, popTarget: pop, wealth: rrange(0.75, 1.35),
       comp: this.comp[i],
       specialties: [], stock: {}, prod: {}, cons: {}, price: {}, lastPrice: {},
@@ -218,6 +230,15 @@ class World {
     if (!c.specialties.length) c.specialties.push(coastal ? 'puertoPesq' : 'granero');
     c.bank = c.specialties.includes('banca') || rnd() < 0.18;
     if (c.specialties.includes('astillero')) c.shipyard = true;
+
+    // --- carácter: lo que define a la ciudad de un vistazo
+    const opts = CITY_TRAITS.filter(t => !t.need || t.need(c));
+    const trait = pickW(opts.map(t => [t, t.w]));
+    c.trait = trait.id;
+    if (trait.taxAdd) c.tax = clamp(c.tax + trait.taxAdd, 0.005, 0.3);
+    if (trait.wealth) c.wealth = clamp(c.wealth + trait.wealth, 0.4, 3);
+    if (trait.shipyard && coastal) c.shipyard = true;
+    if (trait.bank) c.bank = true;
     c.baseTax = c.tax;
 
     // bienes prohibidos: la base del contrabando
@@ -225,6 +246,7 @@ class World {
     const nBan = pickW([[0, 6], [1, 3], [2, 1]]);
     shuffle(contrabandPool);
     for (let k = 0; k < nBan; k++) c.banned[contrabandPool[k]] = true;
+    for (const b of trait.ban || []) c.banned[b] = true;      // prohibiciones propias del carácter
 
     this.initEconomy(c);
     return c;
@@ -259,6 +281,17 @@ class World {
       if (good.tag === 'arma') m = 0.6;
       cons[g] = BASE_CONSUME[g] * kpop * 0.55 * m;
     }
+    // el carácter de la ciudad inclina lo que produce y lo que reclama
+    const trait = CITY_TRAIT[c.trait];
+    if (trait) {
+      for (const g in trait.prod || {}) prod[g] = (prod[g] || 0) * 1 + (prod[g] || kpop * 0.3) * (trait.prod[g] - 1);
+      for (const g in trait.dem || {}) {
+        if (g.startsWith('@')) {
+          const tag = g.slice(1);
+          for (const gg of GOOD_IDS) if (GOOD[gg].tag === tag) cons[gg] *= trait.dem[g];
+        } else cons[g] = (cons[g] || 0) * trait.dem[g];
+      }
+    }
     c.prod = prod; c.cons = cons;
     for (const g of GOOD_IDS) {
       c.price[g] = GOOD[g].base;
@@ -277,7 +310,7 @@ class World {
       }
     }
     for (const g of GOOD_IDS) {
-      const target = C[g] * 1.18;
+      const target = C[g] * 1.26;
       if (P[g] < 1e-6) {           // nadie lo produce: reparte entre unas pocas ciudades
         const picks = shuffle(this.cities.slice()).slice(0, 4);
         for (const c of picks) c.prod[g] = target / picks.length;
@@ -365,6 +398,18 @@ class World {
     this.adj = C.map(() => []);
     this.edges.forEach((e, i) => { this.adj[e.a].push(i); this.adj[e.b].push(i); });
     this.connectIslands();
+
+    // el carácter de la ciudad tiñe sus caminos: piratas frente a las villas
+    // pesqueras, bandidos alrededor de las plazas fronterizas
+    for (const c of C) {
+      const t = CITY_TRAIT[c.trait];
+      if (!t) continue;
+      for (const ei of this.adj[c.id]) {
+        const e = this.edges[ei];
+        if (e.type === 'sea' && t.seaDanger) e.danger += t.seaDanger;
+        if (e.type === 'land' && t.landDanger) e.danger += t.landDanger;
+      }
+    }
   }
 
   connectIslands() {
@@ -406,6 +451,26 @@ class World {
     }
   }
 
+  /* ------------------------ Lugares por descubrir ------------------------- */
+  placeSites() {
+    this.sites = [];
+    const n = rint(16, 24);
+    let guard = 0;
+    while (this.sites.length < n && guard++ < 900) {
+      const x = rint(4, this.w - 5), y = rint(4, this.h - 5);
+      const i = this.idx(x, y);
+      const land = !!this.land[i];
+      const coastal = land && this.isCoastal(x, y);
+      // lejos de las ciudades: hay que salir a buscarlos
+      if (this.cities.some(c => dist(c.x, c.y, x, y) < 9)) continue;
+      if (this.sites.some(s => dist(s.x, s.y, x, y) < 12)) continue;
+      const opts = SITES.filter(s => (s.coastal ? coastal : (s.land ? land : true)));
+      if (!opts.length) continue;
+      const def = pickW(opts.map(s => [s, s.w]));
+      this.sites.push({ id: this.sites.length, type: def.id, x, y, found: false, claimed: false });
+    }
+  }
+
   /* ----------------------------- Niebla de guerra ------------------------- */
   reveal(x, y, r) {
     const r2 = r * r;
@@ -418,6 +483,9 @@ class World {
     }
     for (const c of this.cities) {
       if (!c.known && dist(c.x, c.y, x, y) <= r + 1.5) { c.known = true; found.push(c); }
+    }
+    for (const s of this.sites || []) {
+      if (!s.found && dist(s.x, s.y, x, y) <= r) { s.found = true; s.isSite = true; found.push(s); }
     }
     return found;
   }

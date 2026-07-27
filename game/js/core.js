@@ -83,6 +83,7 @@ const GOODS = [
   { id: 'vino',     name: 'Vino',         icon: '🍷', tier: 2, base: 74,  w: 1.1, tag: 'lujo' },
   { id: 'medicina', name: 'Medicina',     icon: '🧪', tier: 2, base: 138, w: 0.5, tag: 'medicina' },
   { id: 'joyas',    name: 'Joyas',        icon: '💍', tier: 2, base: 205, w: 0.3, tag: 'lujo' },
+  { id: 'incienso', name: 'Incienso',     icon: '🕯️', tier: 2, base: 88,  w: 0.4, tag: 'culto' },
 ];
 const GOOD = {}; GOODS.forEach((g, i) => { GOOD[g.id] = g; g.idx = i; });
 const GOOD_IDS = GOODS.map(g => g.id);
@@ -105,6 +106,7 @@ const RECIPES = [
   { id: 'bodega',     name: 'Bodega',        icon: '🍷', in: { uva: 3 },                out: { vino: 1 },     cost: 4000,  days: 1 },
   { id: 'botica',     name: 'Botica',        icon: '🧪', in: { hierbas: 2, vino: 1 },   out: { medicina: 1 }, cost: 7800,  days: 1 },
   { id: 'joyeria',    name: 'Joyería',       icon: '💍', in: { gemas: 2, hierro: 1 },   out: { joyas: 1 },    cost: 12000, days: 1 },
+  { id: 'perfumeria', name: 'Perfumería',    icon: '🕯️', in: { hierbas: 2, especias: 1 }, out: { incienso: 1 }, cost: 5600, days: 1 },
 ];
 const RECIPE = {}; RECIPES.forEach(r => RECIPE[r.id] = r);
 
@@ -188,7 +190,96 @@ const BASE_CONSUME = {
   lana: 0.5, tela: 0.5, ropa: 0.35, pieles: 0.4, cuero: 0.35,
   uva: 0.4, vino: 0.45, hierbas: 0.3, medicina: 0.22, especias: 0.3,
   muebles: 0.25, espadas: 0.14, armadura: 0.09, gemas: 0.1, joyas: 0.1, harina: 0.7,
+  incienso: 0.12,
 };
+
+/* ============================ CARÁCTER DE LAS CIUDADES ====================
+   Cada ciudad tiene un carácter que se anuncia al entrar: al leerlo ya sabes
+   qué se compra barato, qué se paga caro y con qué hay que tener cuidado.
+   ========================================================================= */
+const CITY_TRAITS = [
+  {
+    id: 'puerto', name: 'Villa pesquera', icon: '🐟', w: 10,
+    need: c => c.coastal,
+    expect: 'Pescado y sal por nada. Los temporales y los piratas rondan sus rutas.',
+    prod: { pescado: 2.0, sal: 1.5 }, dem: { madera: 1.3, tablones: 1.4 },
+    seaDanger: 0.06, shipyard: true,
+  },
+  {
+    id: 'minera', name: 'Ciudad minera', icon: '⛏️', w: 10,
+    need: c => ['mountain', 'hills', 'peak'].some(b => c.around.has(b)),
+    expect: 'Mineral, carbón y herramientas a buen precio. Comen lo que les traigan.',
+    prod: { mineral: 2.2, carbon: 2.0, herram: 1.4, hierro: 1.3 },
+    dem: { grano: 1.6, pan: 1.7, vino: 1.5, medicina: 1.4 },
+  },
+  {
+    id: 'corte', name: 'Corte principesca', icon: '👑', w: 7,
+    expect: 'Aquí el lujo se paga como en ningún sitio. Y los aranceles también.',
+    dem: { '@lujo': 2.4, joyas: 2.6, ropa: 2.2, vino: 2.0, muebles: 1.9, especias: 1.8 },
+    taxAdd: 0.05, wealth: 0.45, bank: true,
+  },
+  {
+    id: 'santa', name: 'Ciudad santa', icon: '⛪', w: 7,
+    expect: 'El alcohol está prohibido; el incienso vale su peso en plata.',
+    dem: { incienso: 3.4, hierbas: 1.6, medicina: 1.5 }, prod: { incienso: 1.2 },
+    ban: ['vino'], taxAdd: -0.01,
+  },
+  {
+    id: 'militar', name: 'Plaza militar', icon: '⚔️', w: 8,
+    expect: 'Compra armas y armaduras a cualquier precio. Vigila lo que entra.',
+    dem: { '@arma': 3.0, hierro: 1.8, cuero: 1.6, grano: 1.4 }, prod: { espadas: 1.3, armadura: 1.2 },
+    banRisk: 0.12, guards: true,
+  },
+  {
+    id: 'franca', name: 'Ciudad libre', icon: '🏴', w: 7,
+    need: c => c.coastal,
+    expect: 'Puerto franco: casi no hay aranceles y nadie pregunta de dónde viene la carga.',
+    taxAdd: -0.05, banRisk: -0.09, shipyard: true, bank: true,
+  },
+  {
+    id: 'granero', name: 'Comarca agrícola', icon: '🌾', w: 9,
+    need: c => ['plains', 'savanna'].some(b => c.around.has(b)),
+    expect: 'Grano y harina baratos todo el año. De manufacturas, poco.',
+    prod: { grano: 2.4, harina: 1.6, lana: 1.3 }, dem: { herram: 1.6, tela: 1.4, hierro: 1.4 },
+  },
+  {
+    id: 'artesana', name: 'Ciudad de gremios', icon: '🧵', w: 8,
+    expect: 'Telas, ropa y muebles salen de sus talleres. Devora materias primas.',
+    prod: { tela: 1.7, ropa: 1.5, muebles: 1.5, tablones: 1.4 },
+    dem: { lana: 1.9, madera: 1.8, pieles: 1.6, cuero: 1.5 },
+  },
+  {
+    id: 'universidad', name: 'Ciudad universitaria', icon: '📚', w: 6,
+    expect: 'Boticarios y sabios: la medicina se produce aquí y las hierbas escasean.',
+    prod: { medicina: 1.5, herram: 1.2 }, dem: { hierbas: 2.0, vino: 1.5, incienso: 1.4 },
+    wealth: 0.2, bank: true,
+  },
+  {
+    id: 'caravanera', name: 'Encrucijada de caravanas', icon: '🐫', w: 8,
+    expect: 'Todo pasa por aquí: especias del sur, sal del desierto y noticias de todas partes.',
+    prod: { especias: 1.5, sal: 1.4 }, dem: { '@lujo': 1.4 },
+    taxAdd: 0.02, rumors: true,
+  },
+  {
+    id: 'fronteriza', name: 'Villa fronteriza', icon: '🛡️', w: 6,
+    expect: 'Ley escasa: se paga bien lo prohibido, pero los caminos de alrededor son peligrosos.',
+    dem: { '@arma': 1.8, vino: 1.6 }, banRisk: -0.05, landDanger: 0.05, taxAdd: -0.02,
+  },
+];
+const CITY_TRAIT = {}; CITY_TRAITS.forEach(t => CITY_TRAIT[t.id] = t);
+
+/* ============================== FAMA DEL JUGADOR =========================
+   No solo dinero: cada acción deja rastro y el mundo te clasifica.
+   ========================================================================= */
+const FAME_KINDS = [
+  { id: 'honesto',   name: 'Comerciante honrado', icon: '🤝', desc: 'Cumples contratos y comercias a la luz del día.' },
+  { id: 'contra',    name: 'Contrabandista',      icon: '🕯️', desc: 'Mueves lo prohibido y te has librado más de una vez.' },
+  { id: 'imperial',  name: 'Mercader imperial',   icon: '👑', desc: 'Abasteces a reinos enteros con contratos descomunales.' },
+  { id: 'pirata',    name: 'Corsario',            icon: '🏴‍☠️', desc: 'Asaltas caravanas ajenas. Hay ciudades que te cerrarían las puertas.' },
+  { id: 'usurero',   name: 'Especulador',         icon: '📈', desc: 'Compras lo que falta y lo vendes cuando duele.' },
+  { id: 'benefactor',name: 'Benefactor',          icon: '🕊️', desc: 'Has alimentado ciudades hambrientas y curado pestes.' },
+];
+const FAME = {}; FAME_KINDS.forEach(f => FAME[f.id] = f);
 
 /* --------------------------- Nombres procedurales ------------------------ */
 const NAME_A = ['Val', 'Kar', 'Mor', 'Bel', 'Tor', 'San', 'Cas', 'Nor', 'Vel', 'Dor', 'Mar', 'Ald', 'Gran', 'Sel', 'Tar', 'Pun', 'Rio', 'Al', 'Ker', 'Zam', 'Bra', 'Ost', 'Lum', 'Fen', 'Cor', 'Vic', 'Ner', 'Sil', 'Tras', 'Mon'];
@@ -220,6 +311,51 @@ const TITLES = [
   { at: 5000000, name: 'Leyenda del comercio' },
 ];
 function titleFor(nw) { let t = TITLES[0]; for (const x of TITLES) if (nw >= x.at) t = x; return t.name; }
+
+/* =========================== LUGARES DEL MAPA ============================
+   Lo que encuentras explorando y que no es una ciudad. Explorar da dinero.
+   ========================================================================= */
+const SITES = [
+  {
+    id: 'ruinas', name: 'Ruinas antiguas', icon: '🏛️', w: 9, land: true,
+    text: 'Columnas caídas y un sótano que nadie había abierto en siglos.',
+    loot: () => ({ gold: rint(300, 1600), goods: { joyas: rint(1, 5) } }),
+  },
+  {
+    id: 'pecio', name: 'Pecio encallado', icon: '🚢', w: 8, coastal: true,
+    text: 'Un mercante partido contra los arrecifes, con la bodega aún llena.',
+    loot: () => ({ gold: rint(200, 900), goods: { especias: rint(4, 20), tela: rint(3, 14) } }),
+  },
+  {
+    id: 'minaabandonada', name: 'Mina abandonada', icon: '⛏️', w: 8, land: true,
+    text: 'Galerías apuntaladas a toda prisa. Todavía queda veta.',
+    grant: 'mina',
+    text2: 'Puedes explotarla: rinde mineral y gemas cada mes mientras la mantengas.',
+  },
+  {
+    id: 'oasis', name: 'Oasis oculto', icon: '🌴', w: 7, land: true,
+    text: 'Agua dulce en mitad de la nada. Las caravanas pagarían por saberlo.',
+    grant: 'ruta',
+    text2: 'Acorta los viajes por esta zona: las rutas cercanas se vuelven más rápidas.',
+  },
+  {
+    id: 'islote', name: 'Isla sin nombre', icon: '🏝️', w: 7, coastal: true,
+    text: 'Una isla que no figura en ninguna carta náutica.',
+    grant: 'puerto',
+    text2: 'Fondeadero seguro: las rutas marítimas de alrededor se vuelven menos peligrosas.',
+  },
+  {
+    id: 'monasterio', name: 'Monasterio en la roca', icon: '⛪', w: 6, land: true,
+    text: 'Monjes que llevan cien años destilando y copiando libros.',
+    loot: () => ({ gold: rint(150, 700), goods: { incienso: rint(4, 16), medicina: rint(2, 8) } }),
+  },
+  {
+    id: 'caravanaperdida', name: 'Caravana perdida', icon: '💀', w: 7, land: true,
+    text: 'Huesos, cajas reventadas y una bolsa que nadie reclamó.',
+    loot: () => ({ gold: rint(250, 1400), goods: { sal: rint(5, 25), cuero: rint(2, 10) } }),
+  },
+];
+const SITE = {}; SITES.forEach(s => SITE[s.id] = s);
 
 const MONTHS = ['Ventoso', 'Germinal', 'Floreal', 'Pradial', 'Mesidor', 'Termidor', 'Fructidor', 'Vendimia', 'Brumario', 'Frimario', 'Nivoso', 'Pluvioso'];
 function dateStr(day) {

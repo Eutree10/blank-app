@@ -58,6 +58,7 @@ class AIWorld {
       this.decide(m, day);
     }
     if (day % 10 === 0) this.churn(day);
+    if (rnd() < 0.10) this.narrate(day);
   }
 
   arrive(m) {
@@ -127,19 +128,64 @@ class AIWorld {
     }
     const cost = costToBuy(here, best.g, best.qty);
     if (cost > m.gold) { m.daysLeft = 1; return; }
+    const share = best.qty / Math.max(1, here.stock[best.g]);
     m.gold -= cost;
     here.stock[best.g] = Math.max(0, here.stock[best.g] - best.qty);
     m.cargo[best.g] = (m.cargo[best.g] || 0) + best.qty;
     m.edge = best.ei; m.dest = best.to;
     m.daysLeft = Math.max(1, Math.round(best.days));
+    // acaparamientos visibles: el jugador ve moverse a sus rivales
+    if (share > 0.5 && best.qty > 60 && here.known && rnd() < 0.5) {
+      m.knownByPlayer = true;
+      this.game.news(`${m.company} se lleva casi todo el ${GOOD[best.g].name.toLowerCase()} de ${here.name}.`, 'rival', here.id, '📦');
+    }
+  }
+
+  /** Los rivales también viven: abren negocios, ganan contratos, se arruinan. */
+  narrate(day) {
+    const G = this.game, W = this.world;
+    const alive = this.merchants.filter(m => m.alive);
+    if (!alive.length) return;
+    const m = pick(alive);
+    const c = W.cities[m.at];
+    if (!c || !c.known) return;
+    const r = rnd();
+    if (r < 0.30 && m.gold > 12000) {
+      m.knownByPlayer = true;
+      G.news(`${m.company} abre un taller en ${c.name}.`, 'rival', c.id, '🏭');
+      c.rivalShops = (c.rivalShops || 0) + 1;
+    } else if (r < 0.62) {
+      // un contrato que no cogiste se lo lleva otro
+      const k = c.contracts.find(x => !x.taken && !x.mega);
+      if (k) {
+        c.contracts = c.contracts.filter(x => x.id !== k.id);
+        m.knownByPlayer = true;
+        G.news(`${m.company} se lleva el contrato de ${k.qty} de ${GOOD[k.good].name} hacia ${W.cities[k.to].name}.`, 'rival', c.id, '📜');
+      }
+    } else if (r < 0.78 && m.gold > 40000) {
+      G.news(`Se dice que ${m.name} ha comprado media calle de almacenes en ${c.name}.`, 'rival', c.id, '🏛️');
+      m.knownByPlayer = true;
+    }
   }
 
   churn(day) {
     for (const m of this.merchants) {
       if (!m.alive) continue;
       if (m.gold < 40 && m.load() < 1) {
+        // una casa con historia no muere del todo: un heredero la reabre años después
+        if ((m.knownByPlayer || m.peak > 45000) && (m.generation || 1) < 4 && rnd() < 0.55) {
+          this.game.news(`${m.company} quiebra. ${m.name} lo pierde todo.`, 'rival', null, '📉');
+          succeed(this.game, m);
+          m.gold = rrange(600, 2400);
+          m.cargo = {};
+          m.cap = Math.max(30, Math.round(m.cap * 0.4));
+          this.game.news(`Años después, ${m.name} reabre ${m.company} con lo poco que quedó.`, 'rival', null, '🕯️');
+          continue;
+        }
         m.alive = false;
-        if (m.peak > 20000) this.game.news(`${m.company} quiebra tras años de esplendor.`, 'rival', null, '📉');
+        if (m.peak > 20000 || m.knownByPlayer) {
+          this.game.news(`${m.company} quiebra${m.peak > 60000 ? ' tras años de esplendor' : ''}. ${m.name} desaparece de los muelles.`, 'rival', null, '📉');
+        }
       }
     }
     this.merchants = this.merchants.filter(m => m.alive);

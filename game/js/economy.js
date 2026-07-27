@@ -177,6 +177,61 @@ const EVENTS = [
   },
 ];
 
+/* ==================== GRANDES ACONTECIMIENTOS DEL MUNDO ==================
+   Cada varios meses ocurre algo enorme: no toca una ciudad, sino una región
+   entera, y dura estaciones. El mapa comercial se reordena.
+   ========================================================================= */
+const WORLD_EVENTS = [
+  {
+    id: 'granguerra', name: 'La Gran Guerra', icon: '⚔️', w: 10, dur: [150, 320],
+    line: r => `Los reinos ${r} se declaran la guerra. Los ejércitos necesitan hierro, pan y acero.`,
+    effect: { prodMul: { '*': 0.8 }, demMul: { '@arma': 3.6, hierro: 2.2, grano: 1.8, pan: 1.7, medicina: 2.0, cuero: 1.7 }, taxAdd: 0.06, danger: 0.09 },
+    aside: 'Las armas se pagan como nunca, pero los caminos se llenan de desertores.',
+  },
+  {
+    id: 'pestenegra', name: 'La Peste Negra', icon: '☠️', w: 8, dur: [120, 240],
+    line: r => `Una peste avanza por ${r}. Las ciudades cierran sus puertas.`,
+    effect: { prodMul: { '*': 0.6 }, demMul: { medicina: 5.5, hierbas: 3.0, incienso: 2.6, '@lujo': 0.5 }, popMul: 0.9982, taxAdd: 0.03 },
+    aside: 'Quien lleve medicina hará fortuna. Quien llegue tarde, encontrará ciudades vacías.',
+  },
+  {
+    id: 'granhambre', name: 'La Gran Hambruna', icon: '🥀', w: 9, dur: [110, 220],
+    line: r => `Las cosechas se pierden en ${r}. Hay hambre de mar a mar.`,
+    effect: { prodMul: { grano: 0.2, uva: 0.3, harina: 0.45, pan: 0.5 }, demMul: { grano: 2.6, pan: 2.6, pescado: 2.0, harina: 2.2 }, popMul: 0.9988 },
+    aside: 'El grano vale más que el hierro. Lo que hagas con eso dirá quién eres.',
+  },
+  {
+    id: 'fiebreoro', name: 'La Fiebre del Oro', icon: '💎', w: 8, dur: [140, 300],
+    line: r => `Se descubren vetas de gemas en ${r} y llegan buscadores de todas partes.`,
+    effect: { prodMul: { gemas: 3.4, mineral: 2.0, carbon: 1.7 }, demMul: { herram: 2.4, grano: 1.8, vino: 1.9, tela: 1.6 }, popMul: 1.0022, wealthAdd: 0.12 },
+    aside: 'Las gemas se derrumban de precio; las herramientas y la comida se disparan.',
+  },
+  {
+    id: 'granferia', name: 'La Feria de las Naciones', icon: '🎪', w: 9, dur: [40, 80],
+    line: r => `${r} celebra la feria más grande en una generación. Acuden compradores de todo el mundo.`,
+    effect: { demMul: { '@lujo': 2.8, ropa: 2.4, joyas: 2.6, vino: 2.2, muebles: 2.2, especias: 2.2, incienso: 1.8 }, wealthAdd: 0.08, taxAdd: -0.02 },
+    aside: 'Semanas de oro para quien llegue cargado de lujo.',
+  },
+  {
+    id: 'revolucionind', name: 'La Revolución de los Talleres', icon: '🏭', w: 7, dur: [180, 360],
+    line: r => `Nuevas máquinas transforman los talleres de ${r}.`,
+    effect: { prodMul: { tela: 2.2, ropa: 2.0, herram: 2.2, hierro: 1.9, tablones: 1.9, muebles: 1.8 }, demMul: { lana: 2.0, mineral: 2.0, carbon: 2.2, madera: 1.9 }, wealthAdd: 0.14, popMul: 1.0016 },
+    aside: 'Las manufacturas se abaratan; las materias primas se vuelven oro.',
+  },
+  {
+    id: 'bloqueo', name: 'El Gran Bloqueo', icon: '⛓️', w: 7, dur: [90, 180],
+    line: r => `Una flota bloquea los puertos de ${r}. El comercio marítimo se rompe.`,
+    effect: { prodMul: { '*': 0.85 }, demMul: { '*': 1.35, pescado: 0.8 }, taxAdd: 0.08, danger: 0.14, seaOnly: true },
+    aside: 'Llegar por mar será caro y peligroso. Por tierra, un negocio.',
+  },
+  {
+    id: 'pazdorada', name: 'La Paz Dorada', icon: '🕊️', w: 6, dur: [160, 320],
+    line: r => `Se firma una paz general en ${r}. Vuelven los caminos seguros y el turismo.`,
+    effect: { prodMul: { '*': 1.18 }, demMul: { '@lujo': 1.7, vino: 1.6, '@arma': 0.4 }, taxAdd: -0.04, danger: -0.15 },
+    aside: 'Las armas se hunden. El lujo florece.',
+  },
+];
+
 function makeEvent(def, c) {
   const e = Object.assign({ id: def.id, name: def.name, icon: def.icon }, def.make());
   e.daysLeft = rint(def.dur[0], def.dur[1]);
@@ -189,6 +244,16 @@ function makeEvent(def, c) {
   return e;
 }
 
+/** Nombre poético de la zona del mapa donde cae un punto. */
+function regionName(W, c) {
+  const ns = c.y < W.h * 0.34 ? 'el Norte' : c.y > W.h * 0.66 ? 'el Sur' : '';
+  const ew = c.x < W.w * 0.34 ? 'el Poniente' : c.x > W.w * 0.66 ? 'el Levante' : '';
+  if (ns && ew) return `${ns} de ${ew.replace('el ', '')}`;
+  if (ns) return ns;
+  if (ew) return ew;
+  return 'las Tierras Centrales';
+}
+
 /* ------------------------- Motor de simulación --------------------------- */
 class Economy {
   constructor(world, game) { this.world = world; this.game = game; }
@@ -199,7 +264,50 @@ class Economy {
     for (const c of W.cities) this.tickCity(c, day);
     this.tickEdges();
     this.spawnEvents(day);
+    this.tickWorldEvent(day);
     if (day % 5 === 0) for (const c of W.cities) this.refreshContracts(c, day);
+  }
+
+  /* ------------------- Grandes acontecimientos del mundo ------------------ */
+  tickWorldEvent(day) {
+    const G = this.game, W = this.world;
+    if (G.worldEvent) {
+      G.worldEvent.daysLeft--;
+      if (G.worldEvent.daysLeft <= 0) {
+        G.news(`${G.worldEvent.name} llega a su fin.`, 'event', null, G.worldEvent.icon);
+        G.worldEvent = null;
+      }
+      return;
+    }
+    if (day < 90 || rnd() > 0.006) return;      // uno cada varios meses
+    const def = pickW(WORLD_EVENTS.map(d => [d, d.w]));
+    // una región: un punto del mapa y todo lo que cae cerca
+    const seed = pick(W.cities);
+    const radius = rrange(45, 85);
+    let hit = W.cities.filter(c => dist(c.x, c.y, seed.x, seed.y) < radius);
+    if (def.effect.seaOnly) hit = hit.filter(c => c.coastal);
+    if (hit.length < 3) hit = W.cities.slice(0, 6);
+    const region = regionName(W, seed);
+
+    const days = rint(def.dur[0], def.dur[1]);
+    for (const c of hit) {
+      const ev = Object.assign({ id: def.id, name: def.name, icon: def.icon, world: true }, def.effect);
+      ev.daysLeft = days; ev.total = days;
+      if (ev.wealthAdd) c.wealth = clamp(c.wealth + ev.wealthAdd, 0.4, 3.2);
+      c.events = c.events.filter(e => e.id !== def.id);
+      c.events.push(ev);
+      if (ev.danger) for (const ei of W.adj[c.id]) {
+        const e = W.edges[ei];
+        if (!def.effect.seaOnly || e.type === 'sea') e.danger = clamp(e.danger + ev.danger, 0, 0.7);
+      }
+    }
+    G.worldEvent = {
+      id: def.id, name: def.name, icon: def.icon, daysLeft: days, total: days,
+      region, cities: hit.map(c => c.id),
+      line: def.line(region), aside: def.aside,
+    };
+    G.news(`${def.name}. ${def.line(region)}`, 'world', hit[0].id, def.icon);
+    G.pendingWorldNews = G.worldEvent;          // la interfaz lo anuncia a lo grande
   }
 
   tickCity(c, day) {
@@ -250,8 +358,11 @@ class Economy {
       if (c.stock[g] < 0) c.stock[g] = 0;
     }
 
-    // --- población y riqueza
-    c.pop = Math.max(200, c.pop * popMul * (1 + (foodSat - 0.9) * 0.0025 - c.unrest * 0.0012));
+    // --- población: crecimiento logístico, una ciudad no crece sin límite
+    const cap = (c.basePop || c.pop) * (1.5 + c.wealth * 0.9);
+    const room = clamp(1 - c.pop / cap, -0.5, 1);
+    const growth = (foodSat - 0.9) * 0.0025 * (room > 0 ? room : 1) - c.unrest * 0.0012 + (room < 0 ? room * 0.002 : 0);
+    c.pop = Math.max(200, c.pop * popMul * (1 + growth));
     c.wealth = clamp(c.wealth + (foodSat - 0.85) * 0.0018 - c.unrest * 0.0009, 0.35, 3.2);
     if (day % 30 === 0) this.rescaleProduction(c);
 
@@ -325,9 +436,42 @@ class Economy {
   }
 
   /* ------------------------------ Contratos ------------------------------ */
+  /** Encargos descomunales: no caben en una carreta, hacen falta flotas y años. */
+  makeMegaContract(c, day) {
+    const G = this.game, W = this.world;
+    const kinds = [
+      { good: 'hierro', what: 'para forjar un ejército' },
+      { good: 'grano', what: 'para llenar los graneros antes del invierno' },
+      { good: 'piedra', what: 'para levantar una muralla nueva' },
+      { good: 'tablones', what: 'para una flota entera' },
+      { good: 'armadura', what: 'para equipar a la guardia real' },
+      { good: 'medicina', what: 'para las boticas del reino' },
+      { good: 'tela', what: 'para vestir a la corte' },
+      { good: 'carbon', what: 'para las fundiciones' },
+    ];
+    const k = pick(kinds);
+    const scale = clamp(G.netWorth() / 60000, 1, 14);
+    const qty = Math.round(rrange(220, 700) * scale / (GOOD[k.good].tier === 2 ? 3.5 : 1) / 10) * 10;
+    const unit = fairPrice(c, k.good);
+    return {
+      id: 'K' + day + '_' + c.id, mega: true,
+      good: k.good, qty, delivered: 0, what: k.what,
+      from: c.id, to: c.id,
+      days: rint(150, 320),
+      reward: Math.round(unit * qty * rrange(1.5, 2.0)),
+      penalty: Math.round(unit * qty * 0.3),
+      expires: day + rint(40, 80), taken: false,
+    };
+  }
+
   refreshContracts(c, day) {
     c.contracts = c.contracts.filter(k => k.expires > day && !k.taken);
-    const W = this.world;
+    const W = this.world, G = this.game;
+    // un gran encargo aparece de vez en cuando en las ciudades importantes
+    if (c.pop > 7000 && day > 200 && !c.contracts.some(k => k.mega)
+      && !G.p.contracts.some(k => k.mega) && rnd() < 0.04) {
+      c.contracts.push(this.makeMegaContract(c, day));
+    }
     while (c.contracts.length < (c.pop > 6000 ? 3 : 2)) {
       const targets = W.cities.filter(o => o.id !== c.id && o.comp !== undefined);
       const to = pick(targets);

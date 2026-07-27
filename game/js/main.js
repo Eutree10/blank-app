@@ -56,6 +56,12 @@ window.addEventListener('DOMContentLoaded', () => {
   };
   $('btnContinue').onclick = () => {
     const g = Game.load();
+    if (g && g.outdated) {
+      Game.clearSave();
+      cont.disabled = true;
+      alert('Tu partida guardada es de una versión anterior del mundo (antes de la fama, el carácter de las ciudades y los grandes acontecimientos). Hay que empezar una nueva.');
+      return;
+    }
     if (!g) { alert('No se pudo cargar la partida.'); return; }
     boot(g);
   };

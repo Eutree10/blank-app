@@ -3,7 +3,7 @@
    ========================================================================= */
 'use strict';
 
-const SAVE_KEY = 'merchants_odyssey_save_v1';
+const SAVE_KEY = 'merchants_odyssey_save_v2';
 
 class Game {
   constructor(seed) {
@@ -25,6 +25,7 @@ class Game {
       guards: 0,
       rep: 0,            // reputación honesta
       noto: 0,           // notoriedad (contrabando / piratería)
+      fame: {},          // honesto / contra / imperial / pirata / usurero / benefactor
       loans: [],
       contracts: [],
       buildings: [],     // {city, recipe, level}
@@ -116,6 +117,7 @@ class Game {
       this.economy.tick(this.day);
       this.ai.tick(this.day);
       this.tickPlayer();
+      ageMerchants(this);
     }
     this.recomputeEra();
     this.checkContracts();
@@ -133,8 +135,9 @@ class Game {
     this.p.gold -= up;
     // intereses
     for (const l of this.p.loans) l.amount *= (1 + l.rate);
-    // fábricas
+    // fábricas y minas
     this.runFactories();
+    if (this.day % 30 === 0) this.tickMines();
     // caducidad de la carga
     for (const g in this.p.cargo) {
       if (GOOD[g].perish) {
@@ -262,9 +265,11 @@ class Game {
     const c = this.city;
     c.visited = true; c.known = true;
     discovered = [...new Set(discovered.concat(this.world.reveal(c.x, c.y, 12)))];
+    const sites = discovered.filter(d => d.isSite).map(s => this.claimSite(s));
+    discovered = discovered.filter(d => !d.isSite);
     for (const d of discovered) this.news(`Descubres ${d.name} (${BIOMES[d.biome].name.toLowerCase()}).`, 'good', d.id, '🧭');
 
-    return { ok: true, days, log, route, discovered };
+    return { ok: true, days, log, route, discovered, sites };
   }
 
   /* ------------------------------ Comercio -------------------------------- */
@@ -288,16 +293,28 @@ class Game {
     const c = this.city;
     n = Math.floor(n);
     if (n <= 0) return { err: 'Cantidad inválida.' };
+    if (this.vetoed(c)) return { err: `${c.name} te ha cerrado sus mercados. Aquí ya no te venden nada.` };
     if (c.banned[g]) return { err: `${GOOD[g].name} está prohibido en ${c.name}: aquí solo se vende, y a escondidas.` };
     if (c.stock[g] < n) return { err: 'No hay tanto stock.' };
     const cost = costToBuy(c, g, n);
     if (cost > this.p.gold) return { err: 'No tienes suficiente oro.' };
     const cap = Math.max(this.capacity('land'), this.capacity('sea'));
     if (this.cargoWeight() + n * GOOD[g].w > cap + 0.001) return { err: 'No tienes espacio de carga.' };
+    const share = n / Math.max(1, c.stock[g]);
     this.p.gold -= cost;
     c.stock[g] -= n;
     this.p.cargo[g] = (this.p.cargo[g] || 0) + n;
     this.stats.bought += n;
+    // acaparar deja huella: la ciudad y los rivales lo notan
+    if (share > 0.6 && n > 40) {
+      addFame(this, 'usurero', 3);
+      c.playerRep -= 2;
+      remember(this, c, `nos dejó sin ${GOOD[g].name} de un solo golpe`, 2, 'usurero');
+      for (const m of this.ai.merchants) {
+        if (m.alive && m.at === c.id && rnd() < 0.5) { rivalRemember(m, `me dejó sin ${GOOD[g].name} en ${c.name}`, -2); m.knownByPlayer = true; }
+      }
+      this.news(`Acaparas el ${GOOD[g].name.toLowerCase()} de ${c.name}. Los tenderos toman nota.`, 'you', c.id, '📦');
+    }
     if (!this.p.avgCost) this.p.avgCost = {};
     const prev = this.p.avgCost[g] || { n: 0, total: 0 };
     this.p.avgCost[g] = { n: prev.n + n, total: prev.total + cost };
@@ -306,15 +323,23 @@ class Game {
 
   /** Probabilidad de que la guardia te pille vendiendo un bien prohibido. */
   smuggleRisk(c) {
-    return clamp(0.16 + this.p.noto * 0.1 - this.p.rep * 0.004, 0.05, 0.5);
+    const t = CITY_TRAIT[c.trait];
+    const traitMod = t && t.banRisk ? t.banRisk : 0;
+    const local = clamp((c.playerRep || 0) / 400, -0.05, 0.06);
+    return clamp(0.16 + this.p.noto * 0.1 - this.p.rep * 0.004 + traitMod - local, 0.03, 0.55);
   }
+
+  /** ¿Esta ciudad me deja comerciar? */
+  vetoed(c) { return (c.playerRep || 0) <= -40; }
 
   sell(g, n, black) {
     const c = this.city;
     n = Math.min(Math.floor(n), Math.floor(this.p.cargo[g] || 0));
     if (n <= 0) return { err: 'No tienes ese bien.' };
+    if (this.vetoed(c)) return { err: `${c.name} no te compra nada: te han vetado.` };
     let rev = revenueToSell(c, g, n);
     let caught = false, note = '';
+    const value = n * GOOD[g].base;
     if (c.banned[g]) {
       rev *= 1.85;
       const risk = this.smuggleRisk(c);
@@ -327,14 +352,20 @@ class Game {
         this.p.noto += 0.25; this.p.rep -= 6;
         c.playerRep -= 8;
         this.stats.caught++;
+        addFame(this, 'contra', 1);
+        remember(this, c, `${GOOD[g].name} de contrabando decomisado en el muelle`, 2, 'contra');
         return { ok: true, caught: true, fine, msg: `¡Te pillan! La guardia de ${c.name} confisca la mercancía y te multa con ${fmt(fine)} ⦿.` };
       }
       this.p.noto += 0.08;
+      addFame(this, 'contra', 2 + value / 400);
+      if (value > 900) remember(this, c, `alguien descargó ${GOOD[g].name} de noche y nadie hizo preguntas`, 2, 'contra');
       note = 'Mercado negro: +85% sobre el precio oficial.';
     } else {
-      rev *= (1 - c.tax);
+      rev *= (1 - taxP(c));
       this.p.rep += n * GOOD[g].base / 4000;
-      c.playerRep += 0.2;
+      c.playerRep += 0.2 + value / 6000;
+      addFame(this, 'honesto', value / 900);
+      this.judgeSale(c, g, n, rev / n);
     }
     this.p.gold += rev;
     c.stock[g] += n;
@@ -351,12 +382,35 @@ class Game {
     return { ok: true, rev, unit: rev / n, note, caught };
   }
 
+  /** ¿Esta venta te hace benefactor o buitre? Depende de a quién y cuándo. */
+  judgeSale(c, g, n, unit) {
+    const crisis = c.events.find(e => ['hambruna', 'peste', 'guerra', 'sequia', 'erupcion'].includes(e.id));
+    if (!crisis) return;
+    const good = GOOD[g];
+    const vital = good.tag === 'alimento' || good.tag === 'medicina';
+    if (!vital || n < 8) return;
+    const fair = good.base * 1.25;
+    if (unit <= fair) {                       // vendes casi al coste en plena crisis
+      const w = n * good.base / 300;
+      addFame(this, 'benefactor', 4 + w);
+      c.playerRep += 3 + w;
+      this.p.rep += 2;
+      remember(this, c, `nos trajo ${Math.round(n)} de ${good.name} durante ${crisis.name.toLowerCase()} y no nos desangró`, 3, 'benefactor');
+      this.news(`En ${c.name} recordarán que les vendiste ${good.name} a precio justo durante ${crisis.name.toLowerCase()}.`, 'good', c.id, '🕊️');
+    } else if (unit > good.base * 2.6) {      // te aprovechas del hambre
+      const w = n * good.base / 400;
+      addFame(this, 'usurero', 4 + w);
+      c.playerRep -= 2 + w;
+      remember(this, c, `nos vendió ${good.name} a precio de oro mientras enterrábamos a los nuestros`, 3, 'usurero');
+    }
+  }
+
   /* ------------------------------ Servicios ------------------------------- */
   buyVehicle(vid) {
     const V = VEHICLE[vid], c = this.city;
     if (V.era > this.p.era) return { err: 'Esa tecnología aún no existe.' };
     if (V.terrain === 'sea' && !c.shipyard) return { err: 'Aquí no hay astillero.' };
-    const price = Math.round(V.cost * (1 + c.tax));
+    const price = Math.round(V.cost * (1 + taxP(c)));
     if (this.p.gold < price) return { err: 'No tienes suficiente oro.' };
     this.p.gold -= price;
     this.p.vehicles[vid] = (this.p.vehicles[vid] || 0) + 1;
@@ -384,7 +438,7 @@ class Game {
   buildFactory(recipeId) {
     const r = RECIPE[recipeId], c = this.city;
     const exist = this.p.buildings.find(b => b.city === c.id && b.recipe === recipeId);
-    const cost = Math.round(r.cost * (1 + c.tax) * (exist ? Math.pow(1.7, exist.level) : 1));
+    const cost = Math.round(r.cost * (1 + taxP(c)) * (exist ? Math.pow(1.7, exist.level) : 1));
     if (this.p.gold < cost) return { err: 'No tienes suficiente oro.' };
     this.p.gold -= cost;
     if (exist) { exist.level++; return { ok: true, msg: `${r.name} de ${c.name} ampliada a nivel ${exist.level}.` }; }
@@ -489,8 +543,64 @@ class Game {
     const found = W.revealPath(c.x, c.y, bestX, bestY, 9).concat(W.reveal(bestX, bestY, 16));
     this.advanceDays(days);
     const uniq = [...new Set(found)];
-    for (const d of uniq) this.news(`Expedición: descubres ${d.name}.`, 'good', d.id, '🧭');
-    return { ok: true, days, found: uniq, cost };
+    const cities = uniq.filter(d => !d.isSite);
+    const sites = uniq.filter(d => d.isSite);
+    for (const d of cities) this.news(`Expedición: descubres ${d.name}.`, 'good', d.id, '🧭');
+    const spoils = sites.map(s => this.claimSite(s));
+    return { ok: true, days, found: cities, sites: spoils, cost };
+  }
+
+  /** Un hallazgo: botín inmediato o una ventaja permanente. */
+  claimSite(s) {
+    const def = SITE[s.type];
+    const out = { site: s, def, gold: 0, goods: {}, grant: null, text: def.text };
+    if (s.claimed) return out;
+    s.claimed = true;
+    if (def.loot) {
+      const l = def.loot();
+      out.gold = l.gold || 0;
+      this.p.gold += out.gold;
+      const cap = Math.max(this.capacity('land'), this.capacity('sea'));
+      for (const g in l.goods || {}) {
+        const space = Math.floor((cap - this.cargoWeight()) / GOOD[g].w);
+        const take = Math.min(l.goods[g], Math.max(0, space));
+        if (take > 0) { this.p.cargo[g] = (this.p.cargo[g] || 0) + take; out.goods[g] = take; }
+      }
+    }
+    if (def.grant) {
+      out.grant = def.grant;
+      if (def.grant === 'mina') {
+        this.p.mines = this.p.mines || [];
+        this.p.mines.push({ x: s.x, y: s.y, site: s.id });
+      } else if (def.grant === 'ruta' || def.grant === 'puerto') {
+        // acorta o asegura las rutas cercanas al hallazgo
+        for (const e of this.world.edges) {
+          const A = this.world.cities[e.a], B = this.world.cities[e.b];
+          const mx = (A.x + B.x) / 2, my = (A.y + B.y) / 2;
+          if (dist(mx, my, s.x, s.y) > 26) continue;
+          if (def.grant === 'ruta' && e.type === 'land') e.days *= 0.86;
+          if (def.grant === 'puerto' && e.type === 'sea') e.danger = Math.max(0, e.danger - 0.1);
+        }
+      }
+    }
+    this.news(`${def.icon} Descubres ${def.name.toLowerCase()}${out.gold ? `: +${fmt(out.gold)} ⦿` : ''}.`, 'good', null, def.icon);
+    addFame(this, 'honesto', 2);
+    return out;
+  }
+
+  /** Las minas propias rinden cada mes. */
+  tickMines() {
+    if (!this.p.mines || !this.p.mines.length) return;
+    for (const m of this.p.mines) {
+      const near = this.world.cities.slice().sort((a, b) => dist(a.x, a.y, m.x, m.y) - dist(b.x, b.y, m.x, m.y))[0];
+      if (!near) continue;
+      const mineral = rint(25, 60), gemas = rnd() < 0.4 ? rint(1, 4) : 0;
+      near.stock.mineral += mineral;
+      near.stock.gemas += gemas;
+      const income = Math.round(revenueToSell(near, 'mineral', mineral) * 0.85 + revenueToSell(near, 'gemas', gemas) * 0.85);
+      this.p.gold += income;
+      this.news(`Tu mina rinde este mes: ${fmt(income)} ⦿ vendidos en ${near.name}.`, 'good', near.id, '⛏️');
+    }
   }
 
   buyMap() {
@@ -525,6 +635,9 @@ class Game {
     const m = pick(near);
     let loot = [], gold = Math.round(m.gold * 0.25);
     m.gold -= gold; this.p.gold += gold;
+    addFame(this, 'pirata', 12);
+    rivalRemember(m, `me asaltó en el camino y se llevó ${fmt(gold)} monedas`, -3);
+    m.knownByPlayer = true;
     const cap = Math.max(this.capacity('land'), this.capacity('sea'));
     for (const g in m.cargo) {
       const space = Math.floor((cap - this.cargoWeight()) / GOOD[g].w);
@@ -550,7 +663,32 @@ class Game {
     c.contracts = c.contracts.filter(x => x.id !== k.id);
     return { ok: true };
   }
+  /** Entrega parcial de un gran encargo: se va llenando viaje a viaje. */
+  deliverPartial(k, n) {
+    if (k.to !== this.p.at) return { err: 'No estás en la ciudad del encargo.' };
+    n = Math.min(Math.floor(n), Math.floor(this.p.cargo[k.good] || 0), k.qty - k.delivered);
+    if (n <= 0) return { err: 'No llevas nada que entregar.' };
+    this.p.cargo[k.good] -= n;
+    if (this.p.cargo[k.good] <= 0) delete this.p.cargo[k.good];
+    k.delivered += n;
+    this.city.stock[k.good] += n;
+    this.city.playerRep += n * GOOD[k.good].base / 900;
+    if (k.delivered >= k.qty) {
+      this.p.gold += k.reward;
+      this.p.rep += 20;
+      this.city.playerRep += 25;
+      addFame(this, 'imperial', 40);
+      addFame(this, 'honesto', 10);
+      remember(this, this.city, `abasteció el gran encargo de ${fmt(k.qty)} de ${GOOD[k.good].name} ${k.what}`, 4, 'imperial');
+      this.news(`Gran encargo cumplido en ${this.city.name}: ${fmt(k.qty)} de ${GOOD[k.good].name}. +${fmt(k.reward)} ⦿`, 'good', k.to, '👑');
+      this.p.contracts = this.p.contracts.filter(x => x.id !== k.id);
+      return { ok: true, done: true, msg: `¡Encargo completado! Cobras ${fmt(k.reward)} ⦿ y tu nombre corre por el reino.` };
+    }
+    return { ok: true, done: false, n, msg: `Entregas ${n}. Llevas ${fmt(k.delivered)} de ${fmt(k.qty)}.` };
+  }
+
   deliverContract(k) {
+    if (k.mega) return this.deliverPartial(k, this.p.cargo[k.good] || 0);
     if (k.to !== this.p.at) return { err: 'No estás en la ciudad de destino.' };
     if ((this.p.cargo[k.good] || 0) < k.qty) return { err: 'No llevas la mercancía completa.' };
     this.p.cargo[k.good] -= k.qty;
@@ -560,6 +698,8 @@ class Game {
     this.city.playerRep += 5;
     this.city.stock[k.good] += k.qty;
     this.stats.profit += k.reward * 0.5;
+    addFame(this, 'honesto', 5);
+    remember(this, this.city, `cumplió su palabra con ${k.qty} de ${GOOD[k.good].name}`, 1, 'honesto');
     this.p.contracts = this.p.contracts.filter(x => x.id !== k.id);
     return { ok: true, msg: `Contrato cumplido: +${fmt(k.reward)} ⦿ y prestigio en ${this.city.name}.` };
   }
@@ -586,13 +726,16 @@ class Game {
   save() {
     const W = this.world;
     const data = {
-      v: 1, seed: this.seed, day: this.day, p: this.p, stats: this.stats,
+      v: 2, seed: this.seed, day: this.day, p: this.p, stats: this.stats,
       news: this.newsLog.slice(0, 80),
+      we: this.worldEvent || null,
+      sites: (W.sites || []).map(s => (s.found ? 1 : 0) | (s.claimed ? 2 : 0)),
       cities: W.cities.map(c => ({
         s: c.stock, pr: c.price, pop: c.pop, we: c.wealth, ta: c.tax, bt: c.baseTax, un: c.unrest,
         ev: c.events, kn: c.known ? 1 : 0, vi: c.visited ? 1 : 0, rp: c.playerRep,
         ba: c.banned, ct: c.contracts, sy: c.shipyard ? 1 : 0, bk: c.bank ? 1 : 0,
         bp: c.basePop, bpr: c.baseProd, bcs: c.baseCons, prd: c.prod, cns: c.cons,
+        me: c.memories || [], rs: c.rivalShops || 0,
       })),
       edges: W.edges.map(e => [e.blocked, +e.danger.toFixed(3), e.toll || 0]),
       known: btoa(String.fromCharCode(...packBits(W.known))),
@@ -600,6 +743,8 @@ class Game {
         n: m.name, c: m.company, s: m.style.id, g: Math.round(m.gold), ca: m.cargo,
         at: m.at, de: m.dest, dl: m.daysLeft, ed: m.edge, cp: m.cap, sp: +m.speed.toFixed(2),
         cs: m.canSea ? 1 : 0, tr: m.trades, pk: Math.round(m.peak),
+        ag: m.age, ra: m.retireAt, gn: m.generation || 1, mm: m.memory || [],
+        op: m.opinion || 0, kb: m.knownByPlayer ? 1 : 0,
       })),
     };
     localStorage.setItem(SAVE_KEY, JSON.stringify(data));
@@ -611,9 +756,16 @@ class Game {
     if (!raw) return null;
     let d;
     try { d = JSON.parse(raw); } catch (e) { return null; }
+    if ((d.v || 1) < 2) return { outdated: true };   // el mundo cambió demasiado para reaprovecharla
     const g = new Game(d.seed);
     g.day = d.day; g.p = d.p; g.stats = d.stats || g.stats;
     g.newsLog = d.news || [];
+    g.worldEvent = d.we || null;
+    if (!g.p.fame) g.p.fame = {};
+    (d.sites || []).forEach((f, i) => {
+      const s = g.world.sites[i];
+      if (s) { s.found = !!(f & 1); s.claimed = !!(f & 2); }
+    });
     d.cities.forEach((s, i) => {
       const c = g.world.cities[i];
       if (!c) return;
@@ -621,6 +773,7 @@ class Game {
       c.unrest = s.un; c.events = s.ev || []; c.known = !!s.kn; c.visited = !!s.vi;
       c.playerRep = s.rp || 0; c.banned = s.ba || {}; c.contracts = s.ct || [];
       c.shipyard = !!s.sy; c.bank = !!s.bk;
+      c.memories = s.me || []; c.rivalShops = s.rs || 0;
       if (s.bp) { c.basePop = s.bp; c.baseProd = s.bpr; c.baseCons = s.bcs; }
       if (s.prd) { c.prod = s.prd; c.cons = s.cns; }
       for (const gg of GOOD_IDS) if (!c.priceHist[gg]) c.priceHist[gg] = [];
@@ -636,6 +789,8 @@ class Game {
         mm.name = m.n; mm.company = m.c; mm.style = AI_STYLES.find(s => s.id === m.s) || AI_STYLES[0];
         mm.gold = m.g; mm.cargo = m.ca; mm.at = m.at; mm.dest = m.de; mm.daysLeft = m.dl;
         mm.edge = m.ed; mm.cap = m.cp; mm.speed = m.sp; mm.canSea = !!m.cs; mm.trades = m.tr; mm.peak = m.pk;
+        mm.age = m.ag; mm.retireAt = m.ra; mm.generation = m.gn || 1;
+        mm.memory = m.mm || []; mm.opinion = m.op || 0; mm.knownByPlayer = !!m.kb;
         return mm;
       });
     }
