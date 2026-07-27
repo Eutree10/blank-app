@@ -268,7 +268,7 @@ const UI = {
             return `<button class="dealcard" data-act="good" data-g="${r.g}">
               <span class="di">${r.good.icon}</span>
               <span class="dn">${r.good.name}<small>${to ? `→ ${esc(to.city.name)} ${to.days}d · ${pct(to.margin)}` : 'aún no sabes dónde venderlo caro'}</small></span>
-              <span class="dp">${fmt(r.bp)} ⦿<small class="up">${pct(r.dev)}</small></span>
+              <span class="dp">${fmt(r.bp)} ⦿<small class="up">${pct(r.dev)}</small><small class="flat">la unidad</small></span>
             </button>`;
           }).join('')}
         </div>`;
@@ -342,7 +342,11 @@ const UI = {
       ${deals}${hold}
       <table class="mkt">
         <colgroup><col class="c-name"><col class="c-num"><col class="c-num"><col class="c-num"><col class="c-mine"><col class="c-tr"></colgroup>
-        <thead><tr><th>Bien</th><th>Compra</th><th>Venta</th><th title="Diferencia con lo que suele valer este bien"><span class="thl">vs normal</span><span class="ths">±%</span></th><th>Tuyo</th><th></th></tr></thead>
+        <thead><tr><th>Bien</th>
+          <th title="Lo que pagas tú por cada unidad que compras aquí">Cuesta</th>
+          <th title="Lo que recibes tú por cada unidad que vendes aquí">Pagan</th>
+          <th title="Diferencia con lo que suele valer este bien"><span class="thl">vs normal</span><span class="ths">±%</span></th>
+          <th title="Unidades que llevas en la bodega">Tuyo</th><th></th></tr></thead>
         <tbody>${rows || '<tr><td colspan="6" class="mini" style="padding:14px">Nada que mostrar con este filtro.</td></tr>'}</tbody>
       </table>`;
     $('pane-market').querySelectorAll('.filters button').forEach(b => b.onclick = e => {
@@ -394,11 +398,11 @@ const UI = {
       </div>
       ${c.banned[g] ? `<div class="mini" style="color:#f3b2ae">Prohibido aquí: no se compra, y venderlo da un +85% con un
         <b>${Math.round(G.smuggleRisk(c) * 100)}% de riesgo</b> de que te confisquen la carga.</div>` : ''}
-      <button class="btn tiny wide" data-act="sheet" data-g="${g}">📊 Dónde conviene comprarlo y venderlo</button>
       <div>
-        <div class="mini" style="margin-bottom:4px">Lo que te pagarían por unidad, según lo que recuerdas</div>
-        <div class="where-list">${where}</div>
+        <div class="mini" style="margin-bottom:5px">Qué pasa con ${GOOD[g].name} en las plazas que conoces</div>
+        ${this.marketMiniTable(g, 5)}
       </div>
+      <button class="btn tiny wide" data-act="sheet" data-g="${g}">📊 Ficha completa y mejor operación</button>
     </div></td></tr>`;
   },
 
@@ -411,6 +415,30 @@ const UI = {
     return `<div><svg class="spark" viewBox="0 0 100 32" preserveAspectRatio="none">
       <polyline points="${pts}" fill="none" stroke="${up ? '#3FB950' : '#F85149'}" stroke-width="1.4" vector-effect="non-scaling-stroke"/>
     </svg><div class="mini">${h.length} días · mín ${fmt(min)} · máx ${fmt(max)}</div></div>`;
+  },
+
+  /** Tabla compacta: qué te pagan y qué te cuesta el bien en cada plaza que recuerdas. */
+  marketMiniTable(g, limit) {
+    const G = this.G;
+    const mk = this.marketsFor(g).sort((a, b) => (b.sell || 0) - (a.sell || 0));
+    if (mk.length < 2) return '<div class="mini">Solo conoces este mercado. Viaja para poder comparar.</div>';
+    const bestSell = Math.max(...mk.map(m => m.sell || 0));
+    const rows = mk.slice(0, limit).map(m => `
+      <tr class="${m.here ? 'here' : ''}" ${m.here ? '' : `data-act="select-city" data-city="${m.city.id}" style="cursor:pointer"`}>
+        <td>${m.here ? '<b>Aquí</b>' : esc(m.city.name)}${m.banned ? ' 🕯️' : ''}</td>
+        <td class="${m.sell === bestSell ? 'gold strong' : ''}">${m.sell ? fmt(m.sell) : '—'}</td>
+        <td class="flat">${m.buy > 0 ? fmt(m.buy) : '—'}</td>
+        <td class="mini">${m.here ? '—' : m.days === null ? 'sin ruta' : m.days + 'd'}</td>
+        <td class="mini ${m.age > 45 ? 'stale' : ''}">${m.here ? 'ahora' : m.age + 'd'}</td>
+      </tr>`).join('');
+    return `<table class="sheet compact">
+      <thead><tr>
+        <th>Plaza</th>
+        <th title="Lo que recibes por cada unidad que vendes allí">Te pagan</th>
+        <th title="Lo que te costaría cada unidad si la compras allí">Te cuesta</th>
+        <th>Viaje</th><th title="Antigüedad del dato">Dato</th>
+      </tr></thead><tbody>${rows}</tbody></table>
+      <div class="mini">Precios <b>por unidad</b>. Los de otras plazas son los que viste al pasar por allí.</div>`;
   },
 
   /** Precios recordados en otras ciudades. */
@@ -706,10 +734,10 @@ const UI = {
       }).join('');
       sellTable = `<h4>Lo que llevas, vendido aquí</h4>
         <table class="sheet">
-          <thead><tr><th>Bien</th><th>Tienes</th><th>⦿/unidad</th><th>Te dan</th><th>Ganas</th><th></th></tr></thead>
+          <thead><tr><th>Bien</th><th>Llevas</th><th title="Lo que te pagan por cada unidad">Te pagan/u</th><th title="Total por todas las unidades, ya sin impuestos">Total</th><th title="Frente a lo que pagaste por esa mercancía">Ganas</th><th></th></tr></thead>
           <tbody>${rows}</tbody>
         </table>
-        <div class="mini">«Te dan» es el total ya con impuestos descontados. «Ganas» lo compara con lo que pagaste por esa mercancía.
+        <div class="mini">«Total» es lo que recibes por todas las unidades, ya con impuestos descontados. «Ganas» lo compara con lo que pagaste por esa mercancía.
         ${known ? `En conjunto, vender todo aquí te deja <b class="${totalGain >= 0 ? 'up' : 'down'}">${totalGain >= 0 ? '+' : ''}${fmt(totalGain)} ⦿</b>.` : ''}</div>`;
     }
 
@@ -833,8 +861,8 @@ const UI = {
     this.modal(`${good.icon} ${good.name}`, `
       <div class="sheet-top">
         <div class="sheet-cell"><label>Precio normal</label><b>${fmt(good.base)} ⦿</b></div>
-        <div class="sheet-cell"><label>Compra aquí</label><b class="${dev < -0.18 ? 'up' : ''}">${c.banned[g] ? '—' : fmt(buyPriceAt(c, g)) + ' ⦿'}</b></div>
-        <div class="sheet-cell"><label>Venta aquí</label><b class="gold">${fmt(sellPriceAt(c, g) * (c.banned[g] ? 1.85 : 1 - c.tax))} ⦿</b></div>
+        <div class="sheet-cell"><label>Aquí te cuesta</label><b class="${dev < -0.18 ? 'up' : ''}">${c.banned[g] ? '—' : fmt(buyPriceAt(c, g)) + ' ⦿'}</b></div>
+        <div class="sheet-cell"><label>Aquí te pagan</label><b class="gold">${fmt(sellPriceAt(c, g) * (c.banned[g] ? 1.85 : 1 - c.tax))} ⦿</b></div>
         <div class="sheet-cell"><label>vs normal</label><b class="${dev < -0.18 ? 'up' : dev > 0.35 ? 'down' : 'flat'}">${pct(dev)}</b></div>
         <div class="sheet-cell"><label>En plaza</label><b>${fmt(c.stock[g])}</b></div>
         <div class="sheet-cell"><label>Llevas</label><b>${Math.floor(G.p.cargo[g] || 0)}</b></div>
@@ -854,9 +882,13 @@ const UI = {
 
       <h4>Mercados que recuerdas</h4>
       ${mk.length > 1 ? `<table class="sheet">
-        <thead><tr><th>Ciudad</th><th>Compra</th><th>Venta</th><th>Viaje</th><th>Dato</th></tr></thead>
+        <thead><tr><th>Plaza</th>
+          <th title="Lo que te costaría cada unidad si la compras allí">Te cuesta</th>
+          <th title="Lo que te pagarían por cada unidad que vendas allí">Te pagan</th>
+          <th>Viaje</th><th title="Antigüedad del dato">Dato</th></tr></thead>
         <tbody>${rows}</tbody></table>
-        <div class="mini">Verde: donde más barato lo recuerdas. Dorado: donde mejor se paga.</div>`
+        <div class="mini">Todo <b>por unidad</b>. En verde, donde más barato puedes comprarlo; en dorado, donde mejor te lo pagan.
+        Los precios de otras plazas son los que anotaste al pasar por allí.</div>`
         : '<div class="mini">Solo conoces este mercado. Viaja para poder comparar.</div>'}
       ${this.sparkline(c.priceHist[g])}`,
       `${Math.floor(G.p.cargo[g] || 0) > 0 ? `<button class="btn" data-act="cargo" data-g="${g}">Vender lo que llevo</button>` : ''}
@@ -896,12 +928,11 @@ const UI = {
     const avg = G.p.avgCost && G.p.avgCost[g] && G.p.avgCost[g].n > 0 ? G.p.avgCost[g].total / G.p.avgCost[g].n : null;
     const profit = avg === null ? null : net - avg * n;
     const wh = G.p.warehouses[G.p.at];
-    const where = this.whereToSell(g);
 
     $('cargoPane').innerHTML = `
       <div class="kv"><span>En bodega</span><b>${have} unidades · ${Math.round(have * GOOD[g].w)} de carga</b></div>
-      ${avg !== null ? `<div class="kv"><span>Te costó (media)</span><b>${fmt(avg)} ⦿/u</b></div>` : ''}
-      <div class="kv"><span>Precio aquí en ${esc(c.name)}</span><b class="gold">${fmt(unit)} ⦿/u</b></div>
+      ${avg !== null ? `<div class="kv"><span>Lo pagaste a</span><b>${fmt(avg)} ⦿ la unidad</b></div>` : ''}
+      <div class="kv"><span>Aquí en ${esc(c.name)} <b>te pagan</b></span><b class="gold">${fmt(unit)} ⦿ la unidad</b></div>
       ${banned ? `<div class="warnbox small">🕯️ Mercado negro: cobras un <b>+85%</b>, pero hay un
           <b>${Math.round(G.smuggleRisk(c) * 100)}%</b> de que te pillen en esta venta y pierdas la mercancía más una multa.</div>`
         : `<div class="mini">Ya descontado el ${(c.tax * 100).toFixed(1)}% de impuesto.</div>`}
@@ -921,7 +952,7 @@ const UI = {
           <button class="btn tiny" data-act="cq" data-v="all">Todo</button>
         </div>
         <div class="selltotal">
-          <span>Recibes por <b>${n}</b></span>
+          <span>Te pagan por <b>${n}</b><small>a ${fmt(unit)} ⦿ la unidad</small></span>
           <b class="gold big">${fmt(net)} ⦿</b>
         </div>
         ${profit !== null ? `<div class="kv"><span>Ganancia sobre lo que pagaste</span>
@@ -931,11 +962,11 @@ const UI = {
           ${wh ? `<button class="btn" data-act="cqstore">→ Almacén</button>` : ''}
         </div>
       </div>
-      <button class="btn tiny wide" style="margin-top:10px" data-act="sheet" data-g="${g}">📊 Dónde conviene venderlo</button>
-      <div style="margin-top:10px">
-        <div class="mini" style="margin-bottom:4px">Lo que te pagarían por unidad, según lo que recuerdas</div>
-        <div class="where-list">${where}</div>
-      </div>`;
+      <div style="margin-top:12px">
+        <div class="mini" style="margin-bottom:5px">Qué pasa con ${GOOD[g].name} en las plazas que conoces</div>
+        ${this.marketMiniTable(g, 6)}
+      </div>
+      <button class="btn tiny wide" style="margin-top:10px" data-act="sheet" data-g="${g}">📊 Ficha completa y mejor operación</button>`;
 
     const inp = $('cargoQty'), rng = $('cargoRange');
     const sync = v => { this.cq = clamp(Math.floor(+v || 1), 1, have); this.renderCargoPane(); };

@@ -208,20 +208,20 @@ input, select { font: inherit; color: inherit; }
 .filters button.active { color: #191408; background: var(--accent); border-color: var(--accent); }
 
 table.mkt { width: 100%; max-width: 100%; border-collapse: collapse; font-size: 12.5px; table-layout: fixed; }
-col.c-name { width: 35%; } col.c-num { width: 16%; } col.c-mine { width: 11%; } col.c-tr { width: 6%; }
-table.mkt th {
+col.c-name { width: 34%; } col.c-num { width: 16%; } col.c-mine { width: 12%; } col.c-tr { width: 6%; }
+table.mkt > thead > tr > th {
   text-align: right; font-size: 10px; letter-spacing: 0; text-transform: none;
   color: var(--muted); font-weight: 600; padding: 4px 4px; border-bottom: 1px solid var(--border);
   position: sticky; top: -12px; background: var(--bg2); z-index: 2; overflow: hidden; white-space: nowrap;
 }
-table.mkt th:first-child, table.mkt td:first-child { text-align: left; }
-table.mkt td {
+table.mkt > thead > tr > th:first-child, table.mkt > tbody > tr > td:first-child { text-align: left; }
+table.mkt > tbody > tr > td {
   padding: 5px 4px; border-bottom: 1px solid rgba(50,44,32,.5); font-family: var(--mono);
   text-align: right; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 table.mkt tr.g { cursor: pointer; }
-table.mkt tr.g:hover td { background: rgba(200,169,106,.05); }
-table.mkt tr.sel td { background: rgba(200,169,106,.09); }
+table.mkt > tbody > tr.g:hover > td { background: rgba(200,169,106,.05); }
+table.mkt > tbody > tr.sel > td { background: rgba(200,169,106,.09); }
 table.mkt .gname { font-family: var(--sans); display: flex; align-items: center; gap: 6px; min-width: 0; }
 table.mkt .gname .gi { flex: none; }
 table.mkt .gname .gt { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
@@ -230,22 +230,22 @@ table.mkt .gname .pill { flex: none; }
 .strong { font-weight: 700; }
 
 /* --- cabeceras de categoría dentro de la tabla --- */
-table.mkt tr.grp td {
+table.mkt > tbody > tr.grp > td {
   background: #14120d; border-bottom: 1px solid var(--border); border-top: 1px solid var(--border);
   font-family: var(--sans); font-size: 11.5px; font-weight: 600; color: #d8cdb4;
   padding: 7px 6px; cursor: pointer; letter-spacing: .01em;
 }
-table.mkt tr.grp:hover td { background: #1b1811; }
+table.mkt > tbody > tr.grp:hover > td { background: #1b1811; }
 table.mkt tr.grp .gh { display: flex; align-items: center; gap: 6px; min-width: 0; }
 table.mkt tr.grp .caret { color: var(--accent); flex: none; width: 11px; }
 table.mkt tr.grp .gtitle { flex: none; }
 table.mkt tr.grp .mini { font-weight: 400; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 table.mkt tr.grp .pill { flex: none; margin-left: auto; }
 /* filas de ganga: se ven de un vistazo */
-table.mkt tr.isdeal td:first-child { box-shadow: inset 2px 0 0 var(--up); }
-table.mkt tr.isdeal td { background: rgba(63,185,80,.055); }
-table.mkt td.dev { font-size: 11.5px; }
-table.mkt th .ths { display: none; }   /* cabecera corta, solo en paneles estrechos */
+table.mkt > tbody > tr.isdeal > td:first-child { box-shadow: inset 2px 0 0 var(--up); }
+table.mkt > tbody > tr.isdeal > td { background: rgba(63,185,80,.055); }
+table.mkt > tbody > tr > td.dev { font-size: 11.5px; }
+table.mkt > thead > tr > th .ths { display: none; }   /* cabecera corta, solo en paneles estrechos */
 
 /* --- tarjetas destacadas de gangas / bodega --- */
 .deals { margin-bottom: 12px; }
@@ -364,6 +364,11 @@ table.sheet th:first-child, table.sheet td:first-child { text-align: left; font-
 table.sheet th:last-child, table.sheet td:last-child { text-align: right; }
 table.sheet tr.here td { background: rgba(200,169,106,.09); }
 table.sheet td.stale { color: var(--warn); }   /* precio recordado hace demasiado */
+table.sheet.compact { font-size: 11.5px; margin-bottom: 4px; }
+table.sheet.compact th { font-size: 9.5px; padding: 3px 5px; }
+table.sheet.compact td { padding: 4px 5px; }
+table.sheet.compact tbody tr:hover td { background: rgba(200,169,106,.07); }
+.selltotal small { display: block; font-size: 10.5px; color: var(--muted); font-family: var(--mono); font-weight: 400; }
 
 .opt {
   display: flex; align-items: center; gap: 10px; padding: 9px 11px; border: 1px solid var(--border);
@@ -384,10 +389,10 @@ table.sheet td.stale { color: var(--warn); }   /* precio recordado hace demasiad
    (el color del precio ya dice si está barato o caro) */
 @media (max-width: 1180px) and (min-width: 901px) {
   table.mkt .gname .pill { display: none; }
-  table.mkt th { font-size: 9px; }
-  table.mkt th .thl { display: none; }
-  table.mkt th .ths { display: inline; }
-  col.c-name { width: 40%; } col.c-num { width: 15%; }
+  table.mkt > thead > tr > th { font-size: 9px; }
+  table.mkt > thead > tr > th .thl { display: none; }
+  table.mkt > thead > tr > th .ths { display: inline; }
+  col.c-name { width: 37%; } col.c-num { width: 15%; }
 }
 @media (max-width: 900px) {
   .layout { grid-template-columns: 1fr; }
