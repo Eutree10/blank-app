@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Merchant's Odyssey</title>
+<meta name="description" content="No eres un héroe. Eres el comerciante que mueve el mundo.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚖️</text></svg>">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ============================ PANTALLA DE TÍTULO ==================== -->
+<div id="title" class="title-screen">
+  <div class="title-bg"></div>
+  <div class="title-inner">
+    <div class="title-kicker">Simulación de comercio · mundo procedural</div>
+    <h1>Merchant's<span>Odyssey</span></h1>
+    <p class="title-quote">«No eres un héroe. Eres el comerciante que mueve el mundo.»</p>
+    <div class="title-cards">
+      <div class="tcard"><span>🌍</span><b>Mundo vivo</b><i>Guerras, pestes y ferias mueven cada precio. Y cada varios meses, algo enorme.</i></div>
+      <div class="tcard"><span>🧭</span><b>Niebla</b><i>El mapa empieza oculto. Explorando hallas ciudades, ruinas, minas y pecios.</i></div>
+      <div class="tcard"><span>🏭</span><b>Imperio</b><i>De la mochila a las flotas, fábricas y trenes. Y a encargos de mil toneladas.</i></div>
+      <div class="tcard"><span>⭐</span><b>El mundo recuerda</b><i>Tu fama te precede y las ciudades te lo echan en cara años después.</i></div>
+    </div>
+    <div class="title-actions">
+      <div class="seedrow">
+        <label>Semilla del mundo</label>
+        <input id="seedInput" type="text" spellcheck="false" placeholder="aleatoria">
+        <button class="btn ghost" id="btnDice" title="Semilla aleatoria">🎲</button>
+      </div>
+      <div class="row">
+        <button class="btn primary" id="btnNew">Nueva partida</button>
+        <button class="btn" id="btnContinue">Continuar</button>
+      </div>
+      <button class="linkbtn" id="btnHelp2">Cómo se juega</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================================ JUEGO ============================= -->
+<div id="app" class="app hidden">
+
+  <header class="topbar">
+    <div class="brand"><span class="mark">⚖️</span><span class="bname">Merchant's Odyssey</span></div>
+    <div class="stat"><label>Fecha</label><b id="tDate">—</b></div>
+    <div class="stat primary" title="Monedas en la bolsa. Es lo único que puedes gastar ahora mismo.">
+      <label>Oro en mano</label><b id="tGold" class="gold">—</b></div>
+    <div class="stat sec" title="Oro + mercancía + flota + negocios − deudas. Es tu marcador: con esto compites en la tabla de los más ricos.">
+      <label>Patrimonio</label><b id="tNet">—</b></div>
+    <div class="stat"><label>Carga</label><b id="tCargo">—</b></div>
+    <div class="stat hide-sm"><label>Título</label><b id="tTitle">—</b></div>
+    <div class="spacer"></div>
+    <button class="btn tiny" id="btnWait">Esperar 1 día</button>
+    <button class="btn tiny ghost" id="btnSave">Guardar</button>
+    <button class="btn tiny ghost" id="btnHelp">?</button>
+  </header>
+
+  <main class="layout">
+    <!-- ------------------------- Panel izquierdo ---------------------- -->
+    <aside class="side left" id="sideLeft">
+      <section class="card">
+        <h3>Tu caravana</h3>
+        <div id="fleetSummary" class="fleet-sum"></div>
+        <div class="bar"><div id="cargoBar" class="bar-fill"></div></div>
+        <div class="sub" id="cargoTxt">—</div>
+      </section>
+      <section class="card grow">
+        <h3>Bodega <span class="hint" id="cargoCount"></span></h3>
+        <div id="cargoList" class="list"></div>
+      </section>
+      <section class="card">
+        <h3>Contratos <span class="hint" id="contractCount"></span></h3>
+        <div id="contractList" class="list small"></div>
+      </section>
+    </aside>
+
+    <!-- ---------------------------- Mapa ------------------------------ -->
+    <section class="mapwrap">
+      <canvas id="map"></canvas>
+      <div class="map-toolbar">
+        <button class="chip" id="btnCenter" title="Centrar en mi posición">◎ Yo</button>
+        <button class="chip" id="btnRoutes" title="Mostrar rutas">⤳ Rutas</button>
+        <button class="chip" id="btnRivals" title="Mostrar rivales">◈ Rivales</button>
+        <span class="chip flat" id="mapHint">Arrastra para mover · rueda para zoom</span>
+      </div>
+      <div class="map-legend">
+        <span><i class="mk full"></i>visitada</span>
+        <span><i class="mk hollow"></i>vista, sin pisar</span>
+        <span><i class="mk dot"></i>rival</span>
+        <span><i class="mk line"></i>ruta cortada</span>
+      </div>
+      <div id="cityCard" class="citycard hidden"></div>
+      <div id="toasts" class="toasts"></div>
+    </section>
+
+    <!-- ------------------------- Panel derecho ------------------------ -->
+    <aside class="side right">
+      <nav class="tabs">
+        <button class="tab active" data-tab="market">Mercado</button>
+        <button class="tab" data-tab="city">Ciudad</button>
+        <button class="tab" data-tab="empire">Imperio</button>
+        <button class="tab" data-tab="world">Mundo</button>
+      </nav>
+      <div class="tabbody">
+        <div class="pane active" id="pane-market"></div>
+        <div class="pane" id="pane-city"></div>
+        <div class="pane" id="pane-empire"></div>
+        <div class="pane" id="pane-world"></div>
+      </div>
+    </aside>
+  </main>
+
+  <nav class="mobile-tabs">
+    <button data-mtab="map" class="active">🗺️ Mapa</button>
+    <button data-mtab="left">🎒 Caravana</button>
+    <button data-mtab="right">💰 Mercado</button>
+  </nav>
+</div>
+
+<!-- ================================ MODAL ============================= -->
+<div id="modalWrap" class="modal-wrap hidden">
+  <div class="modal">
+    <header><h2 id="modalTitle">—</h2><button class="x" id="modalClose">✕</button></header>
+    <div class="modal-body" id="modalBody"></div>
+    <footer id="modalFoot"></footer>
+  </div>
+</div>
+
+<script src="js/core.js"></script>
+<script src="js/world.js"></script>
+<script src="js/lore.js"></script>
+<script src="js/economy.js"></script>
+<script src="js/ai.js"></script>
+<script src="js/game.js"></script>
+<script src="js/render.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
