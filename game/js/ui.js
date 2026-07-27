@@ -69,6 +69,10 @@ const UI = {
         break;
       }
       case 'good': this.openGood = this.openGood === d.g ? null : d.g; this.renderMarket(); break;
+      case 'cargo': this.cargoModal(d.g); break;
+      case 'cq': this.setCargoQty(d.v); break;
+      case 'cqsell': this.cargoSell(); break;
+      case 'cqstore': this.cargoStore(); break;
       case 'buy': this.doBuy(d.g, this.qtyOf(d.g)); break;
       case 'sell': this.doSell(d.g, this.qtyOf(d.g)); break;
       case 'buymax': this.doBuy(d.g, G.maxBuy(d.g)); break;
@@ -158,7 +162,7 @@ const UI = {
     const G = this.G;
     $('tDate').textContent = dateStr(G.day);
     $('tGold').textContent = fmt(G.p.gold) + ' ⦿';
-    $('tNet').textContent = fmt(G.netWorth());
+    $('tNet').textContent = '≈ ' + fmt(G.netWorth()) + (G.debt() ? ' (deuda ' + fmt(G.debt()) + ')' : '');
     const cap = Math.max(G.capacity('land'), G.capacity('sea'));
     $('tCargo').textContent = `${Math.round(G.cargoWeight())}/${Math.round(cap)}`;
     $('tTitle').textContent = G.title();
@@ -187,7 +191,8 @@ const UI = {
       const val = sellPriceAt(c, g) * n;
       const avg = p.avgCost && p.avgCost[g] && p.avgCost[g].n > 0 ? p.avgCost[g].total / p.avgCost[g].n : null;
       const delta = avg ? (sellPriceAt(c, g) - avg) / avg : null;
-      return `<div class="li"><span class="ic">${GOOD[g].icon}</span>
+      return `<div class="li click" data-act="cargo" data-g="${g}" title="Vender o guardar ${GOOD[g].name}">
+        <span class="ic">${GOOD[g].icon}</span>
         <span class="nm">${GOOD[g].name}</span>
         <span class="qt">${n}</span>
         <span class="mt ${delta === null ? '' : delta > 0.02 ? 'up' : delta < -0.02 ? 'down' : ''}">${fmt(val)}</span></div>`;
@@ -224,10 +229,10 @@ const UI = {
       const tarrow = trend > 0.02 ? '▲' : trend < -0.02 ? '▼' : '·';
       const mine = Math.floor(G.p.cargo[g] || 0);
       const cheap = ratio < 0.75, dear = ratio > 1.4;
+      const tag = c.banned[g] ? '<span class="pill">proh.</span>'
+        : cheap ? '<span class="pill deal">barato</span>' : dear ? '<span class="pill">caro</span>' : '';
       rows += `<tr class="g ${this.openGood === g ? 'sel' : ''}" data-act="good" data-g="${g}">
-        <td class="tier${good.tier}"><span class="gname">${good.icon} ${good.name}
-          ${c.banned[g] ? '<span class="pill">prohibido</span>' : ''}
-          ${c.banned[g] ? '' : cheap ? '<span class="pill deal">barato</span>' : dear ? '<span class="pill">caro</span>' : ''}</span></td>
+        <td class="tier${good.tier}"><span class="gname"><span class="gi">${good.icon}</span><span class="gt">${good.name}</span>${tag}</span></td>
         <td class="${cheap ? 'up' : ''}">${c.banned[g] ? '—' : fmt(bp)}</td>
         <td class="${dear ? 'down' : ''}">${fmt(sp)}</td>
         <td class="mini">${fmt(c.stock[g])}</td>
@@ -242,6 +247,7 @@ const UI = {
       </div>
       <div class="filters">${filters.map(f => `<button data-f="${f[0]}" class="${this.filter === f[0] ? 'active' : ''}">${f[1]}</button>`).join('')}</div>
       <table class="mkt">
+        <colgroup><col class="c-name"><col class="c-num"><col class="c-num"><col class="c-num"><col class="c-mine"><col class="c-tr"></colgroup>
         <thead><tr><th>Bien</th><th>Compra</th><th>Venta</th><th>Stock</th><th>Tuyo</th><th></th></tr></thead>
         <tbody>${rows || '<tr><td colspan="6" class="mini" style="padding:14px">Nada que mostrar con este filtro.</td></tr>'}</tbody>
       </table>`;
@@ -619,6 +625,108 @@ const UI = {
     if (r.err) return this.toast(r.err, 'bad');
     this.refreshAll();
     this.modal('🏴‍☠️ Emboscada', `<p>${r.msg}</p><p class="mini">Tu notoriedad crece; algunas ciudades te lo tendrán en cuenta.</p>`);
+  },
+
+  /* ----------------------- Bodega: vender un artículo ----------------------- */
+  cargoModal(g) {
+    const G = this.G;
+    const have = Math.floor(G.p.cargo[g] || 0);
+    if (have <= 0) return;
+    this.cg = g;
+    this.cq = have;                       // por defecto, vender todo
+    this.modal(`${GOOD[g].icon} ${GOOD[g].name}`, '<div id="cargoPane"></div>',
+      '<button class="btn" data-act="modal-close">Cerrar</button>');
+    this.renderCargoPane();
+  },
+  setCargoQty(v) {
+    const have = Math.floor(this.G.p.cargo[this.cg] || 0);
+    let n;
+    if (v === 'all') n = have;
+    else if (v === 'half') n = Math.max(1, Math.floor(have / 2));
+    else n = +v;
+    this.cq = clamp(Math.floor(n), 1, have);
+    this.renderCargoPane();
+  },
+  renderCargoPane() {
+    const G = this.G, g = this.cg, c = G.city;
+    const have = Math.floor(G.p.cargo[g] || 0);
+    if (have <= 0) { this.closeModal(); this.refreshAll(); return; }
+    this.cq = clamp(this.cq, 1, have);
+    const n = this.cq;
+    const banned = !!c.banned[g];
+    const gross = revenueToSell(c, g, n);
+    const net = banned ? gross * 1.85 : gross * (1 - c.tax);
+    const unit = net / n;
+    const avg = G.p.avgCost && G.p.avgCost[g] && G.p.avgCost[g].n > 0 ? G.p.avgCost[g].total / G.p.avgCost[g].n : null;
+    const profit = avg === null ? null : net - avg * n;
+    const wh = G.p.warehouses[G.p.at];
+    const where = this.whereToSell(g);
+
+    $('cargoPane').innerHTML = `
+      <div class="kv"><span>En bodega</span><b>${have} unidades · ${Math.round(have * GOOD[g].w)} de carga</b></div>
+      ${avg !== null ? `<div class="kv"><span>Te costó (media)</span><b>${fmt(avg)} ⦿/u</b></div>` : ''}
+      <div class="kv"><span>Precio aquí en ${esc(c.name)}</span><b class="gold">${fmt(unit)} ⦿/u</b></div>
+      ${banned ? '<div class="mini" style="color:#f3b2ae">Prohibido aquí: mercado negro (+85%) con riesgo de decomiso.</div>'
+        : `<div class="mini">Ya descontado el ${(c.tax * 100).toFixed(1)}% de impuesto.</div>`}
+
+      <div class="sellbox">
+        <div class="sellqty">
+          <button class="btn tiny" data-act="cq" data-v="${n - 1}" ${n <= 1 ? 'disabled' : ''}>−</button>
+          <input type="number" id="cargoQty" min="1" max="${have}" value="${n}">
+          <button class="btn tiny" data-act="cq" data-v="${n + 1}" ${n >= have ? 'disabled' : ''}>+</button>
+          <span class="mini">de ${have}</span>
+        </div>
+        <input type="range" id="cargoRange" min="1" max="${have}" value="${n}" class="slider">
+        <div class="qty">
+          <button class="btn tiny" data-act="cq" data-v="1">1</button>
+          <button class="btn tiny" data-act="cq" data-v="10" ${have < 10 ? 'disabled' : ''}>10</button>
+          <button class="btn tiny" data-act="cq" data-v="half">Mitad</button>
+          <button class="btn tiny" data-act="cq" data-v="all">Todo</button>
+        </div>
+        <div class="selltotal">
+          <span>Recibes por <b>${n}</b></span>
+          <b class="gold big">${fmt(net)} ⦿</b>
+        </div>
+        ${profit !== null ? `<div class="kv"><span>Ganancia sobre lo que pagaste</span>
+          <b class="${profit >= 0 ? 'up' : 'down'}">${profit >= 0 ? '+' : ''}${fmt(profit)} ⦿</b></div>` : ''}
+        <div class="qty">
+          <button class="btn primary wide" data-act="cqsell">Vender ${n} ${GOOD[g].name}</button>
+          ${wh ? `<button class="btn" data-act="cqstore">→ Almacén</button>` : ''}
+        </div>
+      </div>
+      <div style="margin-top:12px">
+        <div class="mini" style="margin-bottom:4px">Dónde recuerdas mejores precios</div>
+        <div class="where-list">${where}</div>
+      </div>`;
+
+    const inp = $('cargoQty'), rng = $('cargoRange');
+    const sync = v => { this.cq = clamp(Math.floor(+v || 1), 1, have); this.renderCargoPane(); };
+    inp.addEventListener('change', e => sync(e.target.value));
+    rng.addEventListener('input', e => {
+      this.cq = clamp(Math.floor(+e.target.value), 1, have);
+      inp.value = this.cq;
+      const gr = revenueToSell(c, g, this.cq);
+      const nt = banned ? gr * 1.85 : gr * (1 - c.tax);
+      $('cargoPane').querySelector('.selltotal').innerHTML =
+        `<span>Recibes por <b>${this.cq}</b></span><b class="gold big">${fmt(nt)} ⦿</b>`;
+    });
+    rng.addEventListener('change', e => sync(e.target.value));
+  },
+  cargoSell() {
+    const g = this.cg, n = this.cq;
+    const r = this.G.sell(g, n);
+    if (r.err) return this.toast(r.err, 'bad');
+    if (r.caught) { this.toast(r.msg, 'bad'); this.closeModal(); this.refreshAll(); return; }
+    this.toast(`Vendes ${n} ${GOOD[g].name} por ${fmt(r.rev)} ⦿ (${fmt(r.unit)}/u). ${r.note || ''}`, 'good');
+    this.refreshAll();
+    if ((this.G.p.cargo[g] || 0) < 1) this.closeModal(); else { this.cq = Math.floor(this.G.p.cargo[g]); this.renderCargoPane(); }
+  },
+  cargoStore() {
+    const r = this.G.storeGood(this.cg, this.cq);
+    if (r.err) return this.toast(r.err, 'bad');
+    this.toast(`Guardas ${this.cq} ${GOOD[this.cg].name} en el almacén.`, 'good');
+    this.refreshAll();
+    if ((this.G.p.cargo[this.cg] || 0) < 1) this.closeModal(); else { this.cq = Math.floor(this.G.p.cargo[this.cg]); this.renderCargoPane(); }
   },
 
   /* --------------------------------- Modales -------------------------------- */

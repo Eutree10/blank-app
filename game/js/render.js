@@ -241,24 +241,28 @@ class MapView {
       ctx.stroke(); ctx.setLineDash([]);
     }
 
-    // --- rivales
-    if (this.showRivals && z > 3.2) {
+    // --- rivales: punto claro con borde oscuro para que se lea sobre cualquier terreno
+    if (this.showRivals) {
       for (const m of G.ai.merchants) {
         if (!m.alive) continue;
         const A = W.cities[m.at];
         if (!A || !A.known) continue;
-        let x = A.x, y = A.y;
+        let x = A.x, y = A.y, moving = false;
         if (m.dest >= 0 && W.edges[m.edge]) {
           const B = W.cities[m.dest];
           if (!B.known) continue;
           const e = W.edges[m.edge];
           const total = Math.max(1, Math.round(e.days / m.speed));
           const t = clamp(1 - m.daysLeft / total, 0, 1);
-          x = lerp(A.x, B.x, t); y = lerp(A.y, B.y, t);
-        }
+          x = lerp(A.x, B.x, t); y = lerp(A.y, B.y, t); moving = true;
+        } else if (m.id % 3 !== 0) continue;      // en puerto se dibuja solo una parte: evita el amontonamiento
         const s = this.w2s(x, y);
-        ctx.fillStyle = m.style.id === 'pirata' ? 'rgba(248,81,73,.8)' : m.style.id === 'contra' ? 'rgba(227,179,65,.75)' : 'rgba(232,226,210,.55)';
-        ctx.fillRect(s.x - 1.5, s.y - 1.5, 3, 3);
+        const r = clamp(z * 0.42, 2.6, 4.6);
+        const col = m.style.id === 'pirata' ? '#F85149' : m.style.id === 'contra' ? '#E3B341' : '#7EC8F2';
+        ctx.beginPath(); ctx.arc(s.x, s.y, r + 1.2, 0, 7);
+        ctx.fillStyle = 'rgba(8,7,5,.75)'; ctx.fill();
+        ctx.beginPath(); ctx.arc(s.x, s.y, r, 0, 7);
+        ctx.fillStyle = col; ctx.globalAlpha = moving ? 1 : 0.6; ctx.fill(); ctx.globalAlpha = 1;
       }
     }
 
@@ -279,15 +283,24 @@ class MapView {
         ctx.fillStyle = eventColor(ev.id, 0.16);
         ctx.fill();
       }
-      // marcador
-      ctx.beginPath();
+      // marcador: rombo = puerto, cuadrado = interior.
+      // visitada -> relleno dorado sólido · conocida sin visitar -> hueca
       const r = size * 0.62;
-      ctx.fillStyle = c.visited ? '#C8A96A' : '#8b7f66';
-      ctx.strokeStyle = '#0B0A08'; ctx.lineWidth = 1.5;
-      if (c.coastal) { // rombo para puertos
-        ctx.moveTo(s.x, s.y - r); ctx.lineTo(s.x + r, s.y); ctx.lineTo(s.x, s.y + r); ctx.lineTo(s.x - r, s.y); ctx.closePath();
-      } else ctx.rect(s.x - r, s.y - r, r * 2, r * 2);
-      ctx.fill(); ctx.stroke();
+      const shape = () => {
+        ctx.beginPath();
+        if (c.coastal) {
+          ctx.moveTo(s.x, s.y - r); ctx.lineTo(s.x + r, s.y); ctx.lineTo(s.x, s.y + r); ctx.lineTo(s.x - r, s.y); ctx.closePath();
+        } else ctx.rect(s.x - r, s.y - r, r * 2, r * 2);
+      };
+      shape();
+      ctx.strokeStyle = '#0B0A08'; ctx.lineWidth = 2.6; ctx.stroke();   // contorno oscuro de contraste
+      if (c.visited) {
+        shape(); ctx.fillStyle = '#E8C77E'; ctx.fill();
+        ctx.strokeStyle = '#5c4a26'; ctx.lineWidth = 1; ctx.stroke();
+      } else {
+        shape(); ctx.fillStyle = 'rgba(14,12,9,.92)'; ctx.fill();       // hueca: aún no has puesto un pie ahí
+        ctx.strokeStyle = '#C8A96A'; ctx.lineWidth = 1.6; ctx.stroke();
+      }
 
       if (isHere) {
         ctx.beginPath();

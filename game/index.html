@@ -44,8 +44,10 @@
   <header class="topbar">
     <div class="brand"><span class="mark">⚖️</span><span class="bname">Merchant's Odyssey</span></div>
     <div class="stat"><label>Fecha</label><b id="tDate">—</b></div>
-    <div class="stat"><label>Oro</label><b id="tGold" class="gold">—</b></div>
-    <div class="stat"><label>Patrimonio</label><b id="tNet">—</b></div>
+    <div class="stat primary" title="Monedas en la bolsa. Es lo único que puedes gastar ahora mismo.">
+      <label>Oro en mano</label><b id="tGold" class="gold">—</b></div>
+    <div class="stat sec" title="Oro + mercancía + flota + negocios − deudas. Es tu marcador: con esto compites en la tabla de los más ricos.">
+      <label>Patrimonio</label><b id="tNet">—</b></div>
     <div class="stat"><label>Carga</label><b id="tCargo">—</b></div>
     <div class="stat hide-sm"><label>Título</label><b id="tTitle">—</b></div>
     <div class="spacer"></div>
@@ -83,9 +85,10 @@
         <span class="chip flat" id="mapHint">Arrastra para mover · rueda para zoom</span>
       </div>
       <div class="map-legend">
-        <span><i class="sq gold"></i>visitada</span>
-        <span><i class="sq dim"></i>conocida</span>
-        <span><i class="sq red"></i>ruta cortada</span>
+        <span><i class="mk full"></i>visitada</span>
+        <span><i class="mk hollow"></i>vista, sin pisar</span>
+        <span><i class="mk dot"></i>rival</span>
+        <span><i class="mk line"></i>ruta cortada</span>
       </div>
       <div id="cityCard" class="citycard hidden"></div>
       <div id="toasts" class="toasts"></div>

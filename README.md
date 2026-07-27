@@ -28,7 +28,12 @@ propias. Todo corre en el navegador, sin dependencias ni servidor.
 ## Controles
 
 - **Mapa**: arrastrar para mover, rueda para zoom, clic en una ciudad para verla y viajar.
+  Rombo relleno = visitada · rombo hueco = la has visto pero no pisado · punto de color = comerciante rival.
 - **Mercado**: clic en un bien para desplegar compra/venta, histórico y dónde recuerdas mejores precios.
+- **Bodega**: clic en un artículo para abrir su panel de venta, con deslizador para elegir cuántos,
+  el total que recibes y la ganancia frente a lo que pagaste.
+- **Oro en mano** es lo que puedes gastar ahora; **patrimonio** es tu marcador (oro + mercancía +
+  flota + negocios − deudas) y lo que ordena la tabla de los más ricos.
 - **Teclado**: `espacio` esperar un día · `M` mercado · `C` ciudad · `I` imperio · `W` mundo.
 
 La partida se guarda sola en `localStorage` (y con el botón *Guardar*). El mundo es

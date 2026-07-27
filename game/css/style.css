@@ -100,6 +100,11 @@ input, select { font: inherit; color: inherit; }
 .topbar .stat label { font-size: 9.5px; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); }
 .topbar .stat b { font-family: var(--mono); font-size: 13.5px; font-weight: 600; }
 .topbar .gold { color: var(--accent); }
+/* el oro es lo que gastas: protagonista. el patrimonio es el marcador: secundario */
+.topbar .stat.primary { padding-left: 12px; border-left: 1px solid var(--border); }
+.topbar .stat.primary b { font-size: 17px; letter-spacing: -.01em; }
+.topbar .stat.sec b { font-size: 12px; font-weight: 500; color: var(--muted); }
+.topbar .stat[title] { cursor: help; }
 .spacer { flex: 1; }
 
 .layout { flex: 1; display: grid; grid-template-columns: 272px 1fr 372px; min-height: 0; }
@@ -151,8 +156,11 @@ input, select { font: inherit; color: inherit; }
   background: rgba(18,16,12,.8); border: 1px solid var(--border); border-radius: 8px;
   padding: 6px 10px; font-size: 11px; color: var(--muted); backdrop-filter: blur(6px);
 }
-.map-legend i.sq { display: inline-block; width: 8px; height: 8px; margin-right: 5px; border-radius: 2px; }
-.sq.gold { background: var(--accent); } .sq.dim { background: #8b7f66; } .sq.red { background: var(--down); }
+.map-legend i.mk { display: inline-block; width: 9px; height: 9px; margin-right: 5px; vertical-align: -1px; }
+.mk.full { background: #E8C77E; transform: rotate(45deg); }
+.mk.hollow { border: 1.5px solid var(--accent); background: #0e0c09; transform: rotate(45deg); }
+.mk.dot { background: #7EC8F2; border-radius: 50%; }
+.mk.line { background: var(--down); height: 2px; width: 14px; vertical-align: 3px; }
 
 .citycard {
   position: absolute; right: 12px; top: 12px; width: 288px; max-width: calc(100% - 24px);
@@ -169,7 +177,7 @@ input, select { font: inherit; color: inherit; }
 .evtag.bad { background: #2a1614; border-color: #5a2a26; color: #f3b2ae; }
 .evtag.good { background: #12240f; border-color: #2c4d24; color: #b6e0a8; }
 
-.toasts { position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column-reverse; gap: 6px; align-items: center; pointer-events: none; }
+.toasts { position: absolute; bottom: 50px; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column-reverse; gap: 6px; align-items: center; pointer-events: none; }
 .toast {
   background: rgba(20,18,13,.96); border: 1px solid var(--border); border-left: 3px solid var(--accent);
   border-radius: 8px; padding: 8px 14px; font-size: 12.5px; max-width: 460px;
@@ -188,7 +196,7 @@ input, select { font: inherit; color: inherit; }
 .tab.active { color: var(--text); border-bottom-color: var(--accent); }
 .tab:hover { color: var(--text); }
 .tabbody { flex: 1; min-height: 0; position: relative; }
-.pane { position: absolute; inset: 0; overflow-y: auto; padding: 12px; display: none; }
+.pane { position: absolute; inset: 0; overflow-y: auto; overflow-x: hidden; padding: 12px; display: none; }
 .pane.active { display: block; }
 
 /* -------------------------------- Mercado ------------------------------- */
@@ -199,21 +207,54 @@ input, select { font: inherit; color: inherit; }
 .filters button { background: var(--surface); border: 1px solid var(--border); border-radius: 999px; padding: 3px 10px; font-size: 11px; color: var(--muted); }
 .filters button.active { color: #191408; background: var(--accent); border-color: var(--accent); }
 
-table.mkt { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+table.mkt { width: 100%; max-width: 100%; border-collapse: collapse; font-size: 12.5px; table-layout: fixed; }
+col.c-name { width: 35%; } col.c-num { width: 16%; } col.c-mine { width: 11%; } col.c-tr { width: 6%; }
 table.mkt th {
-  text-align: right; font-size: 9.5px; letter-spacing: .12em; text-transform: uppercase;
-  color: var(--muted); font-weight: 600; padding: 4px 5px; border-bottom: 1px solid var(--border); position: sticky; top: -12px; background: var(--bg2); z-index: 2;
+  text-align: right; font-size: 10px; letter-spacing: 0; text-transform: none;
+  color: var(--muted); font-weight: 600; padding: 4px 4px; border-bottom: 1px solid var(--border);
+  position: sticky; top: -12px; background: var(--bg2); z-index: 2; overflow: hidden; white-space: nowrap;
 }
 table.mkt th:first-child, table.mkt td:first-child { text-align: left; }
-table.mkt td { padding: 5px; border-bottom: 1px solid rgba(50,44,32,.5); font-family: var(--mono); text-align: right; }
+table.mkt td {
+  padding: 5px 4px; border-bottom: 1px solid rgba(50,44,32,.5); font-family: var(--mono);
+  text-align: right; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+table.mkt tr.g { cursor: pointer; }
 table.mkt tr.g:hover td { background: rgba(200,169,106,.05); }
 table.mkt tr.sel td { background: rgba(200,169,106,.09); }
-table.mkt .gname { font-family: var(--sans); display: flex; align-items: center; gap: 7px; cursor: pointer; }
-table.mkt .gname small { color: var(--muted); font-family: var(--mono); }
+table.mkt .gname { font-family: var(--sans); display: flex; align-items: center; gap: 6px; min-width: 0; }
+table.mkt .gname .gi { flex: none; }
+table.mkt .gname .gt { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+table.mkt .gname .pill { flex: none; }
 .tier0 { border-left: 2px solid #4a5a35; } .tier1 { border-left: 2px solid #5a4a2a; } .tier2 { border-left: 2px solid #6a4a5a; }
 .up { color: var(--up); } .down { color: var(--down); } .flat { color: var(--muted); }
-.pill { font-size: 10px; padding: 1px 5px; border-radius: 4px; background: #2a1614; color: #f3b2ae; border: 1px solid #5a2a26; }
+.pill { font-size: 9.5px; padding: 0 4px; border-radius: 4px; background: #2a1614; color: #f3b2ae; border: 1px solid #5a2a26; line-height: 1.5; }
 .pill.deal { background: #12240f; color: #b6e0a8; border-color: #2c4d24; }
+
+/* ---------------------- Panel de venta desde la bodega -------------------- */
+.sellbox {
+  background: var(--surface2); border: 1px solid var(--border); border-radius: 10px;
+  padding: 12px; margin-top: 12px; display: flex; flex-direction: column; gap: 10px;
+}
+.sellqty { display: flex; align-items: center; gap: 6px; }
+.sellqty input {
+  width: 90px; background: var(--bg); border: 1px solid var(--border); border-radius: 7px;
+  padding: 6px 9px; font-family: var(--mono); text-align: right; font-size: 15px;
+}
+.slider { -webkit-appearance: none; appearance: none; width: 100%; height: 5px; border-radius: 4px; background: #2b2519; outline: none; }
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none; width: 18px; height: 18px; border-radius: 50%;
+  background: var(--accent); border: 2px solid #16140F; cursor: pointer;
+}
+.slider::-moz-range-thumb { width: 16px; height: 16px; border-radius: 50%; background: var(--accent); border: 2px solid #16140F; cursor: pointer; }
+.selltotal {
+  display: flex; align-items: baseline; justify-content: space-between;
+  border-top: 1px solid var(--border); padding-top: 9px;
+}
+.selltotal .big { font-family: var(--mono); font-size: 21px; }
+.gold { color: var(--accent); }
+.li.click { cursor: pointer; }
+.li.click:hover { border-color: var(--accent-dim); background: #241f16; }
 
 .trade-row td { background: rgba(0,0,0,.25) !important; }
 .trade-box { padding: 9px 4px 11px; display: flex; flex-direction: column; gap: 9px; }
@@ -273,6 +314,13 @@ table.mkt .gname small { color: var(--muted); font-family: var(--mono); }
 @media (max-width: 1180px) {
   .layout { grid-template-columns: 240px 1fr 330px; }
   .hide-sm { display: none; }
+}
+/* panel derecho estrecho: prima el nombre completo del bien sobre la etiqueta
+   (el color del precio ya dice si está barato o caro) */
+@media (max-width: 1180px) and (min-width: 901px) {
+  table.mkt .gname .pill { display: none; }
+  table.mkt th { font-size: 9px; }
+  col.c-name { width: 40%; } col.c-num { width: 15%; }
 }
 @media (max-width: 900px) {
   .layout { grid-template-columns: 1fr; }
