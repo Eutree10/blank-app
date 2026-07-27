@@ -82,6 +82,7 @@ const UI = {
       }
       case 'grp': this.groupOpen[d.t] = !this.groupOpen[d.t]; this.renderMarket(); break;
       case 'cargo': this.cargoModal(d.g); break;
+      case 'sheet': this.goodSheet(d.g); break;
       case 'cq': this.setCargoQty(d.v); break;
       case 'cqsell': this.cargoSell(); break;
       case 'cqstore': this.cargoStore(); break;
@@ -391,9 +392,11 @@ const UI = {
         ${wh ? `<button class="btn tiny ghost" data-act="store" data-g="${g}" ${mine ? '' : 'disabled'}>→ Almacén</button>
                 <button class="btn tiny ghost" data-act="take" data-g="${g}" ${(wh.stock[g] || 0) ? '' : 'disabled'}>← Almacén (${Math.floor(wh.stock[g] || 0)})</button>` : ''}
       </div>
-      ${c.banned[g] ? '<div class="mini" style="color:#f3b2ae">Bien prohibido aquí: no se puede comprar, y venderlo da un 85% extra… con riesgo de confiscación.</div>' : ''}
+      ${c.banned[g] ? `<div class="mini" style="color:#f3b2ae">Prohibido aquí: no se compra, y venderlo da un +85% con un
+        <b>${Math.round(G.smuggleRisk(c) * 100)}% de riesgo</b> de que te confisquen la carga.</div>` : ''}
+      <button class="btn tiny wide" data-act="sheet" data-g="${g}">📊 Dónde conviene comprarlo y venderlo</button>
       <div>
-        <div class="mini" style="margin-bottom:4px">Precios que recuerdas (venta neta estimada)</div>
+        <div class="mini" style="margin-bottom:4px">Lo que te pagarían por unidad, según lo que recuerdas</div>
         <div class="where-list">${where}</div>
       </div>
     </div></td></tr>`;
@@ -674,27 +677,57 @@ const UI = {
     const list = GOODS.map(good => {
       const g = good.id;
       const bp = buyPriceAt(c, g), ratio = bp / good.base;
-      return { g, good, bp, ratio, mine: Math.floor(G.p.cargo[g] || 0), sp: sellPriceAt(c, g) * (1 - c.tax) };
+      return {
+        g, good, bp, ratio, mine: Math.floor(G.p.cargo[g] || 0),
+        sp: sellPriceAt(c, g) * (c.banned[g] ? 1.85 : 1 - c.tax), banned: !!c.banned[g],
+      };
     });
-    const cheap = list.filter(x => x.ratio < 0.8).sort((a, b) => a.ratio - b.ratio).slice(0, 4);
+    const cheap = list.filter(x => x.ratio < 0.8 && !x.banned).sort((a, b) => a.ratio - b.ratio).slice(0, 4);
     const dear = list.filter(x => x.ratio > 1.3).sort((a, b) => b.ratio - a.ratio).slice(0, 4);
-    const sellNow = list.filter(x => x.mine > 0).map(x => {
-      const avg = G.p.avgCost && G.p.avgCost[x.g] && G.p.avgCost[x.g].n > 0 ? G.p.avgCost[x.g].total / G.p.avgCost[x.g].n : null;
-      const d = avg ? (x.sp - avg) / avg : 0;
-      return `<li>${x.good.icon} ${x.good.name} ×${x.mine} → ${fmt(x.sp * x.mine)} ⦿ ${avg ? `<span class="${d > 0 ? 'up' : 'down'}">(${pct(d)})</span>` : ''}</li>`;
-    }).join('');
+
+    // lo que llevas: precio por unidad, total y ganancia clara frente a lo pagado
+    const carried = list.filter(x => x.mine > 0);
+    let sellTable = '';
+    if (carried.length) {
+      let totalGain = 0, known = false;
+      const rows = carried.map(x => {
+        const ac = G.p.avgCost && G.p.avgCost[x.g] && G.p.avgCost[x.g].n > 0 ? G.p.avgCost[x.g].total / G.p.avgCost[x.g].n : null;
+        const total = x.sp * x.mine;
+        const gain = ac === null ? null : total - ac * x.mine;
+        if (gain !== null) { totalGain += gain; known = true; }
+        return `<tr>
+          <td>${x.good.icon} ${x.good.name}${x.banned ? ' <span class="pill">proh.</span>' : ''}</td>
+          <td>${x.mine}</td>
+          <td>${fmt(x.sp)}</td>
+          <td class="strong">${fmt(total)}</td>
+          <td class="${gain === null ? 'flat' : gain >= 0 ? 'up' : 'down'}">${gain === null ? '—' : (gain >= 0 ? '+' : '') + fmt(gain)}</td>
+          <td><button class="btn tiny" data-act="cargo" data-g="${x.g}">Vender</button></td>
+        </tr>`;
+      }).join('');
+      sellTable = `<h4>Lo que llevas, vendido aquí</h4>
+        <table class="sheet">
+          <thead><tr><th>Bien</th><th>Tienes</th><th>⦿/unidad</th><th>Te dan</th><th>Ganas</th><th></th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+        <div class="mini">«Te dan» es el total ya con impuestos descontados. «Ganas» lo compara con lo que pagaste por esa mercancía.
+        ${known ? `En conjunto, vender todo aquí te deja <b class="${totalGain >= 0 ? 'up' : 'down'}">${totalGain >= 0 ? '+' : ''}${fmt(totalGain)} ⦿</b>.` : ''}</div>`;
+    }
+
     return `<div class="grid2">
-      <div><b>Barato aquí</b><ul>${cheap.map(x => `<li>${x.good.icon} ${x.good.name} · ${fmt(x.bp)} <span class="up">${pct(x.ratio - 1)}</span></li>`).join('') || '<li class="mini">nada destacable</li>'}</ul></div>
-      <div><b>Caro aquí</b><ul>${dear.map(x => `<li>${x.good.icon} ${x.good.name} · ${fmt(x.bp)} <span class="down">${pct(x.ratio - 1)}</span></li>`).join('') || '<li class="mini">nada destacable</li>'}</ul></div>
-    </div>${sellNow ? `<h4>Puedes vender</h4><ul>${sellNow}</ul>` : ''}`;
+      <div><b>Barato para comprar</b><ul>${cheap.map(x => `<li>${x.good.icon} ${x.good.name} · ${fmt(x.bp)} ⦿ <span class="up">${pct(x.ratio - 1)}</span></li>`).join('') || '<li class="mini">nada destacable</li>'}</ul></div>
+      <div><b>Se paga caro</b><ul>${dear.map(x => `<li>${x.good.icon} ${x.good.name} · ${fmt(x.sp)} ⦿ <span class="down">${pct(x.ratio - 1)}</span></li>`).join('') || '<li class="mini">nada destacable</li>'}</ul></div>
+    </div>${sellTable}`;
   },
 
   recordMemory() {
     const G = this.G, c = G.city;
     if (!G.p.memory) G.p.memory = {};
-    const price = {};   // precio neto que realmente cobrarías aquí
-    for (const g of GOOD_IDS) price[g] = sellPriceAt(c, g) * (c.banned[g] ? 1.85 : 1 - c.tax);
-    G.p.memory[c.id] = { day: G.day, price };
+    const price = {}, buy = {};   // lo que cobrarías y lo que te costaría aquí
+    for (const g of GOOD_IDS) {
+      price[g] = sellPriceAt(c, g) * (c.banned[g] ? 1.85 : 1 - c.tax);
+      buy[g] = c.banned[g] ? 0 : buyPriceAt(c, g);   // 0 = no se vende abiertamente
+    }
+    G.p.memory[c.id] = { day: G.day, price, buy };
   },
 
   wait(n) {
@@ -739,6 +772,97 @@ const UI = {
     this.modal('🏴‍☠️ Emboscada', `<p>${r.msg}</p><p class="mini">Tu notoriedad crece; algunas ciudades te lo tendrán en cuenta.</p>`);
   },
 
+  /* ------------------- Ficha de un bien: dónde comprar y vender ------------- */
+  /** Todos los mercados que recuerdas para un bien, con ruta y antigüedad. */
+  marketsFor(g) {
+    const G = this.G, mem = G.p.memory || {};
+    const out = [];
+    for (const cid in mem) {
+      const city = G.world.cities[cid], m = mem[cid];
+      if (!city) continue;
+      const here = +cid === G.p.at;
+      const r = here ? null : G.routeTo(city.id);
+      out.push({
+        city, here,
+        buy: here ? (city.banned[g] ? 0 : buyPriceAt(city, g)) : (m.buy ? m.buy[g] : 0),
+        sell: here ? sellPriceAt(city, g) * (city.banned[g] ? 1.85 : 1 - city.tax) : m.price[g],
+        age: here ? 0 : G.day - m.day,
+        days: here ? 0 : (r ? Math.max(1, Math.round(r.days)) : null),
+        banned: !!city.banned[g],
+      });
+    }
+    return out;
+  },
+
+  goodSheet(g) {
+    const G = this.G, c = G.city, good = GOOD[g];
+    const mk = this.marketsFor(g);
+    const cheapest = mk.filter(m => m.buy > 0).sort((a, b) => a.buy - b.buy)[0];
+    const dearest = mk.filter(m => m.sell > 0).sort((a, b) => b.sell - a.sell)[0];
+
+    // mejor operación partiendo de aquí: comprar ahora y vender donde recuerdas
+    let best = null;
+    if (!c.banned[g] && c.stock[g] > 4) {
+      const bp = buyPriceAt(c, g);
+      const cap = Math.max(G.capacity('land'), G.capacity('sea'));
+      const space = Math.floor((cap - G.cargoWeight()) / good.w);
+      for (const m of mk) {
+        if (m.here || !m.sell || m.days === null) continue;
+        const qty = Math.min(space, G.maxBuy(g), Math.floor(c.stock[g] * 0.6));
+        if (qty < 1) continue;
+        const cost = costToBuy(c, g, qty);
+        const gain = m.sell * qty - cost;
+        if (gain <= 0) continue;
+        const perDay = gain / m.days;
+        if (!best || perDay > best.perDay) best = { m, qty, cost, gain, perDay };
+      }
+    }
+
+    const risk = c.banned[g] ? G.smuggleRisk(c) : null;
+    const dev = buyPriceAt(c, g) / good.base - 1;
+
+    const rows = mk.sort((a, b) => (b.sell || 0) - (a.sell || 0)).map(m => `
+      <tr class="${m.here ? 'here' : ''}">
+        <td>${m.here ? '<b>Aquí</b> · ' : ''}${esc(m.city.name)}${m.banned ? ' <span class="pill">proh.</span>' : ''}</td>
+        <td class="${cheapest && m.city.id === cheapest.city.id ? 'up strong' : ''}">${m.buy > 0 ? fmt(m.buy) : '—'}</td>
+        <td class="${dearest && m.city.id === dearest.city.id ? 'gold strong' : ''}">${m.sell ? fmt(m.sell) : '—'}</td>
+        <td class="mini">${m.here ? '—' : m.days === null ? 'sin ruta' : m.days + 'd'}</td>
+        <td class="mini ${m.age > 45 ? 'stale' : ''}" ${m.age > 45 ? 'title="Dato antiguo: el precio ha podido cambiar mucho"' : ''}>${m.here ? 'ahora' : 'hace ' + m.age + 'd'}</td>
+      </tr>`).join('');
+
+    this.modal(`${good.icon} ${good.name}`, `
+      <div class="sheet-top">
+        <div class="sheet-cell"><label>Precio normal</label><b>${fmt(good.base)} ⦿</b></div>
+        <div class="sheet-cell"><label>Compra aquí</label><b class="${dev < -0.18 ? 'up' : ''}">${c.banned[g] ? '—' : fmt(buyPriceAt(c, g)) + ' ⦿'}</b></div>
+        <div class="sheet-cell"><label>Venta aquí</label><b class="gold">${fmt(sellPriceAt(c, g) * (c.banned[g] ? 1.85 : 1 - c.tax))} ⦿</b></div>
+        <div class="sheet-cell"><label>vs normal</label><b class="${dev < -0.18 ? 'up' : dev > 0.35 ? 'down' : 'flat'}">${pct(dev)}</b></div>
+        <div class="sheet-cell"><label>En plaza</label><b>${fmt(c.stock[g])}</b></div>
+        <div class="sheet-cell"><label>Llevas</label><b>${Math.floor(G.p.cargo[g] || 0)}</b></div>
+      </div>
+      ${risk !== null ? `<div class="warnbox">🕯️ <b>Prohibido en ${esc(c.name)}.</b> No se puede comprar aquí.
+        Venderlo da un <b>+85%</b>, pero hay un <b>${Math.round(risk * 100)}% de que te pillen</b> en cada venta:
+        confiscan la mercancía y te multan. Baja con buena reputación y sube con la notoriedad.</div>` : ''}
+
+      ${best ? `<div class="opbox">
+        <h4>Mejor operación desde aquí</h4>
+        <p>Compra <b>${best.qty}</b> aquí por <b>${fmt(best.cost)} ⦿</b> y véndelo en
+        <b>${esc(best.m.city.name)}</b> (${best.m.days} días): <b class="up">+${fmt(best.gain)} ⦿</b>
+        ≈ ${fmt(best.perDay)} ⦿/día.${best.m.banned ? ' Ojo: allí es contrabando.' : ''}</p>
+        <div class="mini">Estimado con el precio que recuerdas de hace ${best.m.age} días. Puede haber cambiado.</div>
+        <button class="btn tiny" data-act="select-city" data-city="${best.m.city.id}">Ver ruta en el mapa</button>
+      </div>` : '<div class="mini" style="margin:10px 0">Todavía no conoces ningún mercado donde te salga a cuenta llevar esto. Visita más ciudades.</div>'}
+
+      <h4>Mercados que recuerdas</h4>
+      ${mk.length > 1 ? `<table class="sheet">
+        <thead><tr><th>Ciudad</th><th>Compra</th><th>Venta</th><th>Viaje</th><th>Dato</th></tr></thead>
+        <tbody>${rows}</tbody></table>
+        <div class="mini">Verde: donde más barato lo recuerdas. Dorado: donde mejor se paga.</div>`
+        : '<div class="mini">Solo conoces este mercado. Viaja para poder comparar.</div>'}
+      ${this.sparkline(c.priceHist[g])}`,
+      `${Math.floor(G.p.cargo[g] || 0) > 0 ? `<button class="btn" data-act="cargo" data-g="${g}">Vender lo que llevo</button>` : ''}
+       <button class="btn primary" data-act="modal-close">Cerrar</button>`);
+  },
+
   /* ----------------------- Bodega: vender un artículo ----------------------- */
   cargoModal(g) {
     const G = this.G;
@@ -778,7 +902,8 @@ const UI = {
       <div class="kv"><span>En bodega</span><b>${have} unidades · ${Math.round(have * GOOD[g].w)} de carga</b></div>
       ${avg !== null ? `<div class="kv"><span>Te costó (media)</span><b>${fmt(avg)} ⦿/u</b></div>` : ''}
       <div class="kv"><span>Precio aquí en ${esc(c.name)}</span><b class="gold">${fmt(unit)} ⦿/u</b></div>
-      ${banned ? '<div class="mini" style="color:#f3b2ae">Prohibido aquí: mercado negro (+85%) con riesgo de decomiso.</div>'
+      ${banned ? `<div class="warnbox small">🕯️ Mercado negro: cobras un <b>+85%</b>, pero hay un
+          <b>${Math.round(G.smuggleRisk(c) * 100)}%</b> de que te pillen en esta venta y pierdas la mercancía más una multa.</div>`
         : `<div class="mini">Ya descontado el ${(c.tax * 100).toFixed(1)}% de impuesto.</div>`}
 
       <div class="sellbox">
@@ -806,8 +931,9 @@ const UI = {
           ${wh ? `<button class="btn" data-act="cqstore">→ Almacén</button>` : ''}
         </div>
       </div>
-      <div style="margin-top:12px">
-        <div class="mini" style="margin-bottom:4px">Dónde recuerdas mejores precios</div>
+      <button class="btn tiny wide" style="margin-top:10px" data-act="sheet" data-g="${g}">📊 Dónde conviene venderlo</button>
+      <div style="margin-top:10px">
+        <div class="mini" style="margin-bottom:4px">Lo que te pagarían por unidad, según lo que recuerdas</div>
         <div class="where-list">${where}</div>
       </div>`;
 
@@ -951,7 +1077,8 @@ const UI = {
       <p>Eres un comerciante. Compra barato, vende caro… pero el mundo no se queda quieto: guerras, pestes, minas y ferias mueven los precios cada día.</p>
       <h4>Lo básico</h4>
       <ul>
-        <li><b>Mercado</b>: pulsa un bien para desplegar la compra/venta, su histórico y dónde recuerdas mejores precios.</li>
+        <li><b>Mercado</b>: pulsa un bien para desplegar la compra/venta. Dentro, <b>«Dónde conviene comprarlo y venderlo»</b>
+          abre su ficha: todos los mercados que recuerdas y la mejor operación posible desde aquí, con la ganancia estimada.</li>
         <li><b>Mapa</b>: arrastra para moverte, rueda para zoom. Pulsa una ciudad y luego <i>Viajar</i>.</li>
         <li><b>Recuerdas los precios</b> de las ciudades que visitas: cuanto más viejo el dato, menos fiable.</li>
         <li><b>Niebla</b>: explora o compra mapas para descubrir ciudades nuevas.</li>
@@ -965,7 +1092,8 @@ const UI = {
       </ul>
       <h4>Otros caminos</h4>
       <ul>
-        <li><b>Contrabando</b>: los bienes prohibidos se pagan un 85% más, pero pueden confiscarte la carga.</li>
+        <li><b>Contrabando</b>: los bienes prohibidos no se compran en la ciudad que los prohíbe, pero venderlos allí paga
+          un 85% más. La ficha del bien te dice el porcentaje exacto de que te pillen: baja con buena reputación y sube con tu notoriedad.</li>
         <li><b>Corsario</b>: con 5+ guardias puedes emboscar caravanas rivales.</li>
         <li><b>Especulador</b>: compra todo el stock de un bien y estrangula la oferta local.</li>
       </ul>

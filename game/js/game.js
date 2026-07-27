@@ -304,6 +304,11 @@ class Game {
     return { ok: true, cost, unit: cost / n };
   }
 
+  /** Probabilidad de que la guardia te pille vendiendo un bien prohibido. */
+  smuggleRisk(c) {
+    return clamp(0.16 + this.p.noto * 0.1 - this.p.rep * 0.004, 0.05, 0.5);
+  }
+
   sell(g, n, black) {
     const c = this.city;
     n = Math.min(Math.floor(n), Math.floor(this.p.cargo[g] || 0));
@@ -312,7 +317,7 @@ class Game {
     let caught = false, note = '';
     if (c.banned[g]) {
       rev *= 1.85;
-      const risk = clamp(0.16 + this.p.noto * 0.1 - this.p.rep * 0.004, 0.05, 0.5);
+      const risk = this.smuggleRisk(c);
       if (rnd() < risk) {
         caught = true;
         const fine = Math.round(rev * 0.9);

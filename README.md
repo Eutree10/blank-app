@@ -29,7 +29,10 @@ propias. Todo corre en el navegador, sin dependencias ni servidor.
 
 - **Mapa**: arrastrar para mover, rueda para zoom, clic en una ciudad para verla y viajar.
   Rombo relleno = visitada · rombo hueco = la has visto pero no pisado · punto de color = comerciante rival.
-- **Mercado**: clic en un bien para desplegar compra/venta, histórico y dónde recuerdas mejores precios.
+- **Mercado**: agrupado por categoría y plegable, con las gangas del día destacadas arriba. Clic en un bien
+  para desplegar compra/venta, y dentro su **ficha**: todos los mercados que recuerdas (compra, venta, días
+  de viaje, antigüedad del dato) y la mejor operación posible desde donde estás, con la ganancia estimada.
+  En un bien prohibido, la ficha indica el porcentaje exacto de que te pillen al venderlo.
 - **Bodega**: clic en un artículo para abrir su panel de venta, con deslizador para elegir cuántos,
   el total que recibes y la ganancia frente a lo que pagaste.
 - **Oro en mano** es lo que puedes gastar ahora; **patrimonio** es tu marcador (oro + mercancía +

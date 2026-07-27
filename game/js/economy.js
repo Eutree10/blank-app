@@ -22,7 +22,13 @@ function fairPrice(c, g, stockOverride) {
   if (good.tag === 'alimento') p *= Math.pow(c.wealth, 0.15);
   // efectos activos
   p *= mulOf(c.demandMod, g);
-  return clamp(p, good.base * 0.30, good.base * 6.0);
+  // topes suaves: se comprimen en vez de cortar, así dos bienes carísimos
+  // no acaban exactamente en la misma cifra
+  const hi = good.base * 3.2, room = good.base * 3.8;      // asíntota ≈ 7× lo normal
+  if (p > hi) p = hi + room * (1 - Math.exp(-(p - hi) / room));
+  const lo = good.base * 0.45, down = good.base * 0.16;    // asíntota ≈ 0.29×
+  if (p < lo) p = lo - down * (1 - Math.exp(-(lo - p) / down));
+  return p;
 }
 function mulOf(map, g) {
   let m = 1;

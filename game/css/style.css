@@ -338,6 +338,33 @@ table.mkt th .ths { display: none; }   /* cabecera corta, solo en paneles estrec
 .modal-body p { margin: 6px 0; color: #ded6c4; }
 .modal-body ul { margin: 6px 0; padding-left: 18px; color: #ded6c4; }
 .modal-body li { margin: 3px 0; }
+/* --- ficha de un bien: dónde comprar y dónde vender --- */
+.sheet-top { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 12px; }
+.sheet-cell { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 7px 9px; }
+.sheet-cell label { display: block; font-size: 9.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.sheet-cell b { font-family: var(--mono); font-size: 15px; }
+.warnbox {
+  background: #2a1614; border: 1px solid #5a2a26; color: #f0c8c4;
+  border-radius: 9px; padding: 9px 11px; font-size: 12.5px; margin-bottom: 12px;
+}
+.warnbox.small { padding: 7px 9px; font-size: 11.5px; margin: 0; }
+.opbox {
+  background: #12240f; border: 1px solid #2c4d24; border-radius: 9px;
+  padding: 10px 12px; margin-bottom: 12px;
+}
+.opbox h4 { margin: 0 0 4px; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: #b6e0a8; }
+.opbox p { margin: 0 0 6px; }
+table.sheet { width: 100%; border-collapse: collapse; font-size: 12.5px; margin-bottom: 6px; }
+table.sheet th {
+  text-align: right; font-size: 10px; color: var(--muted); font-weight: 600;
+  padding: 4px 6px; border-bottom: 1px solid var(--border);
+}
+table.sheet td { padding: 5px 6px; border-bottom: 1px solid rgba(50,44,32,.5); font-family: var(--mono); text-align: right; }
+table.sheet th:first-child, table.sheet td:first-child { text-align: left; font-family: var(--sans); }
+table.sheet th:last-child, table.sheet td:last-child { text-align: right; }
+table.sheet tr.here td { background: rgba(200,169,106,.09); }
+table.sheet td.stale { color: var(--warn); }   /* precio recordado hace demasiado */
+
 .opt {
   display: flex; align-items: center; gap: 10px; padding: 9px 11px; border: 1px solid var(--border);
   border-radius: 9px; margin-bottom: 6px; background: var(--surface2);
