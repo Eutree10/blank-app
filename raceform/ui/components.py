@@ -10,16 +10,8 @@ from ..models import Feedback
 from ..store import AppState, save_state
 from . import theme
 
-WORKOUT_ACCENT = {
-    "rodaje": "#9AA3AB",
-    "fondo": "#5C9E6E",
-    "tempo": "#D9A441",
-    "intervalos": "#E2733A",
-    "repeticiones cortas": theme.RED,
-    "cuestas": "#8C6BB1",
-    "competencia": theme.INK,
-    "test": theme.INK,
-}
+# One source of truth for the family colours, shared with the chips.
+WORKOUT_ACCENT = theme.WORKOUT_COLORS
 
 
 def session_teaser(analysis: SessionAnalysis, show_score: bool = True) -> None:

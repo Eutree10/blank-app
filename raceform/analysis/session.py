@@ -625,9 +625,12 @@ def _compare_continuous(current: SessionAnalysis, history: list[SessionAnalysis]
     mean_pace = statistics.mean(past.activity.pace_s_km for past in recent)
     delta = current.activity.pace_s_km - mean_pace
     if abs(delta) < 2:
-        return f"En línea con tus últimos {len(recent)} {current.workout_type.value} de distancia similar."
+        return (
+            f"En línea con tus últimos {len(recent)} {current.workout_type.plural} "
+            "de distancia similar."
+        )
     direction = "más rápido" if delta < 0 else "más lento"
     return (
         f"{fmt_num(abs(delta), 0)} s/km {direction} que el promedio de tus últimos "
-        f"{len(recent)} {current.workout_type.value} de distancia similar."
+        f"{len(recent)} {current.workout_type.plural} de distancia similar."
     )

@@ -87,11 +87,11 @@ def bottom_nav(current: str) -> None:
             with column:
                 active = current == key
                 st.markdown(
-                    '<div class="rf-nav-icon">'
+                    f'<div class="rf-nav-icon{" rf-nav-on" if active else ""}">'
                     + visuals.icon(
                         icon_name,
-                        size=19,
-                        color=theme.RED if active else theme.FAINT,
+                        size=18,
+                        color="#FFFFFF" if active else theme.FAINT,
                         stroke=1.9 if active else 1.6,
                     )
                     + "</div>",

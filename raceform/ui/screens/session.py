@@ -160,6 +160,15 @@ def _headline_numbers(analysis) -> None:
 
     theme.card(visuals.metric_grid(tiles[:6], columns=3))
 
+    # What the app decided this session was, shown against the alternatives so
+    # the classification is legible rather than a hidden verdict.
+    theme.card(
+        '<div class="rf-eyebrow">Tipo de sesión</div>'
+        + visuals.workout_chips(analysis.workout_type.value)
+        + f'<div class="rf-muted" style="margin-top:.45rem">'
+        f"{analysis.classification.reason}</div>"
+    )
+
 
 def _metrics(analysis) -> None:
     theme.eyebrow("Números de la sesión")

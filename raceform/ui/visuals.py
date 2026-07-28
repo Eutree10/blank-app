@@ -262,18 +262,55 @@ def icon(name: str, size: int = 15, color: str | None = None, stroke: float = 1.
 
 
 def metric_grid(items: list[tuple[str, str, str]], columns: int = 3) -> str:
-    """A grid of (icon name, value, label) tiles — the session's headline numbers."""
+    """A grid of (icon name, value, label) tiles — the session's headline numbers.
+
+    The value is large and the label is a small uppercase caption beneath it,
+    with hairline rules between cells so the grid reads as one table.
+    """
     cells = []
-    for icon_name, value, label in items:
+    for index, (icon_name, value, label) in enumerate(items):
+        right_rule = (index % columns) != columns - 1
+        bottom_rule = index < len(items) - (len(items) % columns or columns)
+        borders = ""
+        if right_rule:
+            borders += f"border-right:1px solid {theme.LINE};"
+        if bottom_rule:
+            borders += f"border-bottom:1px solid {theme.LINE};"
         cells.append(
-            f'<div style="text-align:center;padding:.7rem .3rem">'
-            f'<div style="display:flex;justify-content:center;margin-bottom:.3rem">'
-            f"{icon(icon_name, size=15)}</div>"
-            f'<div class="rf-value" style="font-size:1.02rem;line-height:1.15">{escape(value)}</div>'
-            f'<div style="font-size:.66rem;color:{theme.MUTED};margin-top:.15rem">{escape(label)}</div>'
+            f'<div style="text-align:center;padding:.85rem .3rem;{borders}">'
+            f'<div style="display:flex;justify-content:center;margin-bottom:.35rem">'
+            f"{icon(icon_name, size=14)}</div>"
+            f'<div class="rf-value" style="font-size:1.28rem;line-height:1.1;'
+            f'letter-spacing:-.035em">{escape(value)}</div>'
+            f'<div class="rf-microlabel">{escape(label)}</div>'
             f"</div>"
         )
     return (
         f'<div style="display:grid;grid-template-columns:repeat({columns},1fr);'
-        f'gap:0;row-gap:.1rem">{"".join(cells)}</div>'
+        f'gap:0">{"".join(cells)}</div>'
+    )
+
+
+def chip(label: str, color: str, active: bool = False) -> str:
+    """A pill with a coloured dot — used for the eight workout families."""
+    background = color if active else "transparent"
+    border = color if active else theme.LINE
+    text = "#FFFFFF" if active else theme.BODY
+    dot = "#FFFFFF" if active else color
+    return (
+        f'<span style="display:inline-flex;align-items:center;gap:.34rem;'
+        f"padding:.3rem .68rem;border-radius:999px;background:{background};"
+        f'border:1px solid {border};margin:0 .3rem .4rem 0">'
+        f'<span style="width:6px;height:6px;border-radius:50%;background:{dot};'
+        f'flex-shrink:0"></span>'
+        f'<span style="font-size:.68rem;font-weight:600;letter-spacing:.07em;'
+        f'text-transform:uppercase;color:{text}">{escape(label)}</span></span>'
+    )
+
+
+def workout_chips(active_value: str) -> str:
+    """The full family row, with the session's own type filled in."""
+    return "".join(
+        chip(name, colour, active=name == active_value)
+        for name, colour in theme.WORKOUT_COLORS.items()
     )

@@ -32,6 +32,20 @@ class WorkoutType(str, Enum):
         return self.value.capitalize()
 
     @property
+    def plural(self) -> str:
+        """For sentences like 'tus últimos 6 rodajes'."""
+        return {
+            WorkoutType.EASY: "rodajes",
+            WorkoutType.LONG: "fondos",
+            WorkoutType.TEMPO: "tempos",
+            WorkoutType.INTERVALS: "sesiones de intervalos",
+            WorkoutType.REPS: "sesiones de repeticiones",
+            WorkoutType.HILLS: "sesiones de cuestas",
+            WorkoutType.RACE: "competencias",
+            WorkoutType.TEST: "tests",
+        }[self]
+
+    @property
     def is_quality(self) -> bool:
         return self in {
             WorkoutType.TEMPO,

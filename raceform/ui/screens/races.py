@@ -69,19 +69,14 @@ def _goal_detail(view: GoalView, dashboard: Dashboard, state: AppState) -> None:
     )
 
     theme.card(
-        '<div style="display:flex;justify-content:space-between;align-items:flex-start">'
-        "<div>"
         '<div class="rf-eyebrow">Predicción actual</div>'
-        + theme.hero(
-            f"{fmt_time(prediction.low_s)}–{fmt_time(prediction.high_s)}",
-            "",
-            f"{prediction.basis}",
-        )
-        + f"</div></div>"
+        f'<div class="rf-hero" style="font-size:2.6rem">'
+        f"{fmt_time(prediction.low_s)}–{fmt_time(prediction.high_s)}</div>"
+        f'<div class="rf-muted" style="margin-top:.5rem">{prediction.basis}</div>'
         f'<div style="margin-top:.7rem">{target_html}</div>'
         f'<div class="rf-muted">{when} · {goal.race_date.strftime("%d/%m/%Y")} · '
         f"confianza {prediction.confidence:.0%}</div>",
-        accent=True,
+        dark=True,
     )
 
     # Preparation, broken into the capabilities that decide the result. The

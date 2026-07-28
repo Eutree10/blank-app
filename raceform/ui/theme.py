@@ -1,32 +1,38 @@
 """Visual system.
 
-One accent (red) reserved for the primary action and live state; everything
-else lives on a neutral ramp. Data is set in a mono face so digits align and
-stay scannable. Streamlit's chrome is stripped back so the result reads as an
-app rather than a dashboard.
+A warm off-white canvas, one orange accent reserved for the primary action and
+the live state, and everything else on a neutral ramp. Data is set in a mono
+face so digits align and stay scannable. Streamlit's chrome is stripped back so
+the result reads as a native app rather than a dashboard.
 """
 
 from __future__ import annotations
 
 import streamlit as st
 
-# Palette — light, athletic, one hue.
-RED = "#E5322B"
-RED_DARK = "#C0241E"
-RED_SOFT = "#FDECEB"
-INK = "#0E0E10"
-BODY = "#2A2A2E"
-MUTED = "#76767C"
-FAINT = "#A0A0A6"
-LINE = "#E7E7E4"
+# Palette — warm light, one hue.
+ACCENT = "#F2622A"
+ACCENT_DARK = "#D44E1B"
+ACCENT_SOFT = "#FDEDE4"
+INK = "#111113"
+BODY = "#2E2C2A"
+MUTED = "#79746E"
+FAINT = "#A8A29B"
+LINE = "#EAE5DE"
 SURFACE = "#FFFFFF"
-CANVAS = "#FAFAF9"
+CANVAS = "#FBF9F5"
+DARK = "#141312"  # hero cards
 
-# Semantic colours for data — deliberately not the brand red.
+# Semantic colours for data — deliberately not the brand accent.
 GOOD = "#2E9E5B"
 WARN = "#C98A12"
 BAD = "#D0402F"
 COOL = "#4A7CB8"
+
+# Kept so older call sites keep working; the accent is no longer red.
+RED = ACCENT
+RED_DARK = ACCENT_DARK
+RED_SOFT = ACCENT_SOFT
 
 ZONE_COLORS = {
     "easy": "#8FB8DE",
@@ -34,6 +40,18 @@ ZONE_COLORS = {
     "threshold": "#D9A441",
     "interval": "#E2733A",
     "repetition": "#D0402F",
+}
+
+# One colour per workout family, used by the chips and the plan calendar.
+WORKOUT_COLORS = {
+    "rodaje": "#8FA6B5",
+    "fondo": "#5C9E6E",
+    "tempo": "#D9A441",
+    "intervalos": "#E2733A",
+    "repeticiones cortas": ACCENT,
+    "cuestas": "#8C6BB1",
+    "competencia": INK,
+    "test": "#4A7CB8",
 }
 
 FONT_STACK = (
@@ -68,7 +86,7 @@ def inject_css() -> None:
         f"""
         <style>
         :root {{
-            --rf-red: {RED};
+            --rf-accent: {ACCENT};
             --rf-ink: {INK};
             --rf-body: {BODY};
             --rf-muted: {MUTED};
@@ -87,7 +105,7 @@ def inject_css() -> None:
         [data-testid="stSidebarCollapsedControl"] {{ display: none; }}
 
         .block-container {{
-            padding: 1.6rem 1.15rem 7rem 1.15rem;
+            padding: 1.5rem 1.15rem 8rem 1.15rem;
             max-width: 560px;
         }}
 
@@ -98,27 +116,27 @@ def inject_css() -> None:
             font-weight: 640;
         }}
 
-        /* --- screen header --- */
+        /* --- screen header: large, tight display type --- */
         .rf-screen-title {{
-            font-size: 1.85rem;
-            font-weight: 680;
-            letter-spacing: -0.035em;
+            font-size: 2.35rem;
+            font-weight: 700;
+            letter-spacing: -0.045em;
             color: {INK};
-            margin: 0 0 0.15rem 0;
-            line-height: 1.1;
+            margin: 0 0 0.1rem 0;
+            line-height: 1.02;
         }}
         .rf-screen-sub {{
-            font-size: 0.86rem;
+            font-size: 0.88rem;
             color: {MUTED};
-            margin: 0 0 1.35rem 0;
+            margin: 0 0 1.4rem 0;
             letter-spacing: -0.005em;
         }}
 
         /* --- eyebrow labels --- */
         .rf-eyebrow {{
-            font-size: 0.68rem;
-            font-weight: 620;
-            letter-spacing: 0.09em;
+            font-size: 0.66rem;
+            font-weight: 640;
+            letter-spacing: 0.12em;
             text-transform: uppercase;
             color: {FAINT};
             margin: 0 0 0.5rem 0;
@@ -128,23 +146,45 @@ def inject_css() -> None:
         .rf-card {{
             background: {SURFACE};
             border: 1px solid {LINE};
-            border-radius: 14px;
-            padding: 1.05rem 1.1rem;
-            margin-bottom: 0.85rem;
+            border-radius: 20px;
+            padding: 1.15rem 1.2rem;
+            margin-bottom: 0.8rem;
         }}
         .rf-card-accent {{
-            border-left: 3px solid {RED};
+            border-left: 3px solid {ACCENT};
         }}
+        /* Hero card: the one block per screen that carries the key number. */
+        .rf-card-dark {{
+            background: {DARK};
+            border: none;
+            color: #F4F1EC;
+        }}
+        .rf-card-dark .rf-eyebrow {{ color: #7C766E; }}
+        .rf-card-dark .rf-hero, .rf-card-dark .rf-value {{ color: #FFFFFF; }}
+        .rf-card-dark .rf-muted {{ color: #948D84; }}
+        .rf-card-dark .rf-note {{ color: #E4DFD8; }}
+        .rf-card-dark .rf-row {{ border-bottom-color: #2A2724; }}
+        .rf-card-dark .rf-row-key {{ color: #948D84; }}
+        .rf-card-dark .rf-row-val {{ color: #FFFFFF; }}
 
         /* --- the headline number on a screen --- */
         .rf-hero {{
             font-family: {MONO_STACK};
-            font-size: 2.9rem;
-            font-weight: 620;
+            font-size: 3rem;
+            font-weight: 640;
             color: {INK};
-            letter-spacing: -0.045em;
+            letter-spacing: -0.055em;
             line-height: 1;
             font-variant-numeric: tabular-nums;
+        }}
+        /* Uppercase micro-label that sits under a big number. */
+        .rf-microlabel {{
+            font-size: 0.62rem;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: {FAINT};
+            margin-top: 0.2rem;
         }}
         .rf-hero-unit {{
             font-family: {FONT_STACK};
@@ -222,13 +262,13 @@ def inject_css() -> None:
 
         /* --- buttons: one primary per screen --- */
         .stButton > button {{
-            border-radius: 11px;
+            border-radius: 999px;
             border: 1px solid {LINE};
             background: {SURFACE};
             color: {INK};
             font-weight: 550;
             font-size: 0.875rem;
-            padding: 0.5rem 0.9rem;
+            padding: 0.58rem 1rem;
             transition: border-color 120ms ease, background 120ms ease;
         }}
         .stButton > button:hover {{
@@ -237,38 +277,51 @@ def inject_css() -> None:
             color: {INK};
         }}
         .stButton > button:focus:not(:active) {{
-            border-color: {RED};
+            border-color: {ACCENT};
             color: {INK};
             box-shadow: none;
         }}
         .stButton > button[kind="primary"] {{
-            background: {RED};
-            border-color: {RED};
+            background: {ACCENT};
+            border-color: {ACCENT};
             color: #FFFFFF;
             font-weight: 600;
         }}
         .stButton > button[kind="primary"]:hover {{
-            background: {RED_DARK};
-            border-color: {RED_DARK};
+            background: {ACCENT_DARK};
+            border-color: {ACCENT_DARK};
             color: #FFFFFF;
         }}
 
-        /* --- bottom navigation --- */
+        /* --- bottom navigation: a floating pill, not a bar --- */
         .st-key-rf_nav {{
             position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
+            bottom: 0.85rem;
+            left: 50%;
+            transform: translateX(-50%);
+            width: min(94vw, 420px);
             z-index: 999;
-            background: rgba(255, 255, 255, 0.94);
-            backdrop-filter: saturate(180%) blur(14px);
-            border-top: 1px solid {LINE};
-            padding: 0.45rem max(1rem, calc(50vw - 280px)) 0.55rem;
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: saturate(180%) blur(18px);
+            border: 1px solid {LINE};
+            border-radius: 26px;
+            box-shadow: 0 8px 28px rgba(30, 24, 16, 0.10),
+                        0 2px 6px rgba(30, 24, 16, 0.05);
+            padding: 0.5rem 0.55rem 0.45rem;
         }}
+        /* The active destination gets a filled circle behind its icon. */
         .st-key-rf_nav .rf-nav-icon {{
             display: flex;
             justify-content: center;
-            margin-bottom: -0.15rem;
+            align-items: center;
+            width: 34px;
+            height: 34px;
+            margin: 0 auto -0.1rem;
+            border-radius: 50%;
+            transition: background 140ms ease;
+        }}
+        .st-key-rf_nav .rf-nav-icon.rf-nav-on {{
+            background: {ACCENT};
         }}
         .st-key-rf_nav [data-testid="stMarkdownContainer"] {{ line-height: 0; }}
         .st-key-rf_nav .stButton > button {{
@@ -289,12 +342,12 @@ def inject_css() -> None:
         }}
         .st-key-rf_nav .stButton > button[kind="primary"] {{
             background: transparent;
-            color: {RED};
+            color: {ACCENT};
             font-weight: 650;
         }}
         .st-key-rf_nav .stButton > button[kind="primary"]:hover {{
             background: transparent;
-            color: {RED};
+            color: {ACCENT};
         }}
         /* Streamlit stacks columns on narrow viewports; a tab bar must not
            stack, and neither must the small inline button rows. */
@@ -320,7 +373,7 @@ def inject_css() -> None:
             font-size: 0.9rem;
         }}
         [data-testid="stSliderTickBarMin"], [data-testid="stSliderTickBarMax"] {{ color: {FAINT}; }}
-        .stSlider [role="slider"] {{ background-color: {RED} !important; }}
+        .stSlider [role="slider"] {{ background-color: {ACCENT} !important; }}
 
         [data-testid="stExpander"] {{
             border: 1px solid {LINE};
@@ -349,7 +402,7 @@ def inject_css() -> None:
             padding: 0.35rem 0;
         }}
         .stTabs [aria-selected="true"] {{ color: {INK}; }}
-        .stTabs [data-baseweb="tab-highlight"] {{ background-color: {RED}; }}
+        .stTabs [data-baseweb="tab-highlight"] {{ background-color: {ACCENT}; }}
         </style>
         """,
         unsafe_allow_html=True,
@@ -370,8 +423,13 @@ def eyebrow(text: str) -> None:
     st.markdown(f'<div class="rf-eyebrow">{text}</div>', unsafe_allow_html=True)
 
 
-def card(body_html: str, accent: bool = False) -> None:
-    classes = "rf-card rf-card-accent" if accent else "rf-card"
+def card(body_html: str, accent: bool = False, dark: bool = False) -> None:
+    """The one card style. `dark` is the hero block — at most one per screen."""
+    classes = "rf-card"
+    if dark:
+        classes += " rf-card-dark"
+    elif accent:
+        classes += " rf-card-accent"
     st.markdown(f'<div class="{classes}">{body_html}</div>', unsafe_allow_html=True)
 
 
@@ -397,7 +455,7 @@ def meter_html(label: str, value: int, color: str | None = None, caption: str = 
     )
 
 
-def pill(text: str, color: str = RED, background: str = RED_SOFT) -> str:
+def pill(text: str, color: str = ACCENT, background: str = ACCENT_SOFT) -> str:
     return f'<span class="rf-pill" style="color:{color};background:{background}">{text}</span>'
 
 
