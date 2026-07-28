@@ -14,7 +14,7 @@ from ...engine import Dashboard
 from ...formats import fmt_num, fmt_pace, fmt_time
 from ...models import WorkoutType, week_start
 from ...store import AppState
-from .. import charts, theme
+from .. import charts, theme, visuals
 from ..components import explanation, session_teaser
 
 VIEWS = [
@@ -36,6 +36,7 @@ def render(dashboard: Dashboard, state: AppState) -> None:
         )
         return
 
+    _headline_trends(dashboard)
     _milestones(dashboard)
 
     choice = st.segmented_control(
@@ -54,6 +55,59 @@ def render(dashboard: Dashboard, state: AppState) -> None:
         _heart_rate(dashboard)
 
     _week_detail(dashboard)
+
+
+def _headline_trends(dashboard: Dashboard) -> None:
+    """Two numbers that summarise the block, each with its own trend line."""
+    easy = [
+        analysis.activity for analysis in dashboard.analyses
+        if analysis.workout_type in {WorkoutType.EASY, WorkoutType.LONG}
+    ][-14:]
+    if len(easy) < 4:
+        return
+
+    paces = [activity.pace_s_km for activity in easy]
+    weekly = [week.km for week in dashboard.weeks[-10:]]
+    hrs = [activity.average_heartrate for activity in easy if activity.average_heartrate]
+
+    left, right = st.columns(2)
+    with left:
+        st.markdown(
+            visuals.stat_tile(
+                "Ritmo aeróbico",
+                fmt_pace(sum(paces[-5:]) / len(paces[-5:]), suffix=""),
+                unit="/km",
+                trend=paces,
+                invert_trend=True,
+                note=f"últimos {len(paces)} rodajes",
+            ),
+            unsafe_allow_html=True,
+        )
+    with right:
+        if hrs:
+            st.markdown(
+                visuals.stat_tile(
+                    "Pulso aeróbico",
+                    f"{sum(hrs[-5:]) / len(hrs[-5:]):.0f}",
+                    unit="ppm",
+                    trend=hrs,
+                    invert_trend=True,
+                    note="a ritmo fácil",
+                ),
+                unsafe_allow_html=True,
+            )
+        elif weekly:
+            st.markdown(
+                visuals.stat_tile(
+                    "Volumen semanal",
+                    fmt_num(weekly[-1], 0),
+                    unit="km",
+                    trend=weekly,
+                    note=f"últimas {len(weekly)} semanas",
+                ),
+                unsafe_allow_html=True,
+            )
+    st.markdown('<div style="height:.85rem"></div>', unsafe_allow_html=True)
 
 
 def _milestones(dashboard: Dashboard) -> None:

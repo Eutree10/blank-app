@@ -71,7 +71,8 @@ def _lap(
         average_heartrate=hr,
         max_heartrate=round(hr + rng.uniform(3, 8)),
         elevation_gain_m=elevation,
-        average_cadence=round(rng.uniform(88, 94), 1),
+        # Both legs, matching how the Strava importer normalises cadence.
+        average_cadence=round(rng.uniform(88, 94) * 2, 1),
         name=name,
     )
 
@@ -102,7 +103,7 @@ def _assemble(
         elevation_gain_m=elevation or round(distance / 1000 * rng.uniform(3, 9), 1),
         average_heartrate=round(weighted_hr) if hrs else None,
         max_heartrate=max((lap.max_heartrate for lap in laps if lap.max_heartrate), default=None),
-        average_cadence=round(rng.uniform(88, 93), 1),
+        average_cadence=round(rng.uniform(88, 93) * 2, 1),
         laps=laps,
         splits_km=_km_splits(laps, vdot, rng),
         source="demo",

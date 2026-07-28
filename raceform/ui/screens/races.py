@@ -12,7 +12,7 @@ from ...engine import Dashboard, GoalView
 from ...formats import fmt_day_short, fmt_num, fmt_pace, fmt_time, parse_time
 from ...models import Goal
 from ...store import AppState, save_state
-from .. import charts, theme
+from .. import charts, theme, visuals
 from ..components import explanation
 
 DISTANCE_OPTIONS = {
@@ -84,24 +84,37 @@ def _goal_detail(view: GoalView, dashboard: Dashboard, state: AppState) -> None:
         accent=True,
     )
 
-    # Preparation, broken into the capabilities that decide the result.
+    # Preparation, broken into the capabilities that decide the result. The
+    # rings give the shape at a glance; the bars carry the measurement.
     theme.eyebrow("Preparación")
+    # Rings stay on the semantic green/amber/red scale. The limiter is called
+    # out by name above instead — the brand accent must not compete with a
+    # colour that already means "how good is this".
+    rings = "".join(
+        '<div style="flex:1">'
+        + visuals.ring(score.score, _short_capability(score.capability.value), size=66)
+        + "</div>"
+        for score in readiness.capabilities
+    )
     meters = "".join(
-        theme.meter_html(
-            score.capability.value,
-            score.score,
-            caption=score.detail,
-        )
+        theme.meter_html(score.capability.value, score.score, caption=score.detail)
         for score in readiness.capabilities
     )
     theme.card(
-        f'<div style="display:flex;justify-content:space-between;align-items:baseline;'
-        f'margin-bottom:.9rem">'
-        f'<span style="font-size:.87rem;color:{theme.MUTED}">Global</span>'
-        f'<span class="rf-value" style="font-size:1.5rem;'
-        f'color:{theme.score_color(readiness.overall)}">{readiness.overall}%</span></div>'
+        f'<div style="display:flex;justify-content:space-between;align-items:center;'
+        f'margin-bottom:1rem">'
+        f'<div><div class="rf-eyebrow" style="margin:0">Global</div>'
+        f'<div class="rf-hero" style="font-size:2.1rem;color:'
+        f'{theme.score_color(readiness.overall)}">{readiness.overall}'
+        f'<span class="rf-hero-unit">%</span></div></div>'
+        f'<div style="text-align:right;max-width:52%">'
+        f'<div class="rf-muted">Limitante</div>'
+        f'<div style="font-size:.92rem;font-weight:600;color:{theme.INK}">'
+        f"{readiness.limiter.capability.value}</div></div></div>"
+        f'<div style="display:flex;gap:.2rem;margin-bottom:1.1rem">{rings}</div>'
         + meters
     )
+
 
     theme.card(
         '<div class="rf-eyebrow">Qué falta</div>'
@@ -113,6 +126,15 @@ def _goal_detail(view: GoalView, dashboard: Dashboard, state: AppState) -> None:
     _prediction_history(view, dashboard)
     _equivalents(dashboard)
     _goal_controls(view, dashboard, state, is_primary)
+
+
+def _short_capability(name: str) -> str:
+    """Capability names are long; the rings need a label that fits under them."""
+    return {
+        "Resistencia específica": "Específica",
+        "Base aeróbica": "Base",
+        "Capacidad de cierre": "Cierre",
+    }.get(name, name)
 
 
 def _strategy(view: GoalView) -> None:

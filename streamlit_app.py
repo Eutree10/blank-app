@@ -10,7 +10,7 @@ import streamlit as st
 from raceform.demo import build_demo_history
 from raceform.engine import Dashboard, build_dashboard
 from raceform.store import AppState, load_activities, load_state
-from raceform.ui import theme
+from raceform.ui import theme, visuals
 from raceform.ui.screens import coach_chat, plan, profile, progress, races, session, today
 
 st.set_page_config(
@@ -83,13 +83,25 @@ def bottom_nav(current: str) -> None:
     """Fixed tab bar: Hoy · Plan · Progreso · Carreras · Perfil."""
     with st.container(key="rf_nav"):
         columns = st.columns(len(theme.NAV_ITEMS))
-        for column, (key, label) in zip(columns, theme.NAV_ITEMS):
+        for column, (key, label, icon_name) in zip(columns, theme.NAV_ITEMS):
             with column:
+                active = current == key
+                st.markdown(
+                    '<div class="rf-nav-icon">'
+                    + visuals.icon(
+                        icon_name,
+                        size=19,
+                        color=theme.RED if active else theme.FAINT,
+                        stroke=1.9 if active else 1.6,
+                    )
+                    + "</div>",
+                    unsafe_allow_html=True,
+                )
                 if st.button(
                     label,
                     key=f"nav_{key}",
                     use_container_width=True,
-                    type="primary" if current == key else "secondary",
+                    type="primary" if active else "secondary",
                 ):
                     st.session_state.screen = key
                     st.rerun()
@@ -117,7 +129,7 @@ def main() -> None:
             st.rerun()
 
     SCREENS.get(screen, today.render)(dashboard, state)
-    bottom_nav(screen if screen in dict(theme.NAV_ITEMS) else "")
+    bottom_nav(screen if screen in theme.NAV_KEYS else "")
 
 
 if __name__ == "__main__":

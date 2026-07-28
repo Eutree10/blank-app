@@ -43,12 +43,13 @@ FONT_STACK = (
 MONO_STACK = "'SF Mono', 'JetBrains Mono', 'Roboto Mono', ui-monospace, Menlo, Consolas, monospace"
 
 NAV_ITEMS = [
-    ("hoy", "Hoy"),
-    ("plan", "Plan"),
-    ("progreso", "Progreso"),
-    ("carreras", "Carreras"),
-    ("perfil", "Perfil"),
+    ("hoy", "Hoy", "home"),
+    ("plan", "Plan", "calendar"),
+    ("progreso", "Progreso", "chart"),
+    ("carreras", "Carreras", "target"),
+    ("perfil", "Perfil", "person"),
 ]
+NAV_KEYS = [key for key, _, _ in NAV_ITEMS]
 
 
 def score_color(score: float, best: float = 100, worst: float = 0) -> str:
@@ -264,16 +265,24 @@ def inject_css() -> None:
             border-top: 1px solid {LINE};
             padding: 0.45rem max(1rem, calc(50vw - 280px)) 0.55rem;
         }}
+        .st-key-rf_nav .rf-nav-icon {{
+            display: flex;
+            justify-content: center;
+            margin-bottom: -0.15rem;
+        }}
+        .st-key-rf_nav [data-testid="stMarkdownContainer"] {{ line-height: 0; }}
         .st-key-rf_nav .stButton > button {{
             border: none;
             background: transparent;
             color: {FAINT};
-            font-size: 0.735rem;
+            font-size: 0.7rem;
             font-weight: 560;
-            padding: 0.3rem 0.1rem;
+            padding: 0.1rem 0.1rem 0.15rem;
             width: 100%;
             letter-spacing: -0.01em;
+            min-height: 0;
         }}
+        .st-key-rf_nav [data-testid="stElementContainer"] {{ margin: 0; }}
         .st-key-rf_nav .stButton > button:hover {{
             background: transparent;
             color: {BODY};

@@ -6,15 +6,15 @@ this screen is an action, not information.
 
 from __future__ import annotations
 
-from datetime import date
+from datetime import date, datetime, timedelta
 
 import streamlit as st
 
 from ...engine import Dashboard
-from ...formats import fmt_day_long, fmt_pace_range
-from ...models import Feedback
+from ...formats import WEEKDAYS_SHORT, fmt_day_long, fmt_num, fmt_pace_range
+from ...models import Feedback, week_start
 from ...store import AppState, save_state
-from .. import theme
+from .. import theme, visuals
 from ..components import feedback_form, session_teaser
 
 STATE_COLORS = {
@@ -27,11 +27,23 @@ STATE_COLORS = {
 
 def render(dashboard: Dashboard, state: AppState) -> None:
     today = date.today()
-    theme.screen_header("Hoy", fmt_day_long(today).capitalize())
+    _greeting(state, today)
 
     _current_state(dashboard)
     _recommended_session(dashboard, state)
+    _week_progress(dashboard, state, today)
     _pending_feedback(dashboard, state)
+
+
+def _greeting(state: AppState, today: date) -> None:
+    hour = datetime.now().hour
+    salutation = "Buen día" if hour < 13 else "Buenas tardes" if hour < 20 else "Buenas noches"
+    st.markdown(
+        f'<div class="rf-screen-sub" style="margin:0 0 .1rem 0">{salutation},</div>'
+        f'<div class="rf-screen-title">{state.profile.name}</div>'
+        f'<div class="rf-screen-sub">{fmt_day_long(today).capitalize()}</div>',
+        unsafe_allow_html=True,
+    )
 
 
 def _current_state(dashboard: Dashboard) -> None:
@@ -43,18 +55,56 @@ def _current_state(dashboard: Dashboard) -> None:
         for driver in readiness.drivers[:2]
     )
     theme.card(
-        f'<div style="display:flex;justify-content:space-between;align-items:flex-start">'
-        f'<div style="flex:1">'
+        f'<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:.9rem">'
+        f'<div style="flex:1;min-width:0">'
         f'<div class="rf-eyebrow">Estado actual</div>'
         f'<div class="rf-note" style="font-size:1rem;font-weight:560;color:{theme.INK};'
         f'line-height:1.4">{readiness.summary}</div>'
         f"{drivers}"
         f"</div>"
-        f'<div style="text-align:right;padding-left:.8rem">'
-        f'<div class="rf-value" style="font-size:1.6rem;color:{color}">{readiness.score}</div>'
-        f'{theme.pill(readiness.state, color, background)}'
-        f"</div></div>"
+        f'<div style="flex-shrink:0;padding-top:.15rem">'
+        + visuals.ring(readiness.score, readiness.state.capitalize(), color=color, size=72)
+        + "</div></div>"
     )
+
+
+def _week_progress(dashboard: Dashboard, state: AppState, today: date) -> None:
+    """This week's volume against the target, day by day."""
+    start = week_start(today)
+    per_day = [0.0] * 7
+    for activity in dashboard.activities:
+        if start <= activity.day < start + timedelta(days=7):
+            per_day[activity.day.weekday()] += activity.km
+
+    done = sum(per_day)
+    target = _week_target(dashboard, state)
+    remaining_days = 6 - today.weekday()
+    share = int(round(done / target * 100)) if target else 0
+
+    if remaining_days == 0:
+        left = "Último día de la semana"
+    elif done >= target:
+        left = "Objetivo semanal cumplido"
+    else:
+        left = f"Faltan {fmt_num(target - done, 0)} km en {remaining_days} días"
+
+    theme.card(
+        f'<div style="display:flex;justify-content:space-between;align-items:baseline">'
+        f'<div class="rf-eyebrow" style="margin:0">Esta semana</div>'
+        f"{theme.pill(f'{share} %')}</div>"
+        f'<div class="rf-hero" style="font-size:2rem;margin-top:.35rem">{fmt_num(done, 1)}'
+        f'<span class="rf-hero-unit"> km / {fmt_num(target, 0)}</span></div>'
+        f'<div class="rf-muted" style="margin:.15rem 0 .7rem 0">{left}</div>'
+        + visuals.weekday_bars(per_day, WEEKDAYS_SHORT, target, today.weekday())
+    )
+
+
+def _week_target(dashboard: Dashboard, state: AppState) -> float:
+    """This week's planned volume, falling back to the athlete's own target."""
+    current = dashboard.current_week
+    if current and current.target_km:
+        return current.target_km
+    return state.profile.weekly_km_target
 
 
 def _recommended_session(dashboard: Dashboard, state: AppState) -> None:

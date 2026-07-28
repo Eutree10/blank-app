@@ -2,12 +2,14 @@
 
 from __future__ import annotations
 
+import statistics
+
 import streamlit as st
 
 from ...engine import Dashboard
 from ...formats import fmt_day_long, fmt_num, fmt_pace, fmt_time
 from ...store import AppState
-from .. import charts, theme
+from .. import charts, theme, visuals
 from ..components import feedback_form
 
 
@@ -30,6 +32,7 @@ def render(dashboard: Dashboard, state: AppState) -> None:
     )
 
     _score_block(analysis)
+    _headline_numbers(analysis)
     _rep_detail(analysis)
     _metrics(analysis)
     _capability_and_advice(analysis)
@@ -64,31 +67,69 @@ def _score_block(analysis) -> None:
 
 def _rep_detail(analysis) -> None:
     if not analysis.reps:
+        _split_detail(analysis)
         return
-    theme.eyebrow("Evolución del ritmo")
-    st.altair_chart(charts.rep_chart(analysis.reps), use_container_width=True)
-    st.markdown(
-        f'<div class="rf-muted" style="margin:-.5rem 0 1rem 0">'
-        f"{theme_shape_label(analysis)}</div>",
-        unsafe_allow_html=True,
+
+    theme.eyebrow("Repeticiones")
+    mean_pace = statistics.mean(rep.pace_s_km for rep in analysis.reps)
+    rows = [
+        (
+            str(rep.number),
+            fmt_time(rep.time_s),
+            rep.gap_s_km,
+            (rep.pace_s_km - mean_pace) * (rep.distance_m / 1000),
+        )
+        for rep in analysis.reps
+    ]
+    theme.card(
+        visuals.delta_bars(rows)
+        + f'<div class="rf-muted" style="margin-top:.6rem">Barra más larga = repetición más '
+        f"rápida. La última columna es la diferencia en segundos contra el promedio "
+        f"({fmt_pace(mean_pace)}). {theme_shape_label(analysis)}.</div>"
     )
 
-    with st.expander(f"Ver las {len(analysis.reps)} repeticiones"):
-        rows = []
+    with st.expander("Ver la evolución del ritmo"):
+        st.altair_chart(charts.rep_chart(analysis.reps), use_container_width=True)
+        table = []
         for rep in analysis.reps:
-            recovery = fmt_time(rep.recovery_s) if rep.recovery_s else "—"
-            hr = f"{rep.hr:.0f}" if rep.hr else "—"
-            rows.append(
+            table.append(
                 {
                     "#": rep.number,
                     "Distancia": f"{rep.distance_m:.0f} m",
                     "Tiempo": fmt_time(rep.time_s),
                     "Ritmo": fmt_pace(rep.pace_s_km),
-                    "Pulso": hr,
-                    "Recuperación": recovery,
+                    "Pulso": f"{rep.hr:.0f}" if rep.hr else "—",
+                    "Recuperación": fmt_time(rep.recovery_s) if rep.recovery_s else "—",
                 }
             )
-        st.dataframe(rows, use_container_width=True, hide_index=True)
+        st.dataframe(table, use_container_width=True, hide_index=True)
+
+
+def _split_detail(analysis) -> None:
+    """Kilometre splits for a continuous run, same treatment as reps."""
+    splits = [
+        lap for lap in (analysis.activity.splits_km or analysis.activity.laps)
+        if lap.distance_m > 400
+    ]
+    if len(splits) < 3:
+        return
+
+    theme.eyebrow("Parciales")
+    mean_pace = statistics.mean(lap.pace_s_km for lap in splits)
+    rows = [
+        (
+            str(index + 1),
+            fmt_pace(lap.pace_s_km, suffix=""),
+            lap.pace_s_km,
+            (lap.pace_s_km - mean_pace) * (lap.distance_m / 1000),
+        )
+        for index, lap in enumerate(splits[:20])
+    ]
+    theme.card(
+        visuals.delta_bars(rows)
+        + f'<div class="rf-muted" style="margin-top:.6rem">Diferencia en segundos contra tu '
+        f"ritmo medio de {fmt_pace(mean_pace)}.</div>"
+    )
 
 
 def theme_shape_label(analysis) -> str:
@@ -100,6 +141,24 @@ def theme_shape_label(analysis) -> str:
     parts = [part for part in [label, f"dispersión {dispersion}" if dispersion else "",
                                f"deriva {drift}" if drift else ""] if part]
     return " · ".join(parts)
+
+
+def _headline_numbers(analysis) -> None:
+    """The six numbers a runner checks first, before any of the analysis."""
+    activity = analysis.activity
+    tiles = [
+        ("clock", fmt_time(activity.moving_time_s), "Duración"),
+        ("gauge", fmt_pace(activity.pace_s_km, suffix=""), "Ritmo /km"),
+    ]
+    if activity.average_heartrate:
+        tiles.append(("heart", f"{activity.average_heartrate:.0f}", "Pulso medio"))
+    tiles.append(("route", fmt_num(activity.km, 2), "Distancia km"))
+    if activity.average_cadence:
+        tiles.append(("steps", f"{activity.average_cadence:.0f}", "Cadencia"))
+    if activity.elevation_gain_m:
+        tiles.append(("mountain", f"{activity.elevation_gain_m:.0f}", "Desnivel m"))
+
+    theme.card(visuals.metric_grid(tiles[:6], columns=3))
 
 
 def _metrics(analysis) -> None:
